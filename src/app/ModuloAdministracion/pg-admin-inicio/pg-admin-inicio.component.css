@@ -1,0 +1,124 @@
+/* ======== Contenedor Principal ======== */
+.dashboard-container {
+    padding: 2rem;
+    text-align: center;
+    background: var(--background-primary);
+}
+
+/* ======== Tarjeta de Bienvenida ======== */
+.dashboard-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+/* Icono de Bienvenida */
+.welcome-icon {
+    font-size: 3rem;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+}
+
+.dashboard-header h1 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: var(--color-primary);
+    margin-bottom: 0.8rem;
+}
+
+.dashboard-header p {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+/* ======== Sección de Accesos Rápidos ======== */
+.features {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+/* Tarjetas */
+.feature-item {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    flex: 1;
+    min-width: 280px;
+    max-width: 350px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ======== Íconos Personalizados ======== */
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.users-icon {
+    color: var(--color-primary);
+}
+
+.networks-icon {
+    color: var(--color-secondary);
+}
+
+.security-icon {
+    color: var(--color-accent);
+}
+
+/* ======== Títulos de las tarjetas ======== */
+.feature-item h3 {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--color-primary);
+    margin-bottom: 0.8rem;
+}
+
+/* ======== BOTONES (Sin PrimeNG) ======== */
+.btn-navegacion {
+    margin-top: 1rem;
+    font-size: 1rem;
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: 30px;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* ======== Colores de botones ======== */
+.btn-usuarios {
+    background: var(--color-secondary);
+}
+
+.btn-analisis {
+    background: var(--color-primary);
+}
+
+.btn-seguridad {
+    background: var(--color-accent);
+}
+
+/* ======== Efecto Hover en Botones ======== */
+.btn-navegacion:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+    cursor: pointer;
+}

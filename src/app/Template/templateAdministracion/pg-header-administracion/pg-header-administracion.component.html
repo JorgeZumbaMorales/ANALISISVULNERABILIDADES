@@ -1,0 +1,34 @@
+<header>
+    <nav class="p-shadow-2 header-nav">
+      <div class="header-container">
+        <!-- Logo y título -->
+        <div class="header-logo">
+          <h1>RedSegura</h1>
+        </div>
+  
+        <!-- Navegación y elementos de usuario -->
+        <div class="header-right">
+          <!-- Menú de roles -->
+          <div class="roles-dropdown">
+            <label for="roles">Rol:</label>
+            <select id="roles">
+              <option>Administrador</option>
+              <option>Analista</option>
+              <option>Usuario</option>
+            </select>
+          </div>
+  
+          <button
+  pButton
+  type="button"
+  icon="pi pi-sign-out"
+  label="Cerrar Sesión"
+  class="p-button-rounded header-button"
+  (click)="logout()"
+></button>
+
+        </div>
+      </div>
+    </nav>
+  </header>
+  

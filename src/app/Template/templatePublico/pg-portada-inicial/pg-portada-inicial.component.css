@@ -1,0 +1,59 @@
+.portada-container {
+    background-color: var(--background-secondary);
+    padding: 2.1rem 2rem;
+    border-radius: 12px;
+    text-align: center;
+    margin: 0;
+  }
+  
+  .portada-header h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+  }
+  
+  .portada-header p {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+  }
+  
+  .portada-highlights {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+  }
+  
+  .highlight-card {
+    background-color: var(--background-card);
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    width: 260px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .highlight-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .highlight-icon {
+    font-size: 2.5rem;
+    color: var(--button-primary);
+    margin-bottom: 1rem;
+  }
+  
+  .highlight-card h3 {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .highlight-card p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+  }
+  

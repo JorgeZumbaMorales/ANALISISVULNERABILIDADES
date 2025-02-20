@@ -1,0 +1,75 @@
+.header-nav {
+    background-color: var(--navbar-footer-background);
+    color: var(--text-light);
+    padding: 0.65rem 2rem;
+
+  }
+  
+  /* Contenedor principal */
+  .header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  /* Logo */
+  .header-logo h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--text-light);
+  }
+  
+  /* Navegación */
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  
+  /* Dropdown de roles */
+  .roles-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .roles-dropdown label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-light);
+  }
+  
+  .roles-dropdown select {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 30px;
+    background-color: var(--background-primary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  /* Botón */
+  .header-button {
+  background-color: var(--button-primary);
+  border: none;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+  padding: 0.7rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Espacio entre el ícono y la etiqueta */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Transición suave */
+  }
+  
+  /* Efecto Hover */
+  .header-button:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+  }
+  

@@ -1,0 +1,81 @@
+/* Contenedor principal del menú */
+.menu-container {
+    background-color: #FFFF;
+    width: 250px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    position: fixed; /* Para mantenerlo siempre visible */
+    border-right: 2px solid #3B5B7C;
+  }
+  
+  /* Título o Logo */
+  .menu-logo {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .menu-logo h2 {
+    color: var(--text-light);
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  /* Enlaces del Menú */
+  .menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .menu-item {
+    text-decoration: none;
+    color: #D1E8E2; /* Azul claro */
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem; /* Mayor espacio entre icono y texto */
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease, color 0.2s ease;
+    background-color: #273C59; /* Fondo por defecto */
+  }
+  
+  /* Iconos del menú */
+  .menu-item i {
+    font-size: 1.3rem;
+    color: #A5D8DD; /* Color claro para iconos */
+  }
+  
+  /* Hover de los elementos del menú */
+  .menu-item:hover {
+    background-color: var(--button-primary); /* Naranja */
+    color: var(--text-light); /* Blanco */
+    transform: translateX(5px);
+  }
+  
+  .menu-item:hover i {
+    color: var(--text-light); /* Icono también cambia a blanco */
+  }
+  
+  /* Opcional: Elemento activo del menú */
+  .menu-item.active {
+    background-color: var(--button-primary); /* Naranja */
+    color: var(--text-light); /* Blanco */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .menu-item.active i {
+    color: var(--text-light); /* Icono también cambia */
+  }
+  
+  /* Espaciado para evitar el pegado del menú */
+  .menu-links {
+    margin-top: 1rem;
+  }
+  
+  
+  

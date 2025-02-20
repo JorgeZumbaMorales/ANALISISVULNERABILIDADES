@@ -1,0 +1,12 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ocupa toda la altura de la ventana */
+  }
+  
+  main {
+    flex: 1; /* Este asegura que el contenido ocupe el espacio disponible */
+    display: flex;
+    flex-direction: column;
+  }
+  

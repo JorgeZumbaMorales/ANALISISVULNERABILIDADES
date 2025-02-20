@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+@import "primeicons/primeicons.css";
+
+
+* {
+    font-family: 'Poppins', sans-serif;
+    
+}
+
+body {
+    
+    color: var(--text-primary);
+}
+
+:root {
+    --color-primary: #0A2342; /* Azul oscuro */
+    --color-secondary: #3E92CC; /* Azul claro */
+    --color-accent: #ff3f00; /* Naranja */
+    --color-background: #F4F4F9; /* Blanco suave */
+    --text-primary: #4A4A4A; /* Gris oscuro */
+    --text-secondary: #FFFFFF; /* Gris claro */
+    
+    /* Elementos reutilizables */
+    --background-primary: var(--color-background);
+    --navbar-footer-background: var(--color-primary);
+    --text-light: #FFFFFF;
+    --button-primary: var(--color-accent);
+}
+@layer tailwind-base, primeng, tailwind-utilities;
+
+@layer tailwind-base {
+@tailwind base;
+}
+
+@layer tailwind-utilities {
+@tailwind components;
+@tailwind utilities;
+}

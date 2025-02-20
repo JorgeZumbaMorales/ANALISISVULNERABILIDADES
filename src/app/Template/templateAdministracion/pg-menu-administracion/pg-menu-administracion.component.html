@@ -1,0 +1,13 @@
+<aside class="menu-container p-shadow-2">
+    <nav class="menu-links">
+      <a
+        *ngFor="let item of menuItems"
+        [routerLink]="item.routerLink"
+        routerLinkActive="active"
+        class="menu-item"
+      >
+        <i [class]="item.icon"></i> {{ item.label }}
+      </a>
+    </nav>
+  </aside>
+  
