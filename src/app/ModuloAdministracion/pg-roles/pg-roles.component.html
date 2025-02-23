@@ -1,11 +1,13 @@
-<div class="gestion-roles-container">
-    <!-- Contenedor del título y el botón, alineados correctamente -->
-    <div class="header-gestion">
-        <h2 class="titulo-gestion">Gestión de Roles</h2>
-        <p-button icon="pi pi-plus" label="Agregar Rol"
-                  class="btn-agregar-rol"
-                  (click)="agregarRol()">
-        </p-button>
+<div>
+    <!-- Contenedor del título y el botón con espaciado -->
+    <div class="header-gestion flex justify-between items-center mb-4">
+        <!-- Título a la izquierda -->
+        <h2 class="titulo-gestion text-xl font-semibold">Gestión de Roles</h2>
+
+        <!-- Botón a la derecha -->
+        <p-button icon="pi pi-plus" label="Agregar Rol" 
+                  class="btn-agregar-rol p-button-success"
+                  (click)="agregarRol()"></p-button>
     </div>
 
     <!-- Tabla de roles -->
@@ -16,10 +18,11 @@
                 <th class="text-left">Descripción</th>
                 <th class="text-left">Fecha de Creación</th>
                 <th class="text-center">Estado</th>
-                <th class="text-center">Acciones</th>
+                <th class="text-center w-[150px]">Acciones</th> <!-- Ajusta el ancho -->
             </tr>
         </ng-template>
 
+        <!-- Cuerpo de la tabla -->
         <ng-template pTemplate="body" let-rol>
             <tr>
                 <td>{{ rol.nombre_rol }}</td>
@@ -30,9 +33,9 @@
                            [severity]="rol.estado ? 'success' : 'danger'">
                     </p-tag>
                 </td>
-                <!-- Alineación de botones de acción con espacio entre ellos -->
-                <td class="text-center">
-                    <div class="acciones-roles">
+                <!-- Centrar botones de acciones -->
+                <td class="text-center flex justify-center items-center">
+                    <div class="acciones-roles flex gap-2">
                         <p-button icon="pi pi-pencil" class="btn-accion editar"
                                   (click)="editarRol(rol)"></p-button>
                         <p-button icon="pi pi-trash" class="btn-accion eliminar"

@@ -1,27 +1,51 @@
-<section class="dashboard-container">
-    <!-- Encabezado -->
-    <header class="dashboard-header">
-      <h1 style="color: var(--color-primary)">Bienvenido a RedSegura</h1>
-      <p style="color: var(--text-primary)">Protege y optimiza tu red con las mejores herramientas de seguridad.</p>
-    </header>
-  
-    <!-- Características -->
-    <div class="features">
-      <div class="feature-item">
-        <i class="pi pi-lock feature-icon" style="color: var(--color-secondary)"></i>
-        <h3 style="color: var(--color-primary)">Autenticación Segura</h3>
-        <p>Acceso robusto y seguro a través de credenciales protegidas.</p>
+<section class="py-10">
+  <!-- Contenedor Principal -->
+  <div class="container mx-auto px-6 text-center">
+      
+      <!-- Encabezado -->
+      <header class="mb-6">
+          <h1 class="text-3xl font-bold text-baseAzulOscuro">Bienvenido a RedSegura</h1>
+          <p class="text-textoPrincipal mt-2 max-w-xl mx-auto">
+              Protege y optimiza tu red con las mejores herramientas de seguridad.
+          </p>
+      </header>
+
+      <!-- Características (Tarjetas optimizadas) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Tarjeta: Autenticación Segura -->
+          <div class="shadow-lg bg-fondoClaro rounded-lg p-6 flex flex-col items-center hover:shadow-xl transition-all duration-300">
+              <div class="mb-4 flex justify-center items-center">
+                  <i class="pi pi-lock text-[70px] text-baseAzulClaro"></i> <!-- Tamaño corregido -->
+              </div>
+              <h3 class="text-lg font-semibold text-baseAzulOscuro">Autenticación Segura</h3>
+              <p class="text-textoPrincipal mt-1 text-sm text-center">
+                  Acceso robusto y seguro a través de credenciales protegidas.
+              </p>
+          </div>
+
+          <!-- Tarjeta: Análisis de Vulnerabilidades -->
+          <div class="shadow-lg bg-fondoClaro rounded-lg p-6 flex flex-col items-center hover:shadow-xl transition-all duration-300">
+              <div class="mb-4 flex justify-center items-center">
+                  <i class="pi pi-search text-[70px] text-baseAzulClaro"></i> <!-- Tamaño corregido -->
+              </div>
+              <h3 class="text-lg font-semibold text-baseAzulOscuro">Análisis de Vulnerabilidades</h3>
+              <p class="text-textoPrincipal mt-1 text-sm text-center">
+                  Detecta amenazas con escaneos avanzados y recomendaciones.
+              </p>
+          </div>
+
+          <!-- Tarjeta: Alertas en Tiempo Real -->
+          <div class="shadow-lg bg-fondoClaro rounded-lg p-6 flex flex-col items-center hover:shadow-xl transition-all duration-300">
+              <div class="mb-4 flex justify-center items-center">
+                  <i class="pi pi-bell text-[70px] text-baseAzulClaro"></i> <!-- Tamaño corregido -->
+              </div>
+              <h3 class="text-lg font-semibold text-baseAzulOscuro">Alertas en Tiempo Real</h3>
+              <p class="text-textoPrincipal mt-1 text-sm text-center">
+                  Notificaciones inmediatas sobre incidentes críticos.
+              </p>
+          </div>
+          
       </div>
-      <div class="feature-item">
-        <i class="pi pi-search feature-icon" style="color: var(--color-secondary)"></i>
-        <h3 style="color: var(--color-primary)">Análisis de Vulnerabilidades</h3>
-        <p>Detecta amenazas con escaneos avanzados y recomendaciones.</p>
-      </div>
-      <div class="feature-item">
-        <i class="pi pi-bell feature-icon" style="color: var(--color-secondary)"></i>
-        <h3 style="color: var(--color-primary)">Alertas en Tiempo Real</h3>
-        <p>Notificaciones inmediatas sobre incidentes críticos.</p>
-      </div>
-    </div>
-  </section>
-  
+  </div>
+</section>

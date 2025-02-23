@@ -1,21 +1,21 @@
-<aside class="w-64 h-screen bg-white shadow-lg p-4 flex flex-col">
+<aside class="w-64 bg-blanco text-baseAzulOscuro shadow-lg p-4 flex flex-col h-[calc(100vh-4rem)] border-r border-baseAzulOscuro">
 
   <!-- Contenedor del Menú -->
   <nav class="flex-1">
-      <ul>
+      <ul class="space-y-2"> <!-- 🛠 Espaciado entre elementos -->
           @for(item of menuItems; track item.routerLink){
               <li>
                   <button 
                       [routerLink]="item.routerLink"
-                      class="w-full flex items-center px-4 py-3 text-gray-600 hover:text-green-600 hover:bg-green-50 transition-all duration-200 rounded-md"
+                      class="w-full flex items-center px-4 py-3 rounded-md transition-all duration-200"
                       [ngClass]="{
-                          'bg-green-100 text-green-700 font-semibold': item.routerLink.includes(activeMenu),
-                          'hover:bg-gray-100': !item.routerLink.includes(activeMenu)
+                          'bg-baseAzulClaro text-white font-semibold': item.routerLink.includes(activeMenu),
+                          'hover:bg-baseNaranja hover:text-white': !item.routerLink.includes(activeMenu)
                       }"
                       (click)="setActiveMenu(item.routerLink)"
                   >
-                      <i [class]="item.icon" class="mr-3"></i>
-                      <span>{{ item.label }}</span>
+                      <i [class]="item.icon" class="mr-3 text-baseAzulOscuro"></i>
+                      <span class="text-baseAzulOscuro">{{ item.label }}</span>
                   </button>
               </li>
           }

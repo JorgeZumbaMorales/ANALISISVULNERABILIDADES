@@ -8,7 +8,16 @@
 }
 
 
-
+/* 
+:root {
+    --color-primary: #0A2342; 
+    --color-secondary: #3E92CC; 
+    --color-accent: #ff3f00; 
+    --color-background: #F4F4F9; 
+    --text-primary: #4A4A4A;
+    --text-secondary: #FFFFFF; 
+}
+*/
 
 @layer tailwind-base, primeng, tailwind-utilities;
 
