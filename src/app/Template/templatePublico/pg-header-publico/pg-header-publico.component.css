@@ -47,21 +47,3 @@
   }
   
   /* Botón */
-  .header-button {
-    background-color: var(--button-primary);
-    border: none;
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: var(--text-secondary);
-    padding: 0.7rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem; /* Espacio entre el ícono y la etiqueta */
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Transición suave */
-  }
-  /* Efecto Hover */
-  .header-button:hover {
-    color: var(--text-light); /* Texto blanco */
-    transform: scale(1.1); /* Aumenta ligeramente el tamaño */
-    cursor: pointer; /* Cambia a un cursor de "clic" */
-  }

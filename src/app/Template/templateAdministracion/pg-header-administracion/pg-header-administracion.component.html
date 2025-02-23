@@ -1,34 +1,31 @@
-<header>
-    <nav class="p-shadow-2 header-nav">
-      <div class="header-container">
-        <!-- Logo y título -->
-        <div class="header-logo">
-          <h1>RedSegura</h1>
-        </div>
-  
-        <!-- Navegación y elementos de usuario -->
-        <div class="header-right">
-          <!-- Menú de roles -->
-          <div class="roles-dropdown">
-            <label for="roles">Rol:</label>
-            <select id="roles">
-              <option>Administrador</option>
-              <option>Analista</option>
-              <option>Usuario</option>
-            </select>
-          </div>
-  
-          <button
-  pButton
-  type="button"
-  icon="pi pi-sign-out"
-  label="Cerrar Sesión"
-  class="p-button-rounded header-button"
-  (click)="logout()"
-></button>
+<header class="bg-primary shadow-lg p-4">
+  <nav class="flex justify-between items-center">
+    <!-- Logo y título -->
+    <div class="flex items-center">
+      <h1 class="text-xl font-bold text-textSecondary">RedSegura</h1>
+    </div>
 
-        </div>
+    <!-- Navegación y elementos de usuario -->
+    <div class="flex items-center space-x-6">
+      <!-- Menú de roles con PrimeNG Dropdown -->
+      <div class="flex items-center space-x-2">
+        <label for="roles" class="text-textSecondary">Rol:</label>
+        <p-dropdown 
+          [options]="roles" 
+          [(ngModel)]="selectedRole"
+          placeholder="Seleccionar Rol"
+          id="roles"
+          class="w-48">
+        </p-dropdown>
       </div>
-    </nav>
-  </header>
-  
+
+      <!-- Botón de cerrar sesión con PrimeNG -->
+      <p-button 
+        icon="pi pi-sign-out" 
+        label="Cerrar Sesión" 
+        class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-all"
+        (click)="logout()">
+      </p-button>
+    </div>
+  </nav>
+</header>

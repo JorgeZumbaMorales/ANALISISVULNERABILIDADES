@@ -61,14 +61,22 @@ export class PgUsuariosComponent implements OnInit {
   }
   obtenerRoles() {
     this.servicioAuth.listarRoles().subscribe({
-      next: (data: any) => {
-        this.roles = data.datos.map((rol: any) => ({ label: rol.nombre_rol, value: rol.rol_id }));
-      },
-      error: (err: any) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo obtener la lista de roles' });
-      }
+        next: (data: any) => {
+            this.roles = data.datos.map((rol: any) => ({
+                label: rol.nombre_rol, 
+                value: rol.rol_id 
+            }));
+            console.log("Roles cargados:", this.roles); // 🔍 Debug
+        },
+        error: (err: any) => {
+            this.messageService.add({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'No se pudo obtener la lista de roles' 
+            });
+        }
     });
-  }
+}
 
 mostrarModal(nombreModal: string, datos?: any) {
   this.modalesVisibles[nombreModal] = true;

@@ -4,10 +4,19 @@ import { Component } from '@angular/core';
   selector: 'app-pg-header-administracion',
   standalone: false,
   templateUrl: './pg-header-administracion.component.html',
-  styleUrl: './pg-header-administracion.component.css'
+  styleUrls: ['./pg-header-administracion.component.css']
 })
 export class PgHeaderAdministracionComponent {
-  logout(): void {
+  roles = [
+    { label: 'Administrador', value: 'Administrador' },
+    { label: 'Analista', value: 'Analista' },
+    { label: 'Usuario', value: 'Usuario' }
+  ];
+  
+  selectedRole = 'Administrador';
+
+  logout() {
     console.log('Cerrando sesión...');
+    // Aquí puedes agregar la lógica para cerrar sesión
   }
 }

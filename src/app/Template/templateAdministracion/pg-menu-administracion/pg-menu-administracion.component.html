@@ -1,13 +1,24 @@
-<aside class="menu-container p-shadow-2">
-    <nav class="menu-links">
-      <a
-        *ngFor="let item of menuItems"
-        [routerLink]="item.routerLink"
-        routerLinkActive="active"
-        class="menu-item"
-      >
-        <i [class]="item.icon"></i> {{ item.label }}
-      </a>
-    </nav>
-  </aside>
-  
+<aside class="w-64 h-screen bg-white shadow-lg p-4 flex flex-col">
+
+  <!-- Contenedor del Menú -->
+  <nav class="flex-1">
+      <ul>
+          @for(item of menuItems; track item.routerLink){
+              <li>
+                  <button 
+                      [routerLink]="item.routerLink"
+                      class="w-full flex items-center px-4 py-3 text-gray-600 hover:text-green-600 hover:bg-green-50 transition-all duration-200 rounded-md"
+                      [ngClass]="{
+                          'bg-green-100 text-green-700 font-semibold': item.routerLink.includes(activeMenu),
+                          'hover:bg-gray-100': !item.routerLink.includes(activeMenu)
+                      }"
+                      (click)="setActiveMenu(item.routerLink)"
+                  >
+                      <i [class]="item.icon" class="mr-3"></i>
+                      <span>{{ item.label }}</span>
+                  </button>
+              </li>
+          }
+      </ul>
+  </nav>
+</aside>

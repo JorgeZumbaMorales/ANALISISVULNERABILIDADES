@@ -1,56 +1,20 @@
-/* Hace que el contenedor principal ocupe toda la altura de la ventana */
 .contenedor-principal {
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Altura mínima de la pantalla completa */
-  }
-  
-  /* Flexbox para que el contenido principal crezca */
-  .main-container-app {
+    height: 100vh; /* Ocupar toda la pantalla */
+    overflow: hidden; /* Evita que el dashboard tenga barra de desplazamiento */
+}
+
+.main-container-app {
     display: flex;
-    flex: 1; /* Ocupa todo el espacio disponible */
-  }
-  
-  /* Menú lateral */
-  app-menuadmin {
-    width: 250px; /* Ancho fijo del menú */
-    background-color: var(--navbar-footer-background); /* Fondo del menú */
-    color: var(--text-secondary);
-    flex-shrink: 0; /* Evita que el menú se reduzca */
-    height: auto; /* Altura automática */
-  }
-  
-  /* Contenido dinámico */
-  #content-wrapper {
-    flex: 1; /* Ocupa el espacio restante */
-    padding: 2rem; /* Espaciado alrededor del contenido */
-    background-color: var(--background-primary); /* Fondo del área blanca */
-    overflow-y: auto; /* Habilitar desplazamiento vertical si es necesario */
-  }
-  
-  /* Header */
-  app-headeradmin {
-    flex-shrink: 0; /* Evita que el header cambie de tamaño */
-    z-index: 10; /* Mantener el header por encima */
-  }
-  
-  /* Footer */
-  app-footeradmin {
-    background-color: var(--navbar-footer-background); /* Fondo del footer */
-    color: var(--text-secondary);
-    text-align: center;
+    flex: 1; /* Expandirse */
+    overflow: hidden; /* No permitir scroll en el layout principal */
+}
+
+#content-wrapper {
+    flex: 1; /* Expandirse dentro del contenedor */
     padding: 1rem;
-    flex-shrink: 0; /* Mantener el footer fijo */
-    position: relative; /* Asegurar que no se superponga */
-    z-index: 1;
-  }
-  .menu-container {
+    overflow: hidden; /* No generar scroll innecesario */
     display: flex;
-    position: fixed;
-    height: 100vh;
-    width: 250px;
-    background-color: var(--color-primary);
-    color: var(--text-secondary);
-    z-index: 1; /* Asegura que esté por encima de otros elementos */
-  }
-  
+    flex-direction: column;
+}

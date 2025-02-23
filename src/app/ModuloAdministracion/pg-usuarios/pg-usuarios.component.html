@@ -1,12 +1,13 @@
-
-<div class="gestion-usuarios-container">
-    <!-- Contenedor del título y el botón, alineados correctamente -->
-    <div class="header-gestion">
-        <h2 class="titulo-gestion">Gestión de Usuarios</h2>
-        <button class="btn-agregar-usuario" (click)="mostrarModal('agregarUsuario')">
-            <i class="pi pi-plus"></i> Agregar Usuario
-        </button>
-        
+<div >
+    <!-- Contenedor del título y el botón con espaciado -->
+    <div class="header-gestion flex justify-between items-center mb-4">
+        <!-- 🛠 Título a la izquierda -->
+        <h2 class="titulo-gestion text-xl font-semibold">Gestión de Usuarios</h2>
+    
+        <!-- 🛠 Botón a la derecha -->
+        <p-button icon="pi pi-plus" label="Agregar Usuario" 
+                  class="btn-agregar-usuario p-button-success"
+                  (click)="mostrarModal('agregarUsuario')"></p-button>
     </div>
 
     <!-- Tabla de usuarios -->
@@ -31,9 +32,8 @@
                            [severity]="usuario.estado ? 'success' : 'danger'">
                     </p-tag>
                 </td>
-                <!-- Alineación de botones de acción con espacio entre ellos -->
                 <td class="text-center">
-                    <div class="acciones-usuarios">
+                    <div class="acciones-usuarios flex gap-2">
                         <p-button icon="pi pi-pencil" class="btn-accion editar"
                                   (click)="editarUsuario(usuario)"></p-button>
                         <p-button icon="pi pi-trash" class="btn-accion eliminar"
@@ -45,68 +45,87 @@
     </p-table>
 </div>
 
+
 <p-dialog class="modal-agregar-usuario" [(visible)]="modalesVisibles['agregarUsuario']" 
-    [modal]="true" [header]="'Crear Usuario'" [closable]="false" [style]="{ width: '45vw' }">
+    [modal]="true" [header]="'Crear Usuario'" [closable]="false" [style]="{ width: '40vw' }">
     
     <form [formGroup]="formularioUsuario">
-        <div class="modal-formulario">
-            <!-- Primera fila: Nombres y Apellidos -->
-            <p-floatLabel>
-                <input id="username" type="text" pInputText />
-                <label for="username">Username</label>
-            </p-floatLabel>
-            <div class="form-field">
-                <label for="nombres_completos">Nombres Completos</label>
-                <input id="nombres_completos" pInputText formControlName="nombres_completos">
-            </div>
-            <div class="form-field">
-                <label for="apellidos_completos">Apellidos Completos</label>
-                <input id="apellidos_completos" pInputText formControlName="apellidos_completos">
+        <!-- 🛠 Agregamos mt-4 para separar el formulario del título -->
+        <div class="modal-formulario grid grid-cols-2 gap-4 mt-4">
+            <!-- Primera columna -->
+            <div class="flex flex-col gap-4">
+                <p-iftalabel>
+                    <input pInputText id="nombres_completos" formControlName="nombres_completos" autocomplete="off" />
+                    <label for="nombres_completos">Nombres Completos</label>
+                </p-iftalabel>
+
+                <p-iftalabel>
+                    <input pInputText id="nombre_usuario" formControlName="nombre_usuario" autocomplete="off" />
+                    <label for="nombre_usuario">Nombre de Usuario</label>
+                </p-iftalabel>
+
+                <p-iftalabel>
+                    <p-password formControlName="contrasena" [feedback]="true" appendTo="body">
+                        <ng-template pTemplate="header">
+                            <h6>Pick a password</h6>
+                        </ng-template>
+                        <ng-template pTemplate="footer">
+                            <p-divider />
+                            <p class="mt-2">Suggestions</p>
+                            <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
+                                <li>At least one lowercase</li>
+                                <li>At least one uppercase</li>
+                                <li>At least one numeric</li>
+                                <li>Minimum 8 characters</li>
+                            </ul>
+                        </ng-template>
+                    </p-password>
+                    <label for="password">Password</label>
+                </p-iftalabel>
             </div>
 
-            <!-- Segunda fila: Usuario y Rol -->
-            <div class="form-field">
-                <label for="nombre_usuario">Nombre de Usuario</label>
-                <input id="nombre_usuario" pInputText formControlName="nombre_usuario">
-            </div>
-            <div class="form-field">
-                <label for="rol_id">Rol</label>
-                <p-dropdown id="rol_id" [options]="roles" optionLabel="label" formControlName="rol_id" placeholder="Seleccione un rol"></p-dropdown>
-            </div>
+            <!-- Segunda columna -->
+            <div class="flex flex-col gap-4">
+                <p-iftalabel>
+                    <input pInputText id="apellidos_completos" formControlName="apellidos_completos" autocomplete="off" />
+                    <label for="apellidos_completos">Apellidos Completos</label>
+                </p-iftalabel>
 
-            <!-- Tercera fila: Contraseña y Confirmar Contraseña -->
-            <div class="form-field">
-                <label for="contrasena">Contraseña</label>
-                <p-password formControlName="contrasena" [feedback]="true">
-                    <ng-template pTemplate="header">
-                        <h6>Pick a password</h6>
-                    </ng-template>
-                    <ng-template pTemplate="footer">
-                        <p-divider />
-                        <p class="mt-2">Suggestions</p>
-                        <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
-                            <li>At least one lowercase</li>
-                            <li>At least one uppercase</li>
-                            <li>At least one numeric</li>
-                            <li>Minimum 8 characters</li>
-                        </ul>
-                    </ng-template>
-                </p-password>
-            </div>
-            <div class="form-field">
-                <label for="confirmar_contrasena">Confirmar Contraseña</label>
-                <p-password id="confirmar_contrasena" formControlName="confirmar_contrasena" 
-                    promptLabel="Repita la contraseña">
-                </p-password>
+                <p-iftalabel class="w-full">
+                    <p-select 
+                        id="rol_id" 
+                        formControlName="rol_id" 
+                        [options]="roles" 
+                        optionLabel="label" 
+                        placeholder="Seleccione un rol" 
+                        class="w-full">
+                    </p-select>
+                    <label for="rol_id">Seleccione un rol</label>
+                </p-iftalabel>
+
+                <p-iftalabel>
+                    <p-password id="confirmar_contrasena" formControlName="confirmar_contrasena" 
+                        promptLabel="Repita la contraseña" appendTo="body">
+                    </p-password>
+                    <label for="password">Repetir contraseña</label>
+                </p-iftalabel>
             </div>
         </div>
     </form>
 
-    <!-- Footer con los botones -->
-    <div class="modal-footer">
-        <button class="btn-guardar" (click)="guardarUsuario()">Guardar</button>
-        <button class="btn-cancelar" (click)="cerrarModal('agregarUsuario')">Cancelar</button>
+    <!-- 🛠 Alineamos bien los botones usando justify-between -->
+    <div class="modal-footer flex justify-between items-center mt-4">
+        <div></div> <!-- 🛠 Espaciador vacío para evitar margen innecesario -->
+        <div class="flex gap-2">
+            <p-button label="Guardar" icon="pi pi-check" class="p-button-success" (click)="guardarUsuario()"></p-button>
+            <p-button label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="cerrarModal('agregarUsuario')"></p-button>
+        </div>
     </div>
 </p-dialog>
+
+
+
+
+
 
 

@@ -4,6 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { CommonModule } from '@angular/common';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
@@ -43,7 +44,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { DividerModule } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
-
+import { TabsModule } from 'primeng/tabs';
+import { PanelMenuModule } from 'primeng/panelmenu';
+import { IftaLabelModule } from 'primeng/iftalabel';
+import { SelectModule } from 'primeng/select';
 @NgModule({
   declarations: [
     AppComponent,
@@ -83,7 +87,12 @@ import { FloatLabelModule } from 'primeng/floatlabel';
     DividerModule,
     FloatLabelModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TabsModule,
+    CommonModule,
+    PanelMenuModule,
+    IftaLabelModule,
+    SelectModule
 ],
   providers: [
     provideAnimationsAsync(),

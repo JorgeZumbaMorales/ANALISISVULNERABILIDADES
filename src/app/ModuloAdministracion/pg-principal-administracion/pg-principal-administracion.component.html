@@ -1,9 +1,24 @@
-<p-tabView>
-    <p-tabPanel header="Usuarios">
-      <app-pg-usuarios></app-pg-usuarios>
-    </p-tabPanel>
-    <p-tabPanel header="Roles">
-      <app-pg-roles></app-pg-roles>
-    </p-tabPanel>
-</p-tabView>
-  
+<div >
+    <!-- Contenedor de Tabs -->
+    <div class="flex space-x-2 border-b border-gray-200">
+        @for(tab of tabs; track tab.route){
+            <button 
+                [routerLink]="tab.route" 
+                (click)="setActiveTab(tab.route)"
+                class="flex items-center px-6 py-3 text-gray-600 hover:text-green-600 transition-all duration-200 rounded-t-lg"
+                [ngClass]="{
+                    'bg-green-100 text-green-700 border-b-2 border-green-500 font-semibold': tab.route === activeTab,
+                    'hover:bg-gray-100': tab.route !== activeTab
+                }"
+            >
+                <i [class]="tab.icon" class="mr-2"></i>
+                <span>{{ tab.label }}</span>
+            </button>
+        }
+    </div>
+
+    <!-- Contenido del Tab -->
+    <div class="tabs-container mt-4 bg-gray-50 p-6 border border-gray-200 rounded-lg">
+        <router-outlet></router-outlet>
+    </div>
+</div>
