@@ -22,7 +22,8 @@ const routes: Routes = [
   },
   { 
     path: 'public/login', 
-    component: PgLoginPublicoComponent 
+    component: PgLoginPublicoComponent
+    
   },
   { 
     path: 'admin',

@@ -1,43 +1,46 @@
-
-<main>
-    <div class="login-container">
-      <!-- Información de bienvenida -->
-      <div class="login-info">
-        <h1>¡Bienvenido a RedSegura!</h1>
-        <p>
+<main class="flex min-h-screen w-full">
+  <!-- Sección de información -->
+  <div class="w-1/2 flex flex-col justify-center items-center text-center p-10 bg-baseAzulOscuro text-white">
+      <h1 class="text-3xl font-bold mb-6">¡Bienvenido a RedSegura!</h1>
+      <p class="text-lg mb-8 max-w-md">
           Optimiza y protege tu red con herramientas avanzadas de análisis y gestión.
           Ingresa a tu cuenta para comenzar a gestionar la seguridad de tu infraestructura.
-        </p>
-        <img
-          src=""
-          alt="Seguridad informática"
-          class="login-image"
-        />
+      </p>
+      <img src="" alt="Seguridad informática" class="w-52 h-auto" />
+  </div>
+
+  <!-- Sección de formulario -->
+  <div class="w-1/2 flex flex-col justify-center items-center bg-white p-12">
+      <h2 class="text-2xl font-semibold text-center mb-6 text-baseAzulOscuro">Iniciar Sesión</h2>
+
+      <form class="w-full max-w-md space-y-6" (submit)="iniciarSesion()">
+        <div class="form-group">
+            <p-iftalabel>
+                <input pInputText id="usuario" name="usuario" [(ngModel)]="usuario" autocomplete="off" class="w-full p-inputtext-lg" />
+                <label for="usuario">Usuario</label>
+            </p-iftalabel>
+        </div>
+    
+        <div class="form-group">
+            <p-iftalabel>
+                <input pInputText id="contrasena" name="contrasena" type="password" [(ngModel)]="contrasena" autocomplete="off" class="w-full p-inputtext-lg" />
+                <label for="contrasena">Contraseña</label>
+            </p-iftalabel>
+        </div>
+    
+        <!-- 🔹 Botón PrimeNG centrado dentro del formulario -->
+        <div class="form-group flex justify-center items-center w-full mt-6">
+          <p-button 
+              type="submit" 
+              label="Acceder" 
+              class="w-2/3 md:w-1/2 lg:w-1/3 p-button-primary p-button-lg text-center">
+          </p-button>
       </div>
-  
-      <!-- Formulario -->
-      <div class="login-form">
-        <h2>Iniciar Sesión</h2>
-        <form>
-          <div class="form-group">
-            <label for="username">Usuario</label>
-            <input type="text" id="username" placeholder="Ingresa tu usuario" />
-          </div>
-          <div class="form-group">
-            <label for="password">Contraseña</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Ingresa tu contraseña"
-            />
-          </div>
-          <button type="submit" class="login-button">Acceder</button>
-        </form>
-        <p class="forgot-password">
-          <a href="#">¿Olvidaste tu contraseña?</a>
-        </p>
-      </div>
-    </div>
-  </main>
-  
-  
+    </form>
+    
+
+      <p class="text-center mt-6">
+          <a href="#" class="text-baseAzulOscuro hover:underline">¿Olvidaste tu contraseña?</a>
+      </p>
+  </div>
+</main>

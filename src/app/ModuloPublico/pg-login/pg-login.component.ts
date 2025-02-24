@@ -7,5 +7,14 @@ import { Component } from '@angular/core';
   styleUrl: './pg-login.component.css'
 })
 export class PgLoginComponent {
+  usuario: string = '';
+  contrasena: string = '';
+  
+  iniciarSesion() {
+    console.log('Usuario:', this.usuario);
+    console.log('Contraseña:', this.contrasena);
+  }
 
+ 
+  
 }

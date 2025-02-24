@@ -48,6 +48,7 @@ import { TabsModule } from 'primeng/tabs';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { SelectModule } from 'primeng/select';
+
 @NgModule({
   declarations: [
     AppComponent,
