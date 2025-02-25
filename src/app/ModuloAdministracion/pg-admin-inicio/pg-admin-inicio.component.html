@@ -1,41 +1,29 @@
-<section class="dashboard-container">
-    <!-- Tarjeta de bienvenida -->
-    <header class="dashboard-header">
-        <i class="pi pi-user welcome-icon"></i>
-        <h1>¡Bienvenido, Administrador!</h1>
-        <p>Administra tu red con herramientas avanzadas de gestión y seguridad.</p>
-    </header>
+<section class="h-screen flex flex-col p-6">
+    <!-- 🏆 Tarjeta de bienvenida fija -->
+    <div class="bg-baseAzulOscuro text-textoSecundario p-8 rounded-2xl shadow-lg text-center">
+        <h1 class="text-3xl font-bold">¡Bienvenido al Panel de Gestión!</h1>
+        <p class="text-lg mt-2">Protege tu red con herramientas avanzadas y mantente informado.</p>
+    </div>
 
-    <!-- Sección de accesos rápidos -->
-    <div class="features">
-        <!-- Gestión de Usuarios -->
-        <div class="feature-item">
-            <i class="pi pi-users feature-icon users-icon"></i>
-            <h3>Gestión de Usuarios</h3>
-            <p>Administra usuarios, asigna roles y gestiona permisos.</p>
-            <button class="btn-navegacion btn-usuarios" routerLink="/usuarios">
-                <i class="pi pi-arrow-right"></i> Ir a Usuarios
-            </button>
-        </div>
+    <!-- 🎡 Carrusel de Consejos -->
+    <div class="mt-6 bg-white p-6 rounded-xl shadow-md">
+        <h2 class="text-xl font-semibold flex items-center text-textoPrincipal">
+            <i class="pi pi-lightbulb text-baseAzulClaro mr-2"></i> Consejos de Seguridad
+        </h2>
 
-        <!-- Análisis de Redes -->
-        <div class="feature-item">
-            <i class="pi pi-chart-line feature-icon networks-icon"></i>
-            <h3>Análisis de Redes</h3>
-            <p>Realiza escaneos de seguridad y revisa vulnerabilidades.</p>
-            <button class="btn-navegacion btn-analisis" routerLink="/analisis">
-                <i class="pi pi-arrow-right"></i> Ir a Análisis
-            </button>
-        </div>
-
-        <!-- Seguridad -->
-        <div class="feature-item">
-            <i class="pi pi-shield feature-icon security-icon"></i>
-            <h3>Seguridad</h3>
-            <p>Monitorea accesos y revisa la seguridad de la red.</p>
-            <button class="btn-navegacion btn-seguridad" routerLink="/seguridad">
-                <i class="pi pi-arrow-right"></i> Ir a Seguridad
-            </button>
-        </div>
+        <p-carousel [value]="[
+            { icon: 'pi pi-lock', color: 'text-baseNaranja', title: 'Usa Contraseñas Fuertes', description: 'Evita usar la misma contraseña en múltiples servicios. Usa combinaciones de letras, números y símbolos.' },
+            { icon: 'pi pi-user-lock', color: 'text-red-500', title: 'Monitorea los Accesos', description: 'Verifica regularmente qué dispositivos están conectados a la red y bloquea accesos sospechosos.' },
+            { icon: 'pi pi-refresh', color: 'text-green-500', title: 'Mantén Todo Actualizado', description: 'Actualiza tu sistema y software de seguridad para protegerte contra vulnerabilidades recientes.' },
+            { icon: 'pi pi-shield', color: 'text-blue-500', title: 'Habilita la Autenticación en Dos Pasos', description: 'Agrega una capa extra de seguridad a tus cuentas con autenticación 2FA.' }
+        ]" [numVisible]="1" [numScroll]="1" circular autoplayInterval="5000">
+            <ng-template let-tip pTemplate="item">
+                <div class="p-4 bg-fondoClaro border border-gray-200 rounded-lg shadow-sm text-center">
+                    <i [class]="tip.icon" class="text-4xl mb-3" [ngClass]="tip.color"></i>
+                    <h3 class="text-lg font-semibold">{{ tip.title }}</h3>
+                    <p class="text-gray-600 mt-2">{{ tip.description }}</p>
+                </div>
+            </ng-template>
+        </p-carousel>
     </div>
 </section>

@@ -1,4 +1,4 @@
-<aside class="w-64 bg-blanco text-baseAzulOscuro shadow-lg p-4 flex flex-col h-[calc(100vh-4rem)] border-r border-baseAzulOscuro">
+<aside class="w-64 bg-fondoClaro  text-baseAzulOscuro shadow-lg p-4 flex flex-col h-[calc(100vh-4rem)] border-r border-baseAzulOscuro">
 
   <!-- Contenedor del Menú -->
   <nav class="flex-1">
@@ -9,7 +9,7 @@
                       [routerLink]="item.routerLink"
                       class="w-full flex items-center px-4 py-3 rounded-md transition-all duration-200"
                       [ngClass]="{
-                          'bg-baseAzulClaro text-white font-semibold': item.routerLink.includes(activeMenu),
+                          ' text-white font-semibold': item.routerLink.includes(activeMenu),
                           'hover:bg-baseNaranja hover:text-white': !item.routerLink.includes(activeMenu)
                       }"
                       (click)="setActiveMenu(item.routerLink)"

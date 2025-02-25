@@ -28,7 +28,8 @@ import { PgDashboardPublicoComponent } from './Template/templatePublico/pg-dashb
 import { PgFooterPublicoComponent } from './Template/templatePublico/pg-footer-publico/pg-footer-publico.component';
 import { PgHeaderPublicoComponent } from './Template/templatePublico/pg-header-publico/pg-header-publico.component';
 import { PgPortadaInicialComponent } from './Template/templatePublico/pg-portada-inicial/pg-portada-inicial.component';
-
+import { PgPrincipalGestionDispositivosComponent } from './ModuloGestionDispositivos/pg-principal-gestion-dispositivos/pg-principal-gestion-dispositivos.component';
+import { PgDispositivosComponent } from './ModuloGestionDispositivos/pg-dispositivos/pg-dispositivos.component';
 // Módulos de PrimeNG
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -48,6 +49,7 @@ import { TabsModule } from 'primeng/tabs';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { SelectModule } from 'primeng/select';
+import { CarouselModule } from 'primeng/carousel';
 
 @NgModule({
   declarations: [
@@ -66,7 +68,9 @@ import { SelectModule } from 'primeng/select';
     PgHeaderPublicoComponent,
     PgPortadaInicialComponent,
     PgRolesComponent,
-    PgUsuariosComponent
+    PgUsuariosComponent,
+    PgPrincipalGestionDispositivosComponent,
+    PgDispositivosComponent
     
   ],
   imports: [
@@ -93,7 +97,8 @@ import { SelectModule } from 'primeng/select';
     CommonModule,
     PanelMenuModule,
     IftaLabelModule,
-    SelectModule
+    SelectModule,
+    CarouselModule
 ],
   providers: [
     provideAnimationsAsync(),

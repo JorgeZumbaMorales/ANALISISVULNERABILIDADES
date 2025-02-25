@@ -11,7 +11,7 @@ export class PgMenuAdministracionComponent {
   menuItems = [
     { label: 'Inicio', icon: 'pi pi-home', routerLink: '/admin/inicio' },
     { label: 'Administración', icon: 'pi pi-users', routerLink: '/admin/accesos' },
-    { label: 'Dispositivos', icon: 'pi pi-tablet', routerLink: '/admin/dispositivos' },
+    { label: 'Dispositivos', icon: 'pi pi-tablet', routerLink: '/admin/gestion' },
     { label: 'Vulnerabilidades', icon: 'pi pi-shield', routerLink: '/admin/vulnerabilidades' },
     { label: 'Reportes', icon: 'pi pi-chart-line', routerLink: '/admin/reportes' },
     { label: 'Configuraciones', icon: 'pi pi-cog', routerLink: '/admin/configuraciones' }

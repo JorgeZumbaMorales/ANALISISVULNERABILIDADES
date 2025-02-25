@@ -9,7 +9,8 @@ import { PgPrincipalAdministracionComponent } from './ModuloAdministracion/pg-pr
 import { PgAdminInicioComponent } from './ModuloAdministracion/pg-admin-inicio/pg-admin-inicio.component';
 import { PgUsuariosComponent } from './ModuloAdministracion/pg-usuarios/pg-usuarios.component';
 import { PgRolesComponent } from './ModuloAdministracion/pg-roles/pg-roles.component';
-
+import { PgPrincipalGestionDispositivosComponent } from './ModuloGestionDispositivos/pg-principal-gestion-dispositivos/pg-principal-gestion-dispositivos.component';
+import { PgDispositivosComponent } from './ModuloGestionDispositivos/pg-dispositivos/pg-dispositivos.component';
 const routes: Routes = [
   { 
     path: '', 
@@ -38,7 +39,15 @@ const routes: Routes = [
         children: [
           { path: 'usuarios', component: PgUsuariosComponent },
           { path: 'roles', component: PgRolesComponent },
-          { path: '', redirectTo: 'usuarios', pathMatch: 'full' } // 📌 Redirigir a Usuarios si no se especifica
+          { path: '', redirectTo: 'usuarios', pathMatch: 'full' }
+        ]
+      },
+      { 
+        path: 'gestion',
+        component: PgPrincipalGestionDispositivosComponent,
+        children: [
+          { path: 'dispositivos', component: PgDispositivosComponent },
+          { path: '', redirectTo: 'dispositivos', pathMatch: 'full' } 
         ]
       }
     ]
