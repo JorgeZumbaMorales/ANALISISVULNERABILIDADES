@@ -1,46 +1,105 @@
 <main class="flex min-h-screen w-full">
-  <!-- Sección de información -->
-  <div class="w-1/2 flex flex-col justify-center items-center text-center p-10 bg-baseAzulOscuro text-white">
-      <h1 class="text-3xl font-bold mb-6">¡Bienvenido a RedSegura!</h1>
-      <p class="text-lg mb-8 max-w-md">
-          Optimiza y protege tu red con herramientas avanzadas de análisis y gestión.
-          Ingresa a tu cuenta para comenzar a gestionar la seguridad de tu infraestructura.
+    <!-- Sección de información -->
+    <div class="w-1/2 flex flex-col justify-center items-center text-center p-10 bg-baseAzulOscuro text-white">
+        <h1 class="text-3xl font-bold mb-6">¡Bienvenido a RedSegura!</h1>
+        <p class="text-lg mb-8 max-w-md">
+            Optimiza y protege tu red con herramientas avanzadas de análisis y gestión.
+            Ingresa a tu cuenta para comenzar a gestionar la seguridad de tu infraestructura.
+        </p>
+        <img src="" alt="Seguridad informática" class="w-52 h-auto" />
+    </div>
+  
+    <!-- Sección de formulario -->
+    <div class="w-1/2 flex flex-col justify-center items-center bg-white p-12">
+        <h2 class="text-2xl font-semibold text-center mb-6 text-baseAzulOscuro">Iniciar Sesión</h2>
+  
+        <form class="w-full max-w-md space-y-6" (submit)="iniciarSesion()">
+          <div class="form-group">
+              <p-iftalabel>
+                  <input pInputText id="usuario" name="usuario" [(ngModel)]="usuario" autocomplete="off" class="w-full p-inputtext-lg" />
+                  <label for="usuario">Usuario</label>
+              </p-iftalabel>
+          </div>
+      
+          <div class="form-group">
+              <p-iftalabel>
+                  <input pInputText id="contrasena" name="contrasena" type="password" [(ngModel)]="contrasena" autocomplete="off" class="w-full p-inputtext-lg" />
+                  <label for="contrasena">Contraseña</label>
+              </p-iftalabel>
+          </div>
+      
+          <!-- 🔹 Botón PrimeNG centrado dentro del formulario -->
+          <div class="form-group flex justify-center items-center w-full mt-6">
+            <p-button 
+                type="submit" 
+                label="Acceder" 
+                class="w-2/3 md:w-1/2 lg:w-1/3 p-button-primary p-button-lg text-center">
+            </p-button>
+        </div>
+      </form>
+      <p class="text-center mt-4">
+        <a (click)="abrirModalRecuperacion()" class="text-baseAzulOscuro hover:underline cursor-pointer">
+          ¿Olvidaste tu contraseña?
+        </a>
       </p>
-      <img src="" alt="Seguridad informática" class="w-52 h-auto" />
-  </div>
-
-  <!-- Sección de formulario -->
-  <div class="w-1/2 flex flex-col justify-center items-center bg-white p-12">
-      <h2 class="text-2xl font-semibold text-center mb-6 text-baseAzulOscuro">Iniciar Sesión</h2>
-
-      <form class="w-full max-w-md space-y-6" (submit)="iniciarSesion()">
-        <div class="form-group">
-            <p-iftalabel>
-                <input pInputText id="usuario" name="usuario" [(ngModel)]="usuario" autocomplete="off" class="w-full p-inputtext-lg" />
-                <label for="usuario">Usuario</label>
-            </p-iftalabel>
-        </div>
-    
-        <div class="form-group">
-            <p-iftalabel>
-                <input pInputText id="contrasena" name="contrasena" type="password" [(ngModel)]="contrasena" autocomplete="off" class="w-full p-inputtext-lg" />
-                <label for="contrasena">Contraseña</label>
-            </p-iftalabel>
-        </div>
-    
-        <!-- 🔹 Botón PrimeNG centrado dentro del formulario -->
-        <div class="form-group flex justify-center items-center w-full mt-6">
-          <p-button 
-              type="submit" 
-              label="Acceder" 
-              class="w-2/3 md:w-1/2 lg:w-1/3 p-button-primary p-button-lg text-center">
-          </p-button>
-      </div>
-    </form>
-    
 
       <p class="text-center mt-6">
-          <a href="#" class="text-baseAzulOscuro hover:underline">¿Olvidaste tu contraseña?</a>
+          <a (click)="volverInicio()" class="text-baseAzulOscuro hover:underline cursor-pointer flex items-center justify-center">
+              <i class="pi pi-arrow-left mr-1"></i> Volver al Inicio
+          </a>
       </p>
-  </div>
-</main>
+  
+      
+    </div>
+  </main>
+  
+
+  <!-- 🔹 Modal PrimeNG -->
+  <p-dialog [(visible)]="modalRecuperacion" [modal]="true" [closable]="false" [style]="{ width: '32vw' }">
+    <ng-template pTemplate="header">
+        <h2 class="text-xl font-semibold text-textoPrincipal">Recuperar Contraseña</h2>
+    </ng-template>
+
+    <div class="p-4">
+        <p-tabView [(activeIndex)]="indiceRecuperacion">
+            <!-- 🔹 Pestaña por Usuario -->
+            <p-tabPanel header="Por Usuario">
+                <div class="mt-4">
+                    <p-iftalabel>
+                        <input pInputText id="usuarioRecuperacion" [(ngModel)]="usuarioRecuperacion" autocomplete="off" class="w-full p-inputtext-lg" />
+                        <label for="usuarioRecuperacion">Ingrese su nombre de usuario</label>
+                    </p-iftalabel>
+                </div>
+            </p-tabPanel>
+
+            <!-- 🔹 Pestaña por Correo -->
+            <p-tabPanel header="Por Correo">
+                <div class="mt-4">
+                    <p-iftalabel>
+                        <input pInputText id="correoRecuperacion" [(ngModel)]="correoRecuperacion" type="email" autocomplete="off" class="w-full p-inputtext-lg" />
+                        <label for="correoRecuperacion">Ingrese su correo electrónico</label>
+                    </p-iftalabel>
+                </div>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-between w-full">
+            <p-button 
+                label="Enviar Código" 
+                icon="pi pi-send" 
+                class="p-button-primary"
+                [disabled]="!usuarioRecuperacion && !correoRecuperacion">
+            </p-button>
+            <p-button 
+                label="Cancelar" 
+                icon="pi pi-times" 
+                class="p-button-text"
+                (click)="cerrarModalRecuperacion()">
+            </p-button>
+            
+            
+        </div>
+    </ng-template>
+</p-dialog>

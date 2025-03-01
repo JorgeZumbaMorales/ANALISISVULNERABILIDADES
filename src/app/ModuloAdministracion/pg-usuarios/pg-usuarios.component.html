@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <div >
     <!-- Contenedor del título y el botón con espaciado -->
     <div class="header-gestion flex justify-between items-center mb-4">
@@ -7,7 +8,7 @@
         <!-- 🛠 Botón a la derecha -->
         <p-button icon="pi pi-plus" label="Agregar Usuario" 
                   class="btn-agregar-usuario p-button-success"
-                  (click)="mostrarModal('agregarUsuario')"></p-button>
+                  (click)="manejarModal('agregarUsuario', true)"></p-button>
     </div>
 
     <!-- Tabla de usuarios -->
@@ -48,82 +49,84 @@
 </div>
 
 
-<p-dialog class="modal-agregar-usuario" [(visible)]="modalesVisibles['agregarUsuario']" 
-    [modal]="true" [header]="'Crear Usuario'" [closable]="false" [style]="{ width: '40vw' }">
+<p-dialog class="modal-agregar-usuario" [(visible)]="modalesVisibles['agregarUsuario']"
+    [modal]="true" [header]="'Crear Usuario'" [closable]="false"
+    class="w-full max-w-[45vw] md:max-w-[50vw] lg:max-w-[40vw] xl:max-w-[38vw] 2xl:max-w-[36vw]">
     
     <form [formGroup]="formularioUsuario">
-        <!-- 🛠 Agregamos mt-4 para separar el formulario del título -->
-        <div class="modal-formulario grid grid-cols-2 gap-4 mt-4">
+        <!-- ✅ Agregamos margen superior para separar los inputs del header -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            
             <!-- Primera columna -->
             <div class="flex flex-col gap-4">
                 <p-iftalabel>
-                    <input pInputText id="nombres_completos" formControlName="nombres_completos" autocomplete="off" />
+                    <input pInputText id="nombres_completos" formControlName="nombres_completos" autocomplete="off" class="w-full" />
                     <label for="nombres_completos">Nombres Completos</label>
                 </p-iftalabel>
 
                 <p-iftalabel>
-                    <input pInputText id="nombre_usuario" formControlName="nombre_usuario" autocomplete="off" />
+                    <input pInputText id="nombre_usuario" formControlName="nombre_usuario" autocomplete="off" class="w-full" />
                     <label for="nombre_usuario">Nombre de Usuario</label>
                 </p-iftalabel>
 
                 <p-iftalabel>
-                    <p-password formControlName="contrasena" [feedback]="true" appendTo="body">
-                        <ng-template pTemplate="header">
-                            <h6>Pick a password</h6>
-                        </ng-template>
+                    <p-password formControlName="contrasena" [feedback]="true" [toggleMask]="true" promptLabel="Ingrese una contraseña" 
+                    weakLabel="Muy Simple" mediumLabel="Complejidad Media" strongLabel="Complejidad Fuerte" appendTo="body" class="w-full">
                         <ng-template pTemplate="footer">
                             <p-divider />
-                            <p class="mt-2">Suggestions</p>
+                            <p class="mt-2">Recomendaciones:</p>
                             <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
-                                <li>At least one lowercase</li>
-                                <li>At least one uppercase</li>
-                                <li>At least one numeric</li>
-                                <li>Minimum 8 characters</li>
+                                <li>Al menos una letra minúscula</li>
+                                <li>Al menos una letra mayúscula</li>
+                                <li>Al menos un número</li>
+                                <li>Mínimo 8 caracteres</li>
                             </ul>
                         </ng-template>
                     </p-password>
-                    <label for="password">Password</label>
+                    <label for="password">Contraseña</label>
                 </p-iftalabel>
             </div>
 
             <!-- Segunda columna -->
             <div class="flex flex-col gap-4">
                 <p-iftalabel>
-                    <input pInputText id="apellidos_completos" formControlName="apellidos_completos" autocomplete="off" />
+                    <input pInputText id="apellidos_completos" formControlName="apellidos_completos" autocomplete="off" class="w-full" />
                     <label for="apellidos_completos">Apellidos Completos</label>
                 </p-iftalabel>
 
                 <p-iftalabel class="w-full">
-                    <p-select 
+                    <p-dropdown 
                         id="rol_id" 
                         formControlName="rol_id" 
                         [options]="roles" 
                         optionLabel="label" 
                         placeholder="Seleccione un rol" 
                         class="w-full">
-                    </p-select>
+                    </p-dropdown>
                     <label for="rol_id">Seleccione un rol</label>
                 </p-iftalabel>
 
                 <p-iftalabel>
                     <p-password id="confirmar_contrasena" formControlName="confirmar_contrasena" 
-                        promptLabel="Repita la contraseña" appendTo="body">
+                        promptLabel="Repita la contraseña" [toggleMask]="true" appendTo="body" class="w-full"
+                         weakLabel="Muy Simple" mediumLabel="Complejidad Media" strongLabel="Complejidad Fuerte">
                     </p-password>
                     <label for="password">Repetir contraseña</label>
                 </p-iftalabel>
             </div>
+
         </div>
     </form>
 
-    <!-- 🛠 Alineamos bien los botones usando justify-between -->
-    <div class="modal-footer flex justify-between items-center mt-4">
-        <div></div> <!-- 🛠 Espaciador vacío para evitar margen innecesario -->
-        <div class="flex gap-2">
-            <p-button label="Guardar" icon="pi pi-check" class="p-button-success" (click)="guardarUsuario()"></p-button>
-            <p-button label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="cerrarModal('agregarUsuario')"></p-button>
-        </div>
+    <!-- Footer del modal -->
+    <div class="modal-footer flex justify-end items-center mt-6 space-x-4">
+        <p-button label="Guardar" icon="pi pi-check" class="p-button-success" (click)="guardarUsuario()"></p-button>
+        <p-button label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="manejarModal('agregarUsuario', false)"></p-button>
+        
     </div>
 </p-dialog>
+
+
 
 
 

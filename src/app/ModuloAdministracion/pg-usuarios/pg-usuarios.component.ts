@@ -1,24 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { ServiciosAutenticacion } from '../../ModuloServiciosWeb/ServiciosAutenticacion.component';
 import { MessageService } from 'primeng/api';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-pg-usuarios',
-  standalone: false,
   templateUrl: './pg-usuarios.component.html',
   styleUrls: ['./pg-usuarios.component.css'],
-  providers: [MessageService] 
+  providers: [MessageService]
 })
 export class PgUsuariosComponent implements OnInit {
-
 
   usuarios: any[] = [];
   usuarioSeleccionado: any;
   roles: any[] = [];
   modalesVisibles: { [key: string]: boolean } = {}; 
   formularioUsuario!: FormGroup;
-
 
   constructor(
     private servicioAuth: ServiciosAutenticacion,
@@ -29,100 +26,91 @@ export class PgUsuariosComponent implements OnInit {
   ngOnInit() {
     this.obtenerUsuarios();
     this.obtenerRoles();
+    this.inicializarFormulario();
+  }
 
-
-    
+  /** ✅ Inicializa formulario sin validaciones visuales */
+  inicializarFormulario() {
     this.formularioUsuario = this.fb.group({
-      nombre_usuario: ['', Validators.required],
-      contrasena: ['', Validators.required],
-      nombres_completos: ['', Validators.required],
-      apellidos_completos: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      nombre_usuario: [''],
+      contrasena: [''],
+      confirmar_contrasena: [''],
+      nombres_completos: [''],
+      apellidos_completos: [''],
+      email: [''],
       telefono: [''],
-      rol_id: [null, Validators.required]
+      rol_id: [null]
     });
   }
 
+  /** ✅ Manejo de modales */
+  manejarModal(nombreModal: string, abrir: boolean, datos?: any) {
+    this.modalesVisibles[nombreModal] = abrir;
+
+    if (abrir && nombreModal === 'agregarUsuario') {
+      this.formularioUsuario.reset();
+    }
+
+    if (abrir && nombreModal === 'editarUsuario' && datos) {
+      this.usuarioSeleccionado = datos;
+    }
+  }
+
+  /** ✅ Obtener lista de usuarios */
   obtenerUsuarios() {
     this.servicioAuth.listarUsuarios().subscribe({
       next: (data: any) => {
-        console.log('Usuarios obtenidos:', data);
-        this.usuarios = data.datos; // Asigna los datos recibidos
+        this.usuarios = data.datos;
       },
-      error: (err: any) => {
-        console.error('Error al obtener usuarios:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo obtener la lista de usuarios'
-        });
+      error: () => {
+        this.mostrarMensaje('error', 'Error', 'No se pudo obtener la lista de usuarios.');
       }
     });
   }
+
+  /** ✅ Obtener lista de roles */
   obtenerRoles() {
     this.servicioAuth.listarRoles().subscribe({
-        next: (data: any) => {
-            this.roles = data.datos.map((rol: any) => ({
-                label: rol.nombre_rol, 
-                value: rol.rol_id 
-            }));
-            console.log("Roles cargados:", this.roles); // 🔍 Debug
-        },
-        error: (err: any) => {
-            this.messageService.add({ 
-                severity: 'error', 
-                summary: 'Error', 
-                detail: 'No se pudo obtener la lista de roles' 
-            });
-        }
+      next: (data: any) => {
+        this.roles = data.datos.map((rol: any) => ({
+          label: rol.nombre_rol,
+          value: rol.rol_id
+        }));
+      },
+      error: () => {
+        this.mostrarMensaje('error', 'Error', 'No se pudo obtener la lista de roles.');
+      }
     });
-}
-
-mostrarModal(nombreModal: string, datos?: any) {
-  this.modalesVisibles[nombreModal] = true;
-
-  if (nombreModal === 'agregarUsuario') {
-    this.formularioUsuario.reset(); // Asegurarse de que el formulario esté limpio
   }
 
-  if (nombreModal === 'editarUsuario' && datos) {
-    this.usuarioSeleccionado = datos;
-    //this.formularioEditarUsuario.patchValue(datos); // Cargar datos en el formulario de edición
-  }
-}
-cerrarModal(nombreModal: string) {
-  this.modalesVisibles[nombreModal] = false;
-  if (nombreModal === 'agregarUsuario') this.formularioUsuario.reset();
-}
-
-
-guardarUsuario() {
-  if (this.formularioUsuario.valid) {
+  /** ✅ Guardar usuario (sin validaciones de formulario) */
+  guardarUsuario() {
     const usuario = this.formularioUsuario.value;
 
     this.servicioAuth.crearUsuario(usuario).subscribe({
-      next: (response: any) => {
-        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario agregado correctamente' });
+      next: () => {
+        this.mostrarMensaje('success', 'Éxito', 'Usuario agregado correctamente');
         this.obtenerUsuarios();
-        this.cerrarModal('agregarUsuario');
+        this.manejarModal('agregarUsuario', false);
       },
-      error: (err: any) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar el usuario' });
+      error: () => {
+        this.mostrarMensaje('error', 'Error', 'No se pudo guardar el usuario');
       }
     });
-  } else {
-    this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: 'Complete todos los campos requeridos' });
   }
-}
+
+  /** ✅ Mostrar mensajes con p-toast */
+  mostrarMensaje(severity: string, summary: string, detail: string) {
+    this.messageService.add({ severity, summary, detail });
+  }
+
+  /** ✅ Editar usuario */
   editarUsuario(usuario: any) {
     console.log('Editar usuario:', usuario);
-    // Aquí puedes abrir un modal o navegar a otra página de edición
   }
 
+  /** ✅ Eliminar usuario */
   eliminarUsuario(usuario: any) {
-    console.log('Eliminar usuario:', usuario);
     this.usuarios = this.usuarios.filter(u => u !== usuario);
   }
-
-  
 }

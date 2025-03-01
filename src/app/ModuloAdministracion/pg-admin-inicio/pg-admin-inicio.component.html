@@ -5,25 +5,5 @@
         <p class="text-lg mt-2">Protege tu red con herramientas avanzadas y mantente informado.</p>
     </div>
 
-    <!-- 🎡 Carrusel de Consejos -->
-    <div class="mt-6 bg-white p-6 rounded-xl shadow-md">
-        <h2 class="text-xl font-semibold flex items-center text-textoPrincipal">
-            <i class="pi pi-lightbulb text-baseAzulClaro mr-2"></i> Consejos de Seguridad
-        </h2>
-
-        <p-carousel [value]="[
-            { icon: 'pi pi-lock', color: 'text-baseNaranja', title: 'Usa Contraseñas Fuertes', description: 'Evita usar la misma contraseña en múltiples servicios. Usa combinaciones de letras, números y símbolos.' },
-            { icon: 'pi pi-user-lock', color: 'text-red-500', title: 'Monitorea los Accesos', description: 'Verifica regularmente qué dispositivos están conectados a la red y bloquea accesos sospechosos.' },
-            { icon: 'pi pi-refresh', color: 'text-green-500', title: 'Mantén Todo Actualizado', description: 'Actualiza tu sistema y software de seguridad para protegerte contra vulnerabilidades recientes.' },
-            { icon: 'pi pi-shield', color: 'text-blue-500', title: 'Habilita la Autenticación en Dos Pasos', description: 'Agrega una capa extra de seguridad a tus cuentas con autenticación 2FA.' }
-        ]" [numVisible]="1" [numScroll]="1" circular autoplayInterval="5000">
-            <ng-template let-tip pTemplate="item">
-                <div class="p-4 bg-fondoClaro border border-gray-200 rounded-lg shadow-sm text-center">
-                    <i [class]="tip.icon" class="text-4xl mb-3" [ngClass]="tip.color"></i>
-                    <h3 class="text-lg font-semibold">{{ tip.title }}</h3>
-                    <p class="text-gray-600 mt-2">{{ tip.description }}</p>
-                </div>
-            </ng-template>
-        </p-carousel>
-    </div>
+    
 </section>

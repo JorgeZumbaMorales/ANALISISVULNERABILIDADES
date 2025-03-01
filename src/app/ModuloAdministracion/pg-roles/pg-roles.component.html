@@ -16,7 +16,6 @@
             <tr>
                 <th class="text-left">Nombre del Rol</th>
                 <th class="text-left">Descripción</th>
-                <th class="text-left">Fecha de Creación</th>
                 <th class="text-center">Estado</th>
                 <th class="text-center w-[150px]">Acciones</th> <!-- Ajusta el ancho -->
             </tr>
@@ -27,7 +26,6 @@
             <tr>
                 <td>{{ rol.nombre_rol }}</td>
                 <td>{{ rol.descripcion }}</td>
-                <td>{{ rol.fecha_creacion | date: 'dd/MM/yyyy HH:mm' }}</td>
                 <td class="text-center">
                     <p-tag [value]="rol.estado ? 'Activo' : 'Inactivo'"
                            [severity]="rol.estado ? 'success' : 'danger'">

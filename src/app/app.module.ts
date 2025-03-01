@@ -50,7 +50,7 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { SelectModule } from 'primeng/select';
 import { CarouselModule } from 'primeng/carousel';
-
+import { MessageModule } from 'primeng/message';
 @NgModule({
   declarations: [
     AppComponent,
@@ -98,7 +98,8 @@ import { CarouselModule } from 'primeng/carousel';
     PanelMenuModule,
     IftaLabelModule,
     SelectModule,
-    CarouselModule
+    CarouselModule,
+    MessageModule
 ],
   providers: [
     provideAnimationsAsync(),

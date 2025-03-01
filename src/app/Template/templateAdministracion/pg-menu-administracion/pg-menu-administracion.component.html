@@ -10,7 +10,7 @@
                       class="w-full flex items-center px-4 py-3 rounded-md transition-all duration-200"
                       [ngClass]="{
                           ' text-white font-semibold': item.routerLink.includes(activeMenu),
-                          'hover:bg-baseNaranja hover:text-white': !item.routerLink.includes(activeMenu)
+                          'hover:bg-primary hover:text-white': !item.routerLink.includes(activeMenu)
                       }"
                       (click)="setActiveMenu(item.routerLink)"
                   >
