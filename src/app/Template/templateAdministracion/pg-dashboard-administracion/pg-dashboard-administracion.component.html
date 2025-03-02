@@ -1,11 +1,17 @@
-<div class="contenedor-principal">
-    <app-pg-header-administracion></app-pg-header-administracion>
-    <div class="main-container-app">
-      <app-pg-menu-administracion></app-pg-menu-administracion>
-      <div id="content-wrapper">
-        <router-outlet></router-outlet>
+<div class="h-screen flex flex-col">
+  <!-- ✅ Header fijo arriba -->
+  <app-pg-header-administracion class="w-full"></app-pg-header-administracion>
+
+  <div class="flex flex-1 overflow-hidden">
+      <!-- ✅ Menú lateral fijo -->
+      <app-pg-menu-administracion class="w-64 flex-shrink-0 bg-gray-100"></app-pg-menu-administracion>
+
+      <!-- ✅ Contenido dinámico ocupa el espacio restante -->
+      <div id="content-wrapper" class="flex-1 overflow-y-auto p-6 bg-white">
+          <router-outlet></router-outlet>
       </div>
-    </div>
-    <app-pg-footer-administracion></app-pg-footer-administracion>
   </div>
-  
+
+  <!-- ✅ Footer abajo fijo -->
+  <app-pg-footer-administracion class="w-full"></app-pg-footer-administracion>
+</div>

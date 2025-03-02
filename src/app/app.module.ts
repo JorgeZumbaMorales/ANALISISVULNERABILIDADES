@@ -30,6 +30,9 @@ import { PgHeaderPublicoComponent } from './Template/templatePublico/pg-header-p
 import { PgPortadaInicialComponent } from './Template/templatePublico/pg-portada-inicial/pg-portada-inicial.component';
 import { PgPrincipalGestionDispositivosComponent } from './ModuloGestionDispositivos/pg-principal-gestion-dispositivos/pg-principal-gestion-dispositivos.component';
 import { PgDispositivosComponent } from './ModuloGestionDispositivos/pg-dispositivos/pg-dispositivos.component';
+import { PgPrincipalVulnerabilidadesComponent } from './ModuloVulnerabilidades/pg-principal-vulnerabilidades/pg-principal-vulnerabilidades.component';
+import { PgDispositivosVulnerablesComponent } from './ModuloVulnerabilidades/pg-dispositivos-vulnerables/pg-dispositivos-vulnerables.component';
+import { PgTraficoComponent } from './ModuloVulnerabilidades/pg-trafico/pg-trafico.component';
 // Módulos de PrimeNG
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -51,6 +54,7 @@ import { IftaLabelModule } from 'primeng/iftalabel';
 import { SelectModule } from 'primeng/select';
 import { CarouselModule } from 'primeng/carousel';
 import { MessageModule } from 'primeng/message';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -70,7 +74,10 @@ import { MessageModule } from 'primeng/message';
     PgRolesComponent,
     PgUsuariosComponent,
     PgPrincipalGestionDispositivosComponent,
-    PgDispositivosComponent
+    PgDispositivosComponent,
+    PgPrincipalVulnerabilidadesComponent,
+    PgDispositivosVulnerablesComponent,
+    PgTraficoComponent
     
   ],
   imports: [

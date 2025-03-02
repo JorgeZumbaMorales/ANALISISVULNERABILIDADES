@@ -1,17 +1,11 @@
 <p-toast></p-toast>
 <div >
-    <!-- Contenedor del título y el botón con espaciado -->
     <div class="header-gestion flex justify-between items-center mb-4">
-        <!-- 🛠 Título a la izquierda -->
         <h2 class="titulo-gestion text-xl font-semibold">Gestión de Usuarios</h2>
-    
-        <!-- 🛠 Botón a la derecha -->
         <p-button icon="pi pi-plus" label="Agregar Usuario" 
                   class="btn-agregar-usuario p-button-success"
                   (click)="manejarModal('agregarUsuario', true)"></p-button>
     </div>
-
-    <!-- Tabla de usuarios -->
     <p-table [value]="usuarios" [paginator]="true" [rows]="5" responsiveLayout="scroll" class="tabla-usuarios">
         <ng-template pTemplate="header">
             <tr>
@@ -22,8 +16,6 @@
                 <th class="text-center w-[150px]">Acciones</th> <!-- Ajusta el ancho -->
             </tr>
         </ng-template>
-        
-        <!-- Cuerpo de la tabla -->
         <ng-template pTemplate="body" let-usuario>
             <tr>
                 <td>{{ usuario.nombre_usuario }}</td>
@@ -34,7 +26,6 @@
                            [severity]="usuario.estado ? 'success' : 'danger'">
                     </p-tag>
                 </td>
-                <!-- Centrar botones de acciones -->
                 <td class="text-center flex justify-center items-center">
                     <div class="acciones-usuarios flex gap-2">
                         <p-button icon="pi pi-pencil" class="btn-accion editar"
@@ -47,23 +38,16 @@
         </ng-template>
     </p-table>
 </div>
-
-
 <p-dialog class="modal-agregar-usuario" [(visible)]="modalesVisibles['agregarUsuario']"
     [modal]="true" [header]="'Crear Usuario'" [closable]="false"
     class="w-full max-w-[45vw] md:max-w-[50vw] lg:max-w-[40vw] xl:max-w-[38vw] 2xl:max-w-[36vw]">
-    
     <form [formGroup]="formularioUsuario">
-        <!-- ✅ Agregamos margen superior para separar los inputs del header -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-            
-            <!-- Primera columna -->
             <div class="flex flex-col gap-4">
                 <p-iftalabel>
                     <input pInputText id="nombres_completos" formControlName="nombres_completos" autocomplete="off" class="w-full" />
                     <label for="nombres_completos">Nombres Completos</label>
                 </p-iftalabel>
-
                 <p-iftalabel>
                     <input pInputText id="nombre_usuario" formControlName="nombre_usuario" autocomplete="off" class="w-full" />
                     <label for="nombre_usuario">Nombre de Usuario</label>
@@ -89,14 +73,11 @@
                     <label for="password">Contraseña</label>
                 </p-iftalabel>
             </div>
-
-            <!-- Segunda columna -->
             <div class="flex flex-col gap-4">
                 <p-iftalabel>
                     <input pInputText id="apellidos_completos" formControlName="apellidos_completos" autocomplete="off" class="w-full" />
                     <label for="apellidos_completos">Apellidos Completos</label>
                 </p-iftalabel>
-
                 <p-iftalabel class="w-full">
                     <p-dropdown 
                         id="rol_id" 
@@ -120,15 +101,11 @@
                     <label for="password">Repetir contraseña</label>
                 </p-iftalabel>
             </div>
-
         </div>
     </form>
-
-    <!-- Footer del modal -->
     <div class="modal-footer flex justify-end items-center mt-6 space-x-4">
         <p-button label="Guardar" icon="pi pi-save" class="p-button-success" (click)="guardarUsuario()"></p-button>
-        <p-button label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="manejarModal('agregarUsuario', false)"></p-button>
-        
+        <p-button label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="manejarModal('agregarUsuario', false)"></p-button> 
     </div>
 </p-dialog>
 
