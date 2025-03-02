@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment'; 
@@ -20,11 +20,19 @@ export class ServiciosAutenticacion {
       .pipe(catchError(this.handleError));
   }
 
-  crearUsuario(usuario: any): Observable<any> {
+  
+  crearUsuario(usuario: any, rolId: number): Observable<any> {
+    console.log("SERVICIO USUARIO",usuario);
+    console.log("SERVICIO ROL ID", rolId);
+    const params = new HttpParams().set('rol_id', rolId.toString());
+
     return this.http.post<any>(
       `${this.apiUrlUsuarios}/crear_usuario`, 
       usuario, 
-      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+      {
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+        params: params 
+      }
     ).pipe(catchError(this.handleError));
   }
 

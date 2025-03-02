@@ -68,7 +68,10 @@
                     <input pInputText id="nombre_usuario" formControlName="nombre_usuario" autocomplete="off" class="w-full" />
                     <label for="nombre_usuario">Nombre de Usuario</label>
                 </p-iftalabel>
-
+                <p-iftalabel>
+                    <input pInputText id="email" formControlName="email" autocomplete="off" class="w-full" />
+                    <label for="email">Correo Electrónico</label>
+                </p-iftalabel>
                 <p-iftalabel>
                     <p-password formControlName="contrasena" [feedback]="true" [toggleMask]="true" promptLabel="Ingrese una contraseña" 
                     weakLabel="Muy Simple" mediumLabel="Complejidad Media" strongLabel="Complejidad Fuerte" appendTo="body" class="w-full">
@@ -105,7 +108,10 @@
                     </p-dropdown>
                     <label for="rol_id">Seleccione un rol</label>
                 </p-iftalabel>
-
+                <p-iftalabel>
+                    <input pInputText id="telefono" formControlName="telefono" autocomplete="off" class="w-full" />
+                    <label for="telefono">Número de Teléfono</label>
+                </p-iftalabel>
                 <p-iftalabel>
                     <p-password id="confirmar_contrasena" formControlName="confirmar_contrasena" 
                         promptLabel="Repita la contraseña" [toggleMask]="true" appendTo="body" class="w-full"
@@ -120,7 +126,7 @@
 
     <!-- Footer del modal -->
     <div class="modal-footer flex justify-end items-center mt-6 space-x-4">
-        <p-button label="Guardar" icon="pi pi-check" class="p-button-success" (click)="guardarUsuario()"></p-button>
+        <p-button label="Guardar" icon="pi pi-save" class="p-button-success" (click)="guardarUsuario()"></p-button>
         <p-button label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="manejarModal('agregarUsuario', false)"></p-button>
         
     </div>

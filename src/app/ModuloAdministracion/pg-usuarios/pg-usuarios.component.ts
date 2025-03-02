@@ -86,8 +86,8 @@ export class PgUsuariosComponent implements OnInit {
   /** ✅ Guardar usuario (sin validaciones de formulario) */
   guardarUsuario() {
     const usuario = this.formularioUsuario.value;
-
-    this.servicioAuth.crearUsuario(usuario).subscribe({
+    const rolId = usuario.rol_id ? usuario.rol_id.value : null;
+    this.servicioAuth.crearUsuario(usuario, rolId).subscribe({
       next: () => {
         this.mostrarMensaje('success', 'Éxito', 'Usuario agregado correctamente');
         this.obtenerUsuarios();

@@ -8,10 +8,7 @@ export class ValidacionesUsuarioService {
 
   constructor() {}
 
-  /**
-   * Valida que el nombre de usuario tenga mínimo 4 y máximo 50 caracteres,
-   * solo permitiendo letras, números y guiones bajos.
-   */
+
   nombreUsuarioValido(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const regex = /^[a-zA-Z0-9_]{4,50}$/;
@@ -19,11 +16,7 @@ export class ValidacionesUsuarioService {
     };
   }
 
-  /**
-   * Valida la contraseña con:
-   * - Mínimo 8 caracteres
-   * - Al menos una letra mayúscula, una minúscula y un número
-   */
+
   contrasenaFuerte(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,50}$/;
@@ -31,9 +24,7 @@ export class ValidacionesUsuarioService {
     };
   }
 
-  /**
-   * Valida que el email tenga un formato válido.
-   */
+
   emailValido(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -41,9 +32,7 @@ export class ValidacionesUsuarioService {
     };
   }
 
-  /**
-   * Valida que el número de teléfono tenga entre 10 y 15 dígitos numéricos.
-   */
+
   telefonoValido(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const regex = /^[0-9]{10,15}$/;
@@ -51,9 +40,29 @@ export class ValidacionesUsuarioService {
     };
   }
 
-  /**
-   * Valida que las contraseñas coincidan.
-   */
+
+  nombresValidos(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const regex = /^[a-zA-ZÀ-ÿ\s]{3,50}$/;
+      return regex.test(control.value) ? null : { nombresInvalidos: true };
+    };
+  }
+
+
+  apellidosValidos(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const regex = /^[a-zA-ZÀ-ÿ\s]{3,50}$/;
+      return regex.test(control.value) ? null : { apellidosInvalidos: true };
+    };
+  }
+
+  rolValido(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      return control.value ? null : { rolInvalido: true };
+    };
+  }
+
+
   static contrasenasCoinciden(control: AbstractControl): ValidationErrors | null {
     const contrasena = control.get('contrasena')?.value;
     const confirmarContrasena = control.get('confirmar_contrasena')?.value;
