@@ -90,8 +90,22 @@ export class ServiciosAutenticacion {
   }
 
   // ===================== MANEJO DE ERRORES =====================
-  private handleError(error: any) {
+  private handleError(error: any): Observable<never> {
     console.error('Error en la petición:', error);
-    return throwError(() => new Error(error.message || 'Error en el servicio de autenticación'));
+
+    let mensajeError = 'Ocurrió un error inesperado';
+
+    if (error.error && error.error.detail) {
+        mensajeError = error.error.detail; // Capturar mensaje del backend
+    } else if (error.error && typeof error.error === 'string') {
+        mensajeError = error.error; // Para errores en texto plano
+    }
+
+    // ✅ Limpiar mensaje eliminando códigos de error innecesarios
+    mensajeError = mensajeError.replace(/.*:\s\d{3}:\s/, ''); // Borra "Error en la base de datos: 400: "
+
+    return throwError(() => new Error(mensajeError));
   }
+
+
 }

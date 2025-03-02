@@ -87,29 +87,30 @@ export class PgUsuariosComponent implements OnInit {
   guardarUsuario() {
     const usuario = this.formularioUsuario.value;
     const rolId = usuario.rol_id ? usuario.rol_id.value : null;
+
     this.servicioAuth.crearUsuario(usuario, rolId).subscribe({
       next: () => {
         this.mostrarMensaje('success', 'Éxito', 'Usuario agregado correctamente');
         this.obtenerUsuarios();
         this.manejarModal('agregarUsuario', false);
       },
-      error: () => {
-        this.mostrarMensaje('error', 'Error', 'No se pudo guardar el usuario');
+      error: (error) => { // ✅ Capturar error aquí
+        this.mostrarMensaje('error', 'Error', error.message); // ✅ Mostrar el mensaje del backend
       }
     });
-  }
+}
 
-  /** ✅ Mostrar mensajes con p-toast */
+
+  
   mostrarMensaje(severity: string, summary: string, detail: string) {
     this.messageService.add({ severity, summary, detail });
   }
 
-  /** ✅ Editar usuario */
   editarUsuario(usuario: any) {
     console.log('Editar usuario:', usuario);
   }
 
-  /** ✅ Eliminar usuario */
+  
   eliminarUsuario(usuario: any) {
     this.usuarios = this.usuarios.filter(u => u !== usuario);
   }
