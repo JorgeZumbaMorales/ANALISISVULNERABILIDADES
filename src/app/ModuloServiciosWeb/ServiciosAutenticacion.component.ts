@@ -13,6 +13,12 @@ export class ServiciosAutenticacion {
 
   constructor(private http: HttpClient) {}
 
+  // ===================== INICIAR SESIÓN =====================
+
+  iniciarSesion(credenciales: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrlUsuarios}/login`, credenciales)
+        .pipe(catchError(this.handleError));
+}
   // ===================== USUARIOS =====================
 
   listarUsuarios(): Observable<any> {

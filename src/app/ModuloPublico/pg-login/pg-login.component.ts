@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-
+import { SesionUsuarioService } from '../../Seguridad/sesion-usuario.service';
+import { ServiciosAutenticacion } from '../../ModuloServiciosWeb/ServiciosAutenticacion.component';
+import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-pg-login',
   standalone: false,
@@ -17,12 +19,31 @@ export class PgLoginComponent {
   usuarioRecuperacion: string = '';
   correoRecuperacion: string = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router,
+    private authService: ServiciosAutenticacion, 
+    private sesionService: SesionUsuarioService, 
+    private messageService: MessageService
+  ) {}
 
   iniciarSesion() {
-    console.log('Usuario:', this.usuario);
-    console.log('Contraseña:', this.contrasena);
+    const credenciales = { nombre_usuario: this.usuario, contrasena: this.contrasena };
+  
+    this.authService.iniciarSesion(credenciales).subscribe({
+      next: (respuesta) => {
+        this.sesionService.guardarSesion(respuesta.access_token, respuesta.usuario);
+        this.router.navigate(['/admin/inicio']);
+      },
+      error: (error) => {
+        console.error('Error al iniciar sesión:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Usuario o contraseña incorrectos',
+        });
+      }
+    });
   }
+  
 
   volverInicio() {
     this.router.navigate(['/public']);

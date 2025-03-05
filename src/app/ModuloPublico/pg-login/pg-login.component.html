@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <main class="flex min-h-screen w-full">
     <!-- Sección de información -->
     <div class="w-1/2 flex flex-col justify-center items-center text-center p-10 bg-baseAzulOscuro text-white">
@@ -8,27 +9,27 @@
         </p>
         <img src="" alt="Seguridad informática" class="w-52 h-auto" />
     </div>
-  
-    <!-- Sección de formulario -->
     <div class="w-1/2 flex flex-col justify-center items-center bg-white p-12">
         <h2 class="text-2xl font-semibold text-center mb-6 text-baseAzulOscuro">Iniciar Sesión</h2>
-  
-        <form class="w-full max-w-md space-y-6" (submit)="iniciarSesion()">
-          <div class="form-group">
-              <p-iftalabel>
-                  <input pInputText id="usuario" name="usuario" [(ngModel)]="usuario" autocomplete="off" class="w-full p-inputtext-lg" />
-                  <label for="usuario">Usuario</label>
-              </p-iftalabel>
-          </div>
-      
-          <div class="form-group">
-              <p-iftalabel>
-                  <input pInputText id="contrasena" name="contrasena" type="password" [(ngModel)]="contrasena" autocomplete="off" class="w-full p-inputtext-lg" />
-                  <label for="contrasena">Contraseña</label>
-              </p-iftalabel>
-          </div>
-      
-          <!-- 🔹 Botón PrimeNG centrado dentro del formulario -->
+        <form class=" max-w-md space-y-6" (submit)="iniciarSesion()">
+            <div class="form-group w-full">
+                <p-iftalabel class="w-full">
+                    <input pInputText id="usuario" [(ngModel)]="usuario" autocomplete="off" class="w-full"/>
+                    <label for="usuario">Usuario</label>
+                </p-iftalabel>
+            </div>
+            
+            <div class="form-group w-full">
+                <p-iftalabel class="w-full">
+                    <p-password [(ngModel)]="contrasena" [toggleMask]="true" inputId="contrasena"
+                                name="contrasena"
+                                [feedback]="false"
+                                inputStyleClass="w-full">
+                    </p-password>
+                    <label for="contrasena">Contraseña</label>
+                </p-iftalabel>
+            </div>
+            
           <div class="form-group flex justify-center items-center w-full mt-6">
             <p-button 
                 type="submit" 
@@ -42,19 +43,14 @@
           ¿Olvidaste tu contraseña?
         </a>
       </p>
-
       <p class="text-center mt-6">
           <a (click)="volverInicio()" class="text-baseAzulOscuro hover:underline cursor-pointer flex items-center justify-center">
               <i class="pi pi-arrow-left mr-1"></i> Volver al Inicio
           </a>
       </p>
-  
-      
     </div>
   </main>
   
-
-  <!-- 🔹 Modal PrimeNG -->
   <p-dialog [(visible)]="modalRecuperacion" [modal]="true" [closable]="false" [style]="{ width: '32vw' }">
     <ng-template pTemplate="header">
         <h2 class="text-xl font-semibold text-textoPrincipal">Recuperar Contraseña</h2>

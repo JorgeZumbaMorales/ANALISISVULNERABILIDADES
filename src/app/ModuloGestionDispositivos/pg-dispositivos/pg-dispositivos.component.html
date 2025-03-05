@@ -1,10 +1,10 @@
 <div>
-    <!-- 🛠 Contenedor del título y el botón de agregar -->
+    <!-- 🛠 Contenedor del título -->
     <div class="header-gestion flex justify-between items-center mb-4">
         <h2 class="titulo-gestion text-xl font-semibold">Gestión de Dispositivos</h2>
         <p-button icon="pi pi-plus" label="Agregar Dispositivo" 
                   class="p-button-success"
-                  (click)="mostrarModalAgregar()">
+                  >
         </p-button>
     </div>
 
@@ -13,17 +13,17 @@
         <ng-template pTemplate="header">
             <tr>
                 <th class="text-left">MAC Address</th>
-                <th class="text-left">SIstema Operativo</th>
+                <th class="text-left">Sistema Operativo</th>
                 <th class="text-left">Última IP Asignada</th>
                 <th class="text-center">Estado</th>
-                <th class="text-center w-[150px]">Acciones</th>
+                <th class="text-center w-[150px]">Acciones</th> <!-- Ajustamos ancho para acciones -->
             </tr>
         </ng-template>
 
         <ng-template pTemplate="body" let-dispositivo>
             <tr>
                 <td>{{ dispositivo.mac_address }}</td>
-                <td>{{ dispositivo.fabricante || 'Desconocido' }}</td>
+                <td>{{ dispositivo.sistema_operativo || 'Desconocido' }}</td>
                 <td>{{ dispositivo.ultima_ip || 'No asignada' }}</td>
                 <td class="text-center">
                     <p-tag [value]="dispositivo.estado ? 'Activo' : 'Inactivo'"
@@ -45,41 +45,4 @@
     </p-table>
 </div>
 
-<!-- 🛠 Modal para agregar/editar dispositivos -->
-<p-dialog [(visible)]="modalVisible" [modal]="true" [header]="'Agregar/Editar Dispositivo'" 
-          [closable]="false" [style]="{ width: '40vw' }">
-    <form [formGroup]="formularioDispositivo">
-        <div class="modal-formulario grid grid-cols-2 gap-4 mt-4">
-            <div class="flex flex-col gap-4">
-                <p-iftalabel>
-                    <input pInputText id="mac_address" formControlName="mac_address" autocomplete="off" />
-                    <label for="mac_address">MAC Address</label>
-                </p-iftalabel>
 
-                <p-iftalabel>
-                    <input pInputText id="fabricante" formControlName="fabricante" autocomplete="off" />
-                    <label for="fabricante">Sistema Operativo</label>
-                </p-iftalabel>
-            </div>
-
-            <div class="flex flex-col gap-4">
-                <p-iftalabel>
-                    <input pInputText id="ultima_ip" formControlName="ultima_ip" autocomplete="off" />
-                    <label for="ultima_ip">Última IP Asignada</label>
-                </p-iftalabel>
-
-                <p-checkbox id="estado" formControlName="estado" binary="true"></p-checkbox>
-                <label for="estado">Activo</label>
-            </div>
-        </div>
-    </form>
-
-    <!-- 🛠 Botones del modal -->
-    <div class="modal-footer flex justify-between items-center mt-4">
-        <div></div>
-        <div class="flex gap-2">
-            <p-button label="Guardar" icon="pi pi-check" class="p-button-success" (click)="guardarDispositivo()"></p-button>
-            <p-button label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="cerrarModal()"></p-button>
-        </div>
-    </div>
-</p-dialog>
