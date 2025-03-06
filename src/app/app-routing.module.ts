@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+// Importar el Auth Guard
+import { AuthGuard } from './Seguridad/auth.guard';
 
 // Importar los componentes principales
 import { PgInicioPortadaComponent } from './Template/pg-inicio-portada/pg-inicio-portada.component';
@@ -32,6 +34,7 @@ const routes: Routes = [
   { 
     path: 'admin',
     component: PgDashboardAdministracionComponent, // 📌 Contenedor Principal
+    canActivate: [AuthGuard],
     children: [
       { path: 'inicio', component: PgAdminInicioComponent }, // 📌 Pantalla de Inicio en Admin
 

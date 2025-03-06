@@ -4,36 +4,40 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class SesionUsuarioService {
-  private claveToken = 'token';
-  private claveUsuario = 'usuario';
 
   constructor() {}
 
-  // 📌 Guardar token y datos del usuario en localStorage
-  guardarSesion(token: string, usuario: any) {
-    localStorage.setItem(this.claveToken, token);
-    localStorage.setItem(this.claveUsuario, JSON.stringify(usuario));
+  // ✅ Guardar solo el token en localStorage
+  guardarSesion(token: string) {
+    localStorage.setItem('token', token);
   }
 
-  // 📌 Obtener el token
+  // ✅ Obtener el token almacenado
   obtenerToken(): string | null {
-    return localStorage.getItem(this.claveToken);
+    return localStorage.getItem('token');
   }
 
-  // 📌 Obtener datos del usuario
-  obtenerUsuario(): any {
-    const usuario = localStorage.getItem(this.claveUsuario);
-    return usuario ? JSON.parse(usuario) : null;
+  // ✅ Extraer información del usuario desde el token
+  obtenerUsuarioDesdeToken(): any {
+    const token = this.obtenerToken();
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1])); // Decodificar el payload del JWT
+      return payload;
+    } catch (error) {
+      console.error("Error al decodificar el token:", error);
+      return null;
+    }
   }
 
-  // 📌 Verificar si hay sesión activa
+  // ✅ Verificar si el usuario está autenticado
   estaAutenticado(): boolean {
     return this.obtenerToken() !== null;
   }
 
-  // 📌 Cerrar sesión
+  // ✅ Cerrar sesión eliminando solo el token
   cerrarSesion() {
-    localStorage.removeItem(this.claveToken);
-    localStorage.removeItem(this.claveUsuario);
+    localStorage.removeItem('token');
   }
 }

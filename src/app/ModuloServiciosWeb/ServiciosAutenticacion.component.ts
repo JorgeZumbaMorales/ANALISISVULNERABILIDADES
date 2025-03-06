@@ -8,6 +8,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class ServiciosAutenticacion {
+  private apiUrlAuth = `${environment.apiUrl}/auth`; 
   private apiUrlUsuarios = `${environment.apiUrl}/usuarios`; 
   private apiUrlRoles = `${environment.apiUrl}/roles`;
 
@@ -16,9 +17,10 @@ export class ServiciosAutenticacion {
   // ===================== INICIAR SESIÓN =====================
 
   iniciarSesion(credenciales: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrlUsuarios}/login`, credenciales)
+    console.log("CREDENCIALES",credenciales);
+    return this.http.post<any>(`${this.apiUrlAuth}/login`, credenciales)
         .pipe(catchError(this.handleError));
-}
+  }
   // ===================== USUARIOS =====================
 
   listarUsuarios(): Observable<any> {

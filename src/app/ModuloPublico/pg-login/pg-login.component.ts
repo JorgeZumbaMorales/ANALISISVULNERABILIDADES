@@ -25,24 +25,38 @@ export class PgLoginComponent {
     private messageService: MessageService
   ) {}
 
+  mostrarMensaje(severity: string, summary: string, detail: string) {
+    this.messageService.add({ severity, summary, detail });
+  }
+
   iniciarSesion() {
+    // ✅ Verificar si los campos están vacíos antes de enviar la solicitud
+    if (!this.usuario.trim() || !this.contrasena.trim()) {
+      this.mostrarMensaje('warn', 'Campos Vacíos', 'Por favor, ingrese su usuario y contraseña');
+      return;
+    }
+
     const credenciales = { nombre_usuario: this.usuario, contrasena: this.contrasena };
-  
+
     this.authService.iniciarSesion(credenciales).subscribe({
       next: (respuesta) => {
-        this.sesionService.guardarSesion(respuesta.access_token, respuesta.usuario);
-        this.router.navigate(['/admin/inicio']);
+        console.log("Datos recibidos:", respuesta);
+
+        // ✅ Si hay token, guardar en sesión y redirigir
+        if (respuesta?.access_token) {
+          this.sesionService.guardarSesion(respuesta.access_token);
+          this.router.navigate(['/admin/inicio']);
+        } else {
+          this.mostrarMensaje('error', 'Error', 'No se pudo iniciar sesión, intente nuevamente.');
+        }
       },
-      error: (error) => {
-        console.error('Error al iniciar sesión:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Usuario o contraseña incorrectos',
-        });
+      error: () => {
+        this.mostrarMensaje('error', 'Error', 'Usuario o contraseña incorrectos');
       }
     });
   }
+
+  
   
 
   volverInicio() {
