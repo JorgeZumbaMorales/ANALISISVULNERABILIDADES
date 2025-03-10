@@ -54,7 +54,8 @@ import { IftaLabelModule } from 'primeng/iftalabel';
 import { SelectModule } from 'primeng/select';
 import { CarouselModule } from 'primeng/carousel';
 import { MessageModule } from 'primeng/message';
-
+import { InputOtp } from 'primeng/inputotp';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 @NgModule({
   declarations: [
     AppComponent,
@@ -106,7 +107,9 @@ import { MessageModule } from 'primeng/message';
     IftaLabelModule,
     SelectModule,
     CarouselModule,
-    MessageModule
+    MessageModule,
+    InputOtp,
+    ProgressSpinnerModule
 ],
   providers: [
     provideAnimationsAsync(),

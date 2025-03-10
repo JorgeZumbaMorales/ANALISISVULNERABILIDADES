@@ -9,6 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class ServiciosAutenticacion {
   private apiUrlAuth = `${environment.apiUrl}/auth`; 
+  private apiUrlRecuperacion = `${environment.apiUrl}/recuperacion`; 
   private apiUrlUsuarios = `${environment.apiUrl}/usuarios`; 
   private apiUrlRoles = `${environment.apiUrl}/roles`;
 
@@ -63,6 +64,38 @@ export class ServiciosAutenticacion {
       .pipe(catchError(this.handleError));
   }
 
+  buscarUsuarioPorNombre(nombreUsuario: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrlUsuarios}/buscar_por_nombre/${nombreUsuario}`)
+      .pipe(catchError(this.handleError));
+  }
+
+  buscarUsuarioPorCorreo(correo: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrlUsuarios}/buscar_por_correo/${correo}`)
+      .pipe(catchError(this.handleError));
+  }
+  
+  actualizarContrasena(datos: { usuario_id: number, nueva_contrasena: string }): Observable<any> {
+    console.log("DATOS",datos);
+    return this.http.put<any>(`${this.apiUrlUsuarios}/actualizar_contrasena`, datos)
+      .pipe(catchError(this.handleError));
+  }
+
+  solicitarRecuperacion(datos: { usuario?: string; correo?: string }): Observable<any> {
+    console.log("DATOS",datos);
+    return this.http.post<any>(
+        `${this.apiUrlRecuperacion}/solicitar`, 
+        datos, 
+        {
+            headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+        }
+    ).pipe(catchError(this.handleError));
+  } 
+  verificarCodigo(codigo: string, usuario: string): Observable<any> {
+    return this.http.post<any>(
+        `${this.apiUrlRecuperacion}/validar_codigo`,
+        { usuario, codigo }
+    ).pipe(catchError(this.handleError));
+  }
   // ===================== ROLES =====================
 
   listarRoles(): Observable<any> {
