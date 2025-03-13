@@ -22,6 +22,10 @@ export class ServiciosDispositivos {
     return this.http.get<any>(`${this.apiUrlDispositivos}/listar_dispositivos_completo`)
       .pipe(catchError(this.handleError));
   }
+  listarTodosLosDispositivosCompleto(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrlDispositivos}/listar_todos_los_dispositivos_completo`)
+      .pipe(catchError(this.handleError));
+  }
   crearDispositivo(dispositivo: any): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrlDispositivos}/crear_dispositivo`, 

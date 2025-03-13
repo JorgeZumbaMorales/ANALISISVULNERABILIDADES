@@ -1,0 +1,57 @@
+<div class="card">
+    <p-table
+        #dt
+        [value]="dispositivos"
+        dataKey="dispositivo_id"
+        [rows]="10"
+        [paginator]="true"
+        [globalFilterFields]="['mac_address', 'sistema_operativo', 'ultima_ip', 'estado']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+    >
+        <!-- 🔍 Barra de búsqueda global -->
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <p-iconfield iconPosition="left" class="ml-auto">
+                    <p-inputicon>
+                        <i class="pi pi-search"></i>
+                    </p-inputicon>
+                    <input
+                        pInputText
+                        type="text"
+                        (input)="filtrarDispositivos($event)" 
+                        placeholder="Buscar dispositivo..."
+                    />
+                </p-iconfield>
+            </div>
+        </ng-template>
+
+        <!-- 📌 Encabezado de la tabla -->
+        <ng-template pTemplate="header">
+            <tr>
+                
+                <th pSortableColumn="mac_address">MAC Address <p-sortIcon field="mac_address" /></th>
+                <th pSortableColumn="sistema_operativo">Sistema Operativo <p-sortIcon field="sistema_operativo" /></th>
+                <th pSortableColumn="ultima_ip">Última IP <p-sortIcon field="ultima_ip" /></th>
+                <th pSortableColumn="estado">Estado <p-sortIcon field="estado" /></th>
+            </tr>
+        </ng-template>
+
+        <!-- 📌 Cuerpo de la tabla -->
+        <ng-template pTemplate="body" let-dispositivo>
+            <tr>
+               
+                <td>{{ dispositivo.mac_address }}</td>
+                <td>{{ dispositivo.sistema_operativo || 'Desconocido' }}</td>
+                <td>{{ dispositivo.ultima_ip ? dispositivo.ultima_ip : 'No asignada' }}</td>
+                <td>{{ dispositivo.estado ? 'Activo' : 'Inactivo' }}</td>
+            </tr>
+        </ng-template>
+
+        <!-- 📌 Mensaje cuando no hay datos -->
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="5" class="text-center">No hay dispositivos registrados.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

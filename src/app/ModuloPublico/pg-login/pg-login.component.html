@@ -1,6 +1,5 @@
 <p-toast></p-toast>
 <main class="flex min-h-screen w-full">
-    <!-- Sección de información -->
     <div class="w-1/2 flex flex-col justify-center items-center text-center p-10 bg-baseAzulOscuro text-white">
         <h1 class="text-3xl font-bold mb-6">¡Bienvenido a RedSegura!</h1>
         <p class="text-lg mb-8 max-w-md">
@@ -18,7 +17,6 @@
                     <label for="usuario">Usuario</label>
                 </p-iftalabel>
             </div>
-            
             <div class="form-group w-full">
                 <p-iftalabel class="w-full">
                     <p-password name="contrasena" [(ngModel)]="contrasena" [toggleMask]="true" inputId="contrasena"
@@ -28,7 +26,6 @@
                     <label for="contrasena">Contraseña</label>
                 </p-iftalabel>
             </div>
-            
           <div class="form-group flex justify-center items-center w-full mt-6">
             <p-button 
                 type="submit" 
@@ -49,15 +46,12 @@
       </p>
     </div>
   </main>
-  
   <p-dialog [(visible)]="modalRecuperacion" [modal]="true" [closable]="false" [style]="{ width: '32vw' }">
     <ng-template pTemplate="header">
         <h2 class="text-xl font-semibold text-textoPrincipal">
             {{ cargandoRecuperacion ? 'Enviando Código...' : 'Recuperar Contraseña' }}
         </h2>
     </ng-template>
-
-    <!-- 🔹 Contenido del modal (Mantiene el tamaño y se atenúa si cargandoRecuperacion es true) -->
     <div class="p-4 relative">
         <div [class.opacity-50]="cargandoRecuperacion">
             <p-tabView [(activeIndex)]="indiceRecuperacion">
@@ -69,7 +63,6 @@
                         </p-iftalabel>
                     </div>
                 </p-tabPanel>
-
                 <p-tabPanel header="Por Correo">
                     <div class="mt-4">
                         <p-iftalabel>
@@ -80,18 +73,14 @@
                 </p-tabPanel>
             </p-tabView>
         </div>
-
-        <!-- 🔹 Spinner flotante (sin colapsar el modal) -->
         <div class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50" *ngIf="cargandoRecuperacion">
             <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s" 
                                 [style]="{ width: '70px', height: '70px' }">
             </p-progress-spinner>
         </div>
     </div>
-
     <ng-template pTemplate="footer">
         <div class="relative w-full">
-            <!-- 🔹 Botones atenuados si cargandoRecuperacion es true -->
             <div class="flex justify-center space-x-3 mb-2" [class.opacity-50]="cargandoRecuperacion">
                 <p-button 
                     label="Enviar Código" 
@@ -110,14 +99,10 @@
         </div>
     </ng-template>
 </p-dialog>
-
-<!-- 🟠 MODAL: Ingresar Código OTP -->
 <p-dialog [(visible)]="modalCodigo" [modal]="true" [closable]="false" [style]="{ width: '38vw' }">
     <ng-template pTemplate="header">
         <h2 class="text-2xl font-semibold text-textoPrincipal text-center w-full">Código de Verificación</h2>
     </ng-template>
-    
-    <!-- 🔹 Contenedor principal con alineación perfecta -->
     <div class="p-6 flex flex-col items-center space-y-6 w-full">
         <div class="w-full flex justify-center">
             <p-inputotp 
@@ -129,9 +114,7 @@
             />
         </div>
     </div>
-
     <ng-template pTemplate="footer">
-        <!-- 🔹 Botones con tamaño uniforme y alineación centrada -->
         <div class="flex justify-center gap-6 w-full px-6">
             <p-button 
                 label="Validar Código" 
@@ -153,9 +136,7 @@
     <ng-template pTemplate="header">
         <h2 class="text-xl font-semibold text-textoPrincipal text-center">Actualizar Contraseña</h2>
     </ng-template>
-
     <div class="p-4 flex flex-col space-y-4">
-        <!-- 🔹 Campo Nueva Contraseña -->
         <p-iftalabel>
             <p-password [(ngModel)]="nuevaContrasena" [feedback]="true" [toggleMask]="true" promptLabel="Ingrese una contraseña" 
                 weakLabel="Muy Simple" mediumLabel="Complejidad Media" strongLabel="Complejidad Fuerte" appendTo="body" class="w-full">
@@ -172,8 +153,6 @@
             </p-password>
             <label for="password">Nueva Contraseña</label>
         </p-iftalabel>
-
-        <!-- 🔹 Espaciado entre los inputs -->
         <p-iftalabel class="mt-2">
             <p-password [(ngModel)]="confirmarContrasena" [toggleMask]="true" appendTo="body" class="w-full"></p-password>
             <label>Confirmar Contraseña</label>

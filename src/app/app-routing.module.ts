@@ -16,6 +16,8 @@ import { PgDispositivosComponent } from './ModuloGestionDispositivos/pg-disposit
 import { PgPrincipalVulnerabilidadesComponent } from './ModuloVulnerabilidades/pg-principal-vulnerabilidades/pg-principal-vulnerabilidades.component';
 import { PgDispositivosVulnerablesComponent } from './ModuloVulnerabilidades/pg-dispositivos-vulnerables/pg-dispositivos-vulnerables.component';
 import { PgTraficoComponent } from './ModuloVulnerabilidades/pg-trafico/pg-trafico.component';
+import { PgHistorialDispositivosComponent } from './ModuloGestionDispositivos/pg-historial-dispositivos/pg-historial-dispositivos.component';
+
 const routes: Routes = [
   { 
     path: '', 
@@ -53,6 +55,7 @@ const routes: Routes = [
         component: PgPrincipalGestionDispositivosComponent,
         children: [
           { path: 'dispositivos', component: PgDispositivosComponent },
+          { path: 'historial', component: PgHistorialDispositivosComponent },
           { path: '', redirectTo: 'dispositivos', pathMatch: 'full' } 
         ]
       },

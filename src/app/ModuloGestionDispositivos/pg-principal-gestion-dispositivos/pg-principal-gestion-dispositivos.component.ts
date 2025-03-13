@@ -9,8 +9,10 @@ import { filter } from 'rxjs/operators';
 })
 export class PgPrincipalGestionDispositivosComponent {
   tabs = [
-    { label: 'Dispositivos', route: '/admin/gestion/dispositivos', icon: 'pi pi-server' }
-  ];
+    { label: 'Dispositivos', route: '/admin/gestion/dispositivos', icon: 'pi pi-server' },
+    { label: 'Historial', route: '/admin/gestion/historial', icon: 'pi pi-clock' }  // ✅ Nueva pestaña
+];
+
   
   activeTab: string = this.tabs[0].route;
 

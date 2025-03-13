@@ -56,6 +56,9 @@ import { CarouselModule } from 'primeng/carousel';
 import { MessageModule } from 'primeng/message';
 import { InputOtp } from 'primeng/inputotp';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { PgHistorialDispositivosComponent } from './ModuloGestionDispositivos/pg-historial-dispositivos/pg-historial-dispositivos.component';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 @NgModule({
   declarations: [
     AppComponent,
@@ -78,7 +81,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
     PgDispositivosComponent,
     PgPrincipalVulnerabilidadesComponent,
     PgDispositivosVulnerablesComponent,
-    PgTraficoComponent
+    PgTraficoComponent,
+    PgHistorialDispositivosComponent
     
   ],
   imports: [
@@ -109,7 +113,9 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
     CarouselModule,
     MessageModule,
     InputOtp,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    IconFieldModule,
+    InputIconModule
 ],
   providers: [
     provideAnimationsAsync(),
