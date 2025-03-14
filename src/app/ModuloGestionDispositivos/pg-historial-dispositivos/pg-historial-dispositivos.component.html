@@ -43,7 +43,11 @@
                 <td>{{ dispositivo.mac_address }}</td>
                 <td>{{ dispositivo.sistema_operativo || 'Desconocido' }}</td>
                 <td>{{ dispositivo.ultima_ip ? dispositivo.ultima_ip : 'No asignada' }}</td>
-                <td>{{ dispositivo.estado ? 'Activo' : 'Inactivo' }}</td>
+                <td >
+                    <p-tag [value]="dispositivo.estado ? 'Activo' : 'Inactivo'"
+                           [severity]="dispositivo.estado ? 'success' : 'danger'">
+                    </p-tag>
+                </td>
             </tr>
         </ng-template>
 
