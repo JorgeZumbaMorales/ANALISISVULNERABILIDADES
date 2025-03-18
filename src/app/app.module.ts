@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import Lara from '@primeng/themes/lara';
+import Aura from '@primeng/themes/aura';
 import { MessageService } from 'primeng/api';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -59,6 +59,14 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PgHistorialDispositivosComponent } from './ModuloGestionDispositivos/pg-historial-dispositivos/pg-historial-dispositivos.component';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { ChipModule } from 'primeng/chip';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { BadgeModule } from 'primeng/badge';
+import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { AccordionModule } from 'primeng/accordion';
+import { DataViewModule } from 'primeng/dataview';
+import { PanelModule } from 'primeng/panel';
+import { MultiSelectModule } from 'primeng/multiselect';
 @NgModule({
   declarations: [
     AppComponent,
@@ -115,13 +123,21 @@ import { InputIconModule } from 'primeng/inputicon';
     InputOtp,
     ProgressSpinnerModule,
     IconFieldModule,
-    InputIconModule
+    InputIconModule,
+    ChipModule,
+    SplitButtonModule,
+    BadgeModule,
+    OverlayBadgeModule,
+    AccordionModule,
+    DataViewModule,
+    PanelModule,
+    MultiSelectModule
 ],
   providers: [
     provideAnimationsAsync(),
         providePrimeNG({
             theme: {
-                preset: Lara,
+                preset: Aura,
                 options: {
                   darkModeSelector: '.my-app-dark',
                   cssLayer: {

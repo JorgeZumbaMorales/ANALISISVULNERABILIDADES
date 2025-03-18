@@ -1,1 +1,83 @@
-<p>pg-dispositivos-vulnerables works!</p>
+<section class="p-4">
+    <!-- 🔹 Encabezado -->
+    <div class="bg-baseAzulOscuro text-textoSecundario p-6 rounded-xl shadow-md text-center mb-6">
+        <h1 class="text-2xl font-semibold">Dispositivos en Riesgo</h1>
+        <p class="text-lg mt-1">Lista de dispositivos organizados por nivel de riesgo.</p>
+    </div>
+    <p-accordion>
+        <ng-container *ngFor="let riesgo of ['Alto', 'Medio', 'Bajo']">
+            <p-accordionTab [header]="'Dispositivos con Riesgo ' + riesgo">
+                <ng-container *ngFor="let dispositivo of obtenerDispositivos(riesgo)">
+                    <p-panel>
+                        <ng-template pTemplate="header">
+                            <div class="flex items-center gap-3">
+                                <i class="pi pi-server text-lg"></i>
+                                <span class="font-semibold">{{ dispositivo.macAddress }}</span>
+                                <p-tag [value]="dispositivo.riesgo" [severity]="obtenerColorEtiqueta(dispositivo.riesgo)"></p-tag>
+                            </div>
+                        </ng-template>
+                        <div class="mt-2">
+                            <p class="text-sm font-semibold">Puertos Abiertos:</p>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <p-chip *ngFor="let puerto of dispositivo.puertosAbiertos"
+                                    [label]="puerto.numero + ' - ' + (puerto.servicio || 'Desconocido')">
+                                </p-chip>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <p-multiSelect 
+                                [options]="dispositivo.puertosAbiertos"
+                                optionLabel="numero"
+                                [(ngModel)]="dispositivo.puertosSeleccionados"
+                                placeholder="Selecciona puertos para recomendación"
+                                appendTo="body">
+                            </p-multiSelect>
+                        </div>
+                        <div class="mt-4 flex justify-end">
+                            <p-button 
+                                [disabled]="dispositivo.cargandoRecomendaciones"
+                                severity="info"
+                                (click)="mostrarRecomendaciones(dispositivo)">
+                                
+                                <ng-container *ngIf="!dispositivo.cargandoRecomendaciones">
+                                    <i class="pi pi-shield"></i>
+                                    <span class="ml-2">Ver Recomendaciones</span>
+                                </ng-container>
+                        
+                                <ng-container *ngIf="dispositivo.cargandoRecomendaciones">
+                                    <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s"
+                                        [style]="{ width: '20px', height: '20px' }"></p-progress-spinner>
+                                    <span class="ml-2">Generando...</span>
+                                </ng-container>
+                        
+                            </p-button>
+                        </div>                        
+                    </p-panel>
+                </ng-container>
+            </p-accordionTab>
+        </ng-container>
+    </p-accordion>
+    <p-dialog [(visible)]="dialogoVisible" header="Recomendaciones de Seguridad" [modal]="true" [style]="{width: '50vw'}">
+        <div *ngIf="listaRecomendaciones.length > 0">
+            <p-table [value]="listaRecomendaciones">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Puerto</th>
+                        <th>Servicio</th>
+                        <th>Recomendación</th>
+                    </tr>
+                </ng-template>
+                <ng-template let-recomendacion pTemplate="body">
+                    <tr>
+                        <td>{{ recomendacion.numero }}</td>
+                        <td>{{ recomendacion.servicio || 'Desconocido' }}</td>
+                        <td>{{ recomendacion.recomendacion }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+        <div *ngIf="listaRecomendaciones.length === 0">
+            <p class="text-center text-gray-500">No hay recomendaciones disponibles.</p>
+        </div>
+    </p-dialog>
+</section>

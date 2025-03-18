@@ -33,7 +33,10 @@ export class ServiciosDispositivos {
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(catchError(this.handleError));
   }
-
+  obtenerDispositivosRiesgo(riesgo: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrlDispositivos}/riesgo/${riesgo}`)
+      .pipe(catchError(this.handleError));
+  }
   actualizarDispositivo(dispositivoId: number, dispositivo: any): Observable<any> {
     return this.http.put<any>(
       `${this.apiUrlDispositivos}/actualizar_dispositivo/${dispositivoId}`, 

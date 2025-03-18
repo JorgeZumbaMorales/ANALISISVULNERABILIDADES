@@ -8,4 +8,7 @@ import { Component } from '@angular/core';
 })
 export class PgAdminInicioComponent {
   nombreUsuario: string = 'Administrador';
+  riesgoAlto = 5;
+  riesgoMedio = 3;
+  riesgoBajo = 7;
 }
