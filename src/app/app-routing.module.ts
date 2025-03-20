@@ -17,6 +17,8 @@ import { PgPrincipalVulnerabilidadesComponent } from './ModuloVulnerabilidades/p
 import { PgDispositivosVulnerablesComponent } from './ModuloVulnerabilidades/pg-dispositivos-vulnerables/pg-dispositivos-vulnerables.component';
 import { PgTraficoComponent } from './ModuloVulnerabilidades/pg-trafico/pg-trafico.component';
 import { PgHistorialDispositivosComponent } from './ModuloGestionDispositivos/pg-historial-dispositivos/pg-historial-dispositivos.component';
+import { PgPrincipalConfiguracionComponent } from './ModuloConfiguracion/pg-principal-configuracion/pg-principal-configuracion.component';
+import { PgConfiguracionEscaneosComponent } from './ModuloConfiguracion/pg-configuracion-escaneos/pg-configuracion-escaneos.component';
 
 const routes: Routes = [
   { 
@@ -66,6 +68,14 @@ const routes: Routes = [
           { path: 'dispositivos-vulnerables', component: PgDispositivosVulnerablesComponent },
           { path: 'trafico', component: PgTraficoComponent },
           { path: '', redirectTo: 'dispositivos-vulnerables', pathMatch: 'full' } 
+        ]
+      },
+      { 
+        path: 'configuraciones',
+        component: PgPrincipalConfiguracionComponent,
+        children: [
+          { path: 'escaneos', component: PgConfiguracionEscaneosComponent },
+          { path: '', redirectTo: 'escaneos', pathMatch: 'full' } 
         ]
       }
     ]

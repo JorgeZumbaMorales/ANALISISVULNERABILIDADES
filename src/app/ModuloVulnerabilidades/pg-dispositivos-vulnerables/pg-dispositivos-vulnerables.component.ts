@@ -89,6 +89,7 @@ export class PgDispositivosVulnerablesComponent implements OnInit {
         .subscribe(() => {
             this.servicioAnalisisVulnerabilidades.obtenerRecomendacionesPorPuertos(idsPuertos)
                 .subscribe(respuesta => {
+                    console.log("RESPUESTA RECOMENDACIONES",respuesta);
                     this.listaRecomendaciones = respuesta.data.puertos;
                     this.dialogoVisible = true;
                     dispositivo.puertosSeleccionados = [];

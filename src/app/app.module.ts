@@ -67,6 +67,12 @@ import { AccordionModule } from 'primeng/accordion';
 import { DataViewModule } from 'primeng/dataview';
 import { PanelModule } from 'primeng/panel';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { PgPrincipalConfiguracionComponent } from './ModuloConfiguracion/pg-principal-configuracion/pg-principal-configuracion.component';
+import { PgConfiguracionEscaneosComponent } from './ModuloConfiguracion/pg-configuracion-escaneos/pg-configuracion-escaneos.component';
+import { PgPrincipalReportesComponent } from './ModuloReportes/pg-principal-reportes/pg-principal-reportes.component';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 @NgModule({
   declarations: [
     AppComponent,
@@ -90,7 +96,10 @@ import { MultiSelectModule } from 'primeng/multiselect';
     PgPrincipalVulnerabilidadesComponent,
     PgDispositivosVulnerablesComponent,
     PgTraficoComponent,
-    PgHistorialDispositivosComponent
+    PgHistorialDispositivosComponent,
+    PgPrincipalConfiguracionComponent,
+    PgConfiguracionEscaneosComponent,
+    PgPrincipalReportesComponent
     
   ],
   imports: [
@@ -131,7 +140,10 @@ import { MultiSelectModule } from 'primeng/multiselect';
     AccordionModule,
     DataViewModule,
     PanelModule,
-    MultiSelectModule
+    MultiSelectModule,
+    ToggleSwitchModule,
+    InputNumberModule,
+    ConfirmDialogModule
 ],
   providers: [
     provideAnimationsAsync(),

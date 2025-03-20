@@ -1,0 +1,104 @@
+<div class="p-2 space-y-6 bg-white rounded-lg shadow-md">
+
+    <!-- ✅ Encabezado -->
+    <div class="flex items-center justify-between border-b pb-4">
+        <h2 class="text-xl font-semibold text-gray-800">Configuración de Escaneos</h2>
+        <div class="flex items-center space-x-4">
+            <p-button label="Nueva Configuración" icon="pi pi-plus" class="p-button-primary" (click)="mostrarModal()"></p-button>
+            <div class="flex items-center space-x-2">
+                <span>Activar Escaneo</span>
+                <p-toggleSwitch [(ngModel)]="escaneoAutomatico"></p-toggleSwitch>
+            </div>
+        </div>
+    </div>
+  
+    <!-- ✅ TABLA: Configuraciones por Frecuencia -->
+    <h3 class="text-lg font-semibold text-gray-700 mt-4">Configuraciones por Frecuencia</h3>
+  
+    <!-- 🔍 Buscador para configuraciones de frecuencia -->
+    <div class="flex justify-end">
+        <p-iconfield iconPosition="left">
+            <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+            <input pInputText type="text" (input)="filtrarFrecuencia($event)" placeholder="Buscar configuración..." />
+        </p-iconfield>
+    </div>
+  
+    <p-table #dtFrecuencia [value]="configuracionesFrecuencia" [(selection)]="configuracionesSeleccionadasFrecuencia"
+             dataKey="id" [paginator]="true" [rows]="5" [globalFilterFields]="['nombre', 'frecuencia_minutos']">
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 4rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
+                <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
+                <th pSortableColumn="frecuencia_minutos">Frecuencia (min) <p-sortIcon field="frecuencia_minutos" /></th>
+                <th pSortableColumn="fecha_inicio">Fecha Inicio <p-sortIcon field="fecha_inicio" /></th>
+                <th pSortableColumn="fecha_fin">Fecha Fin <p-sortIcon field="fecha_fin" /></th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-config>
+            <tr>
+                <td><p-tableCheckbox [value]="config"></p-tableCheckbox></td>
+                <td>{{ config.nombre }}</td>
+                <td>{{ config.frecuencia_minutos }}</td>
+                <td>{{ config.fecha_inicio | date:'dd/MM/yyyy' }}</td>
+                <td>{{ config.fecha_fin | date:'dd/MM/yyyy' }}</td>
+                <td>
+                    <p-tag [value]="config.estado ? 'Activo' : 'Inactivo'" [severity]="config.estado ? 'success' : 'danger'"></p-tag>
+                </td>
+                <td>
+                    <p-button icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editarConfiguracion(config)"></p-button>
+                    <p-button icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" (click)="eliminarConfiguracion(config)"></p-button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+  
+    <!-- ✅ TABLA: Configuraciones por Hora -->
+    <h3 class="text-lg font-semibold text-gray-700 mt-6">Configuraciones por Hora</h3>
+  
+    <!-- 🔍 Buscador para configuraciones por horas -->
+    <div class="flex justify-end">
+        <p-iconfield iconPosition="left">
+            <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+            <input pInputText type="text" (input)="filtrarHoras($event)" placeholder="Buscar configuración..." />
+        </p-iconfield>
+    </div>
+  
+    <p-table #dtHoras [value]="configuracionesHoras" [(selection)]="configuracionesSeleccionadasHoras"
+             dataKey="id" [paginator]="true" [rows]="5" [globalFilterFields]="['nombre', 'horas']">
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 4rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
+                <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
+                <th>Horas Programadas</th>
+                <th pSortableColumn="fecha_inicio">Fecha Inicio <p-sortIcon field="fecha_inicio" /></th>
+                <th pSortableColumn="fecha_fin">Fecha Fin <p-sortIcon field="fecha_fin" /></th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-config>
+            <tr>
+                <td><p-tableCheckbox [value]="config"></p-tableCheckbox></td>
+                <td>{{ config.nombre }}</td>
+                <td>
+                    <ul>
+                        <li *ngFor="let hora of config.horas">{{ hora }}</li>
+                    </ul>
+                </td>
+                <td>{{ config.fecha_inicio | date:'dd/MM/yyyy' }}</td>
+                <td>{{ config.fecha_fin | date:'dd/MM/yyyy' }}</td>
+                <td>
+                    <p-tag [value]="config.estado ? 'Activo' : 'Inactivo'" [severity]="config.estado ? 'success' : 'danger'"></p-tag>
+                </td>
+                <td>
+                    <p-button icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editarConfiguracion(config)"></p-button>
+                    <p-button icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" (click)="eliminarConfiguracion(config)"></p-button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+  
+  </div>
+  
