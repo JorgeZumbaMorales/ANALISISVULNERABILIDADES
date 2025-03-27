@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Table } from 'primeng/table';
 import { ServiciosDispositivos } from '../../ModuloServiciosWeb/ServiciosDispositivos.component';
 
 @Component({
@@ -6,8 +7,10 @@ import { ServiciosDispositivos } from '../../ModuloServiciosWeb/ServiciosDisposi
   templateUrl: './pg-dispositivos.component.html',
   styleUrls: ['./pg-dispositivos.component.css']
 })
-export class PgDispositivosComponent implements OnInit {
+export class PgDispositivosComponent implements OnInit, AfterViewInit {
   dispositivos: any[] = [];
+
+  @ViewChild('dt') dt!: Table;
 
   constructor(private serviciosDispositivos: ServiciosDispositivos) {}
 
@@ -15,23 +18,34 @@ export class PgDispositivosComponent implements OnInit {
     this.cargarDispositivos();
   }
 
-  // 📌 Cargar dispositivos desde el backend con JOIN
+  ngAfterViewInit(): void {
+    if (!this.dt) console.warn('❌ dt no está inicializado aún');
+  }
+
   cargarDispositivos() {
     this.serviciosDispositivos.listarDispositivosCompleto().subscribe({
       next: (response) => {
-        this.dispositivos = response.data; // Recibe la lista de dispositivos con JOIN
+        console.log('📦 Datos recibidos del backend:', response);
+        this.dispositivos = response.data;
       },
       error: (err) => console.error('Error al obtener dispositivos', err)
     });
   }
-  editarDispositivo(dispositivo: any) {
-    console.log("Editar dispositivo:", dispositivo);
-    // Aquí puedes abrir un modal con los datos del dispositivo
+
+  filtrarDispositivos(event: Event) {
+    const inputValue = (event.target as HTMLInputElement).value;
+    if (this.dt) {
+      this.dt.filterGlobal(inputValue, 'contains');
+    }
   }
+
+  editarDispositivo(dispositivo: any) {
+    console.log('✏️ Editar dispositivo:', dispositivo);
+  }
+
   eliminarDispositivo(dispositivo: any) {
     if (confirm('¿Estás seguro de eliminar este dispositivo?')) {
-      console.log("Eliminar dispositivo:", dispositivo);
-      // Aquí puedes llamar al servicio para eliminarlo
+      console.log('🗑️ Eliminar dispositivo:', dispositivo);
     }
   }
 }

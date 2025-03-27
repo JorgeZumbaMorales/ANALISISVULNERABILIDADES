@@ -19,6 +19,9 @@ import { PgTraficoComponent } from './ModuloVulnerabilidades/pg-trafico/pg-trafi
 import { PgHistorialDispositivosComponent } from './ModuloGestionDispositivos/pg-historial-dispositivos/pg-historial-dispositivos.component';
 import { PgPrincipalConfiguracionComponent } from './ModuloConfiguracion/pg-principal-configuracion/pg-principal-configuracion.component';
 import { PgConfiguracionEscaneosComponent } from './ModuloConfiguracion/pg-configuracion-escaneos/pg-configuracion-escaneos.component';
+import { PgPrincipalReportesComponent } from './ModuloReportes/pg-principal-reportes/pg-principal-reportes.component';
+import { PgReportesDocumentosComponent } from './ModuloReportes/pg-reportes-documentos/pg-reportes-documentos.component';
+import { PgDashboardVisualComponent } from './ModuloReportes/pg-dashboard-visual/pg-dashboard-visual.component';
 
 const routes: Routes = [
   { 
@@ -76,6 +79,15 @@ const routes: Routes = [
         children: [
           { path: 'escaneos', component: PgConfiguracionEscaneosComponent },
           { path: '', redirectTo: 'escaneos', pathMatch: 'full' } 
+        ]
+      },
+      { 
+        path: 'reportes',
+        component: PgPrincipalReportesComponent,
+        children: [
+          { path: 'dashboard-visual', component: PgDashboardVisualComponent },
+          { path: 'documentos', component: PgReportesDocumentosComponent },
+          { path: '', redirectTo: 'dashboard-visual', pathMatch: 'full' } 
         ]
       }
     ]

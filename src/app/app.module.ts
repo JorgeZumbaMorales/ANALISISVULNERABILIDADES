@@ -73,6 +73,9 @@ import { PgPrincipalReportesComponent } from './ModuloReportes/pg-principal-repo
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { PgDashboardVisualComponent } from './ModuloReportes/pg-dashboard-visual/pg-dashboard-visual.component';
+import { PgReportesDocumentosComponent } from './ModuloReportes/pg-reportes-documentos/pg-reportes-documentos.component';
+import { ChartModule } from 'primeng/chart';
 @NgModule({
   declarations: [
     AppComponent,
@@ -99,7 +102,9 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     PgHistorialDispositivosComponent,
     PgPrincipalConfiguracionComponent,
     PgConfiguracionEscaneosComponent,
-    PgPrincipalReportesComponent
+    PgPrincipalReportesComponent,
+    PgDashboardVisualComponent,
+    PgReportesDocumentosComponent
     
   ],
   imports: [
@@ -143,7 +148,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     MultiSelectModule,
     ToggleSwitchModule,
     InputNumberModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    ChartModule
 ],
   providers: [
     provideAnimationsAsync(),

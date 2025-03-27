@@ -5,33 +5,4 @@
         <p class="text-lg mt-2">Protege tu red con herramientas avanzadas y mantente informado.</p>
     </div>
 
-    <!-- Contenedor de Tarjetas -->
-    <div class="flex flex-wrap justify-center items-center gap-6 w-full max-w-5xl my-3">
-        <!-- 🔴 Tarjeta Riesgo Alto -->
-        <p-card class="border-2 border-red-500 rounded-lg text-center w-[280px] sm:w-[300px]">
-            <ng-template pTemplate="header">
-                <span class="text-red-700 text-xl font-bold uppercase block">Riesgo Alto</span>
-            </ng-template>
-            <p-badge [value]="riesgoAlto" severity="danger" class="mt-3 text-lg"></p-badge>
-            <p class="text-gray-600 text-sm mt-3">Dispositivos con vulnerabilidades críticas.</p>
-        </p-card>
-
-        <!-- 🟡 Tarjeta Riesgo Medio -->
-        <p-card class="border-2 border-yellow-500 rounded-lg text-center w-[280px] sm:w-[300px]">
-            <ng-template pTemplate="header">
-                <span class="text-yellow-700 text-xl font-bold uppercase block">Riesgo Medio</span>
-            </ng-template>
-            <p-badge [value]="riesgoMedio" severity="warn" class="mt-3 text-lg"></p-badge>
-            <p class="text-gray-600 text-sm mt-3">Dispositivos con riesgos moderados.</p>
-        </p-card>
-
-        <!-- 🟢 Tarjeta Riesgo Bajo -->
-        <p-card class="border-2 border-green-500 rounded-lg text-center w-[280px] sm:w-[300px]">
-            <ng-template pTemplate="header">
-                <span class="text-green-700 text-xl font-bold uppercase block">Riesgo Bajo</span>
-            </ng-template>
-            <p-badge [value]="riesgoBajo" severity="success" class="mt-3 text-lg"></p-badge>
-            <p class="text-gray-600 text-sm mt-3">Dispositivos con mínima exposición.</p>
-        </p-card>
-    </div>
 </section>

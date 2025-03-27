@@ -1,45 +1,78 @@
-<div>
-    <!-- 🛠 Contenedor del título -->
+<div class="card">
     <div class="header-gestion flex justify-between items-center mb-4">
         <h2 class="titulo-gestion text-xl font-semibold">Gestión de Dispositivos Activos</h2>
- 
+
     </div>
-
-    <!-- 🛠 Tabla de dispositivos -->
-    <p-table [value]="dispositivos" [paginator]="true" [rows]="5" responsiveLayout="scroll" class="tabla-dispositivos">
-        <ng-template pTemplate="header">
-            <tr>
-                <th class="text-left">MAC Address</th>
-                <th class="text-left">Sistema Operativo</th>
-                <th class="text-left">Última IP Asignada</th>
-                <th class="text-center">Estado</th>
-                <th class="text-center w-[150px]">Acciones</th> <!-- Ajustamos ancho para acciones -->
-            </tr>
-        </ng-template>
-
-        <ng-template pTemplate="body" let-dispositivo>
-            <tr>
-                <td>{{ dispositivo.mac_address }}</td>
-                <td>{{ dispositivo.sistema_operativo || 'Desconocido' }}</td>
-                <td>{{ dispositivo.ultima_ip || 'No asignada' }}</td>
-                <td class="text-center">
-                    <p-tag [value]="dispositivo.estado ? 'Activo' : 'Inactivo'"
-                           [severity]="dispositivo.estado ? 'success' : 'danger'">
-                    </p-tag>
-                </td>
-                <td class="text-center flex justify-center items-center">
-                    <div class="acciones-dispositivos flex gap-2">
-                        <p-button icon="pi pi-pencil" class="btn-accion editar"
-                                  (click)="editarDispositivo(dispositivo)">
-                        </p-button>
-                        <p-button icon="pi pi-trash" class="btn-accion eliminar"
-                                  (click)="eliminarDispositivo(dispositivo)">
-                        </p-button>
-                    </div>
-                </td>
-            </tr>
-        </ng-template>
+    <!-- 🛠 Tabla de dispositivos con búsqueda global -->
+    <p-table
+      #dt
+      [value]="dispositivos"
+      dataKey="dispositivo_id"
+      [paginator]="true"
+      [rows]="5"
+      [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip']"
+      [tableStyle]="{ 'min-width': '75rem' }"
+      responsiveLayout="scroll"
+      class="tabla-dispositivos"
+    >
+      <!-- 🔍 Filtro global (esto es lo que te faltaba realmente) -->
+      <ng-template pTemplate="caption">
+        <div class="flex justify-end">
+          <p-iconfield iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              (input)="filtrarDispositivos($event)"
+              placeholder="Buscar dispositivo..."
+              class="w-full md:w-80"
+            />
+          </p-iconfield>
+        </div>
+      </ng-template>
+  
+      <!-- 📌 Encabezado -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="nombre_dispositivo">Nombre Dispositivo <p-sortIcon field="nombre_dispositivo" /></th>
+          <th pSortableColumn="mac_address">MAC Address <p-sortIcon field="mac_address" /></th>
+          <th pSortableColumn="sistema_operativo">Sistema Operativo <p-sortIcon field="sistema_operativo" /></th>
+          <th pSortableColumn="ultima_ip">IP Actual <p-sortIcon field="ultima_ip" /></th>
+          <th class="text-center">Estado</th>
+          <th class="text-center w-[150px]">Acciones</th>
+        </tr>
+      </ng-template>
+  
+      <!-- 📌 Cuerpo -->
+      <ng-template pTemplate="body" let-dispositivo>
+        <tr>
+          <td>{{ dispositivo.nombre_dispositivo }}</td>
+          <td>{{ dispositivo.mac_address }}</td>
+          <td>{{ dispositivo.sistema_operativo || 'Desconocido' }}</td>
+          <td>{{ dispositivo.ultima_ip || 'No asignada' }}</td>
+          <td class="text-center">
+            <p-tag
+              [value]="dispositivo.estado ? 'Activo' : 'Inactivo'"
+              [severity]="dispositivo.estado ? 'success' : 'danger'"
+            ></p-tag>
+          </td>
+          <td class="text-center flex justify-center items-center">
+            <div class="acciones-dispositivos flex gap-2">
+              <p-button icon="pi pi-pencil" class="btn-accion editar" (click)="editarDispositivo(dispositivo)"></p-button>
+              <p-button icon="pi pi-trash" class="btn-accion eliminar" (click)="eliminarDispositivo(dispositivo)"></p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+  
+      <!-- 📌 Mensaje vacío -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center">No hay dispositivos registrados.</td>
+        </tr>
+      </ng-template>
     </p-table>
-</div>
-
-
+  </div>
+  

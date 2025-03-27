@@ -1,0 +1,60 @@
+<div class="p-4 space-y-6 bg-white rounded-lg shadow-md">
+
+    <!-- 🔹 Encabezado -->
+    <div class="flex items-center justify-between border-b pb-4">
+      <h2 class="text-2xl font-semibold text-gray-800">Generador de Reportes en PDF</h2>
+      <p-button icon="pi pi-plus" label="Nuevo Reporte" class="p-button-primary" (click)="abrirModal()"></p-button>
+    </div>
+  
+    <!-- 🔹 Tabla de reportes generados -->
+    <p-table [value]="reportes" dataKey="id" [paginator]="true" [rows]="5" [globalFilterFields]="['nombre', 'tipo']">
+      
+      <!-- 🔍 Filtro -->
+      <ng-template pTemplate="caption">
+        <div class="flex justify-end">
+          <p-iconfield iconPosition="left">
+            <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+            <input pInputText type="text" (input)="filtrar($event)" placeholder="Buscar reporte..." />
+          </p-iconfield>
+        </div>
+      </ng-template>
+  
+      <!-- 📄 Encabezado -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Generado Por</th>
+          <th>Rango de Fechas</th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+  
+      <!-- 📃 Cuerpo -->
+      <ng-template pTemplate="body" let-reporte>
+        <tr>
+          <td>{{ reporte.nombre }}</td>
+          <td><p-tag [value]="reporte.tipo" severity="info"></p-tag></td>
+          <td>{{ reporte.usuario }}</td>
+          <td>{{ reporte.fechaInicio | date:'dd/MM/yyyy' }} - {{ reporte.fechaFin | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <p-button icon="pi pi-eye" class="p-button-text p-button-sm" (click)="verReporte(reporte)"></p-button>
+            <p-button icon="pi pi-download" class="p-button-text p-button-sm p-button-success" (click)="descargarPDF(reporte)"></p-button>
+          </td>
+        </tr>
+      </ng-template>
+  
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5">No hay reportes generados.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  
+    <!-- 🔹 Modal de visualización del PDF -->
+    <p-dialog header="Vista previa del Reporte" [(visible)]="modalVisible" [modal]="true" [style]="{width: '80vw'}">
+        
+
+    </p-dialog>
+  
+  </div> 
