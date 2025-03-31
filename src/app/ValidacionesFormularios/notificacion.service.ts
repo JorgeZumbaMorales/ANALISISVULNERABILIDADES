@@ -1,15 +1,19 @@
 import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/api';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class NotificacionService {
-  
   constructor(private messageService: MessageService) {}
 
-  /** ✅ Función para mostrar mensajes en `toast` */
-  mostrarMensaje(severity: 'success' | 'error' | 'warn', summary: string, detail: string) {
-    this.messageService.add({ severity, summary, detail });
+  success(mensaje: string, detalle: string = '') {
+    this.messageService.add({ severity: 'success', summary: mensaje, detail: detalle });
+  }
+
+  error(mensaje: string, detalle: string = '') {
+    this.messageService.add({ severity: 'error', summary: mensaje, detail: detalle });
+  }
+
+  warning(mensaje: string, detalle: string = '') {
+    this.messageService.add({ severity: 'warn', summary: mensaje, detail: detalle });
   }
 }

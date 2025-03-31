@@ -76,6 +76,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { PgDashboardVisualComponent } from './ModuloReportes/pg-dashboard-visual/pg-dashboard-visual.component';
 import { PgReportesDocumentosComponent } from './ModuloReportes/pg-reportes-documentos/pg-reportes-documentos.component';
 import { ChartModule } from 'primeng/chart';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { ConfirmationService } from 'primeng/api';
 @NgModule({
   declarations: [
     AppComponent,
@@ -149,7 +151,8 @@ import { ChartModule } from 'primeng/chart';
     ToggleSwitchModule,
     InputNumberModule,
     ConfirmDialogModule,
-    ChartModule
+    ChartModule,
+    AutoCompleteModule
 ],
   providers: [
     provideAnimationsAsync(),
@@ -166,7 +169,8 @@ import { ChartModule } from 'primeng/chart';
               
             }
         }),
-        MessageService
+        MessageService,
+        ConfirmationService
   ],
   bootstrap: [AppComponent]
 })

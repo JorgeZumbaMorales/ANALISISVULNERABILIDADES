@@ -1,78 +1,149 @@
+<p-toast></p-toast>
 <div class="card">
-    <div class="header-gestion flex justify-between items-center mb-4">
-        <h2 class="titulo-gestion text-xl font-semibold">Gestión de Dispositivos Activos</h2>
-
-    </div>
-    <!-- 🛠 Tabla de dispositivos con búsqueda global -->
-    <p-table
-      #dt
-      [value]="dispositivos"
-      dataKey="dispositivo_id"
-      [paginator]="true"
-      [rows]="5"
-      [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip']"
-      [tableStyle]="{ 'min-width': '75rem' }"
-      responsiveLayout="scroll"
-      class="tabla-dispositivos"
-    >
-      <!-- 🔍 Filtro global (esto es lo que te faltaba realmente) -->
-      <ng-template pTemplate="caption">
-        <div class="flex justify-end">
-          <p-iconfield iconPosition="left">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
-            <input
-              pInputText
-              type="text"
-              (input)="filtrarDispositivos($event)"
-              placeholder="Buscar dispositivo..."
-              class="w-full md:w-80"
-            />
-          </p-iconfield>
-        </div>
-      </ng-template>
-  
-      <!-- 📌 Encabezado -->
-      <ng-template pTemplate="header">
-        <tr>
-          <th pSortableColumn="nombre_dispositivo">Nombre Dispositivo <p-sortIcon field="nombre_dispositivo" /></th>
-          <th pSortableColumn="mac_address">MAC Address <p-sortIcon field="mac_address" /></th>
-          <th pSortableColumn="sistema_operativo">Sistema Operativo <p-sortIcon field="sistema_operativo" /></th>
-          <th pSortableColumn="ultima_ip">IP Actual <p-sortIcon field="ultima_ip" /></th>
-          <th class="text-center">Estado</th>
-          <th class="text-center w-[150px]">Acciones</th>
-        </tr>
-      </ng-template>
-  
-      <!-- 📌 Cuerpo -->
-      <ng-template pTemplate="body" let-dispositivo>
-        <tr>
-          <td>{{ dispositivo.nombre_dispositivo }}</td>
-          <td>{{ dispositivo.mac_address }}</td>
-          <td>{{ dispositivo.sistema_operativo || 'Desconocido' }}</td>
-          <td>{{ dispositivo.ultima_ip || 'No asignada' }}</td>
-          <td class="text-center">
-            <p-tag
-              [value]="dispositivo.estado ? 'Activo' : 'Inactivo'"
-              [severity]="dispositivo.estado ? 'success' : 'danger'"
-            ></p-tag>
-          </td>
-          <td class="text-center flex justify-center items-center">
-            <div class="acciones-dispositivos flex gap-2">
-              <p-button icon="pi pi-pencil" class="btn-accion editar" (click)="editarDispositivo(dispositivo)"></p-button>
-              <p-button icon="pi pi-trash" class="btn-accion eliminar" (click)="eliminarDispositivo(dispositivo)"></p-button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-  
-      <!-- 📌 Mensaje vacío -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6" class="text-center">No hay dispositivos registrados.</td>
-        </tr>
-      </ng-template>
-    </p-table>
+  <div class="header-gestion flex justify-between items-center mb-4">
+    <h2 class="titulo-gestion text-xl font-semibold">Gestión de Dispositivos Activos</h2>
   </div>
-  
+
+  <!-- 🛠 Tabla de dispositivos con búsqueda global -->
+  <p-table
+    #dt
+    [value]="dispositivos"
+    dataKey="dispositivo_id"
+    [paginator]="true"
+    [rows]="5"
+    [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip']"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    responsiveLayout="scroll"
+    class="tabla-dispositivos"
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex justify-end">
+        <p-iconfield iconPosition="left">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input
+            pInputText
+            type="text"
+            (input)="filtrarDispositivos($event)"
+            placeholder="Buscar dispositivo..."
+            class="w-full md:w-80"
+          />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nombre_dispositivo">Nombre Dispositivo <p-sortIcon field="nombre_dispositivo" /></th>
+        <th pSortableColumn="mac_address">MAC Address <p-sortIcon field="mac_address" /></th>
+        <th pSortableColumn="sistema_operativo">Sistema Operativo <p-sortIcon field="sistema_operativo" /></th>
+        <th pSortableColumn="ultima_ip">IP Actual <p-sortIcon field="ultima_ip" /></th>
+        <th class="text-center">Estado</th>
+        <th class="text-center w-[150px]">Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-dispositivo>
+      <tr>
+        <td>{{ dispositivo.nombre_dispositivo }}</td>
+        <td>{{ dispositivo.mac_address }}</td>
+        <td>{{ dispositivo.sistema_operativo || 'Desconocido' }}</td>
+        <td>{{ dispositivo.ultima_ip || 'No asignada' }}</td>
+        <td class="text-center">
+          <p-tag
+            [value]="dispositivo.estado ? 'Activo' : 'Inactivo'"
+            [severity]="dispositivo.estado ? 'success' : 'danger'"
+          ></p-tag>
+        </td>
+        <td class="text-center flex justify-center items-center">
+          <div class="acciones-dispositivos flex gap-2">
+            <p-button icon="pi pi-pencil" class="btn-accion editar" (click)="abrirModal('editar', dispositivo)"></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center">No hay dispositivos registrados.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+<p-dialog
+  [(visible)]="modal.visible"
+  *ngIf="modal.tipo === 'editar'"
+  header="Editar Dispositivo"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '25rem' }"
+  [baseZIndex]="10000"
+  (onHide)="cerrarModal()"
+>
+  <div *ngIf="dispositivoEditando" class="p-fluid p-4 space-y-5">
+    <!-- Nombre del dispositivo -->
+    <p-iftalabel class="block">
+      <input
+        id="nombre"
+        type="text"
+        pInputText
+        [(ngModel)]="dispositivoEditando.nombre_dispositivo"
+        class=""
+      />
+      <label for="nombre">Nombre del dispositivo</label>
+    </p-iftalabel>
+
+    <!-- Sistema operativo -->
+    <p-iftalabel class="block">
+      <p-autoComplete
+        inputId="so"
+        [(ngModel)]="sistemaOperativoSeleccionado"
+        [suggestions]="sistemasOperativosFiltrados"
+        (completeMethod)="buscarSistemaOperativo($event)"
+        optionLabel="nombre_so"
+        field="nombre_so"
+        placeholder="Escriba un sistema operativo"
+        [minLength]="3"
+        class="w-full"
+        [virtualScroll]="true"
+        [itemSize]="40"
+        appendTo="body"
+      >
+        <ng-template let-so pTemplate="item">
+          <div class="text-gray-900 p-2">{{ so?.nombre_so || 'SO sin nombre' }}</div>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+          <div class="p-2 border-t text-center">
+            <button
+              pButton
+              icon="pi pi-plus"
+              label="Añadir nuevo"
+              text
+              (click)="abrirFormularioSO()"
+            ></button>
+          </div>
+        </ng-template>
+      </p-autoComplete>
+      <label for="so">Sistema Operativo</label>
+    </p-iftalabel>
+
+    <!-- Botones -->
+    <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-3 gap-2 pt-2">
+      <p-button
+        label="Guardar"
+        icon="pi pi-save"
+        (click)="guardarCambios()"
+        class="w-full sm:w-auto"
+      />
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        (click)="cerrarModal()"
+        class="p-button-text w-full sm:w-auto"
+      />
+    </div>
+  </div>
+</p-dialog>
+
+

@@ -10,7 +10,7 @@ export class PgPrincipalVulnerabilidadesComponent {
   
   // ✅ Definir los Tabs para la navegación
   tabs = [
-    { label: 'Dispositivos Vulnerables', route: 'dispositivos-vulnerables', icon: 'pi pi-desktop' },
+    { label: 'Puertos Vulnerables', route: 'dispositivos-vulnerables', icon: 'pi pi-desktop' },
     { label: 'Tráfico', route: 'trafico', icon: 'pi pi-chart-line' }
   ];
   

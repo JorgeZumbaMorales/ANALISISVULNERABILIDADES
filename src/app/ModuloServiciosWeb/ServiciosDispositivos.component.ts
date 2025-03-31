@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class ServiciosDispositivos {
   private apiUrlDispositivos = `${environment.apiUrl}/dispositivos`;
-
+  private apiUrlSistemasOperativos = `${environment.apiUrl}/sistemas_operativos`;
   constructor(private http: HttpClient) {}
 
   // ===================== DISPOSITIVOS =====================
@@ -38,6 +38,8 @@ export class ServiciosDispositivos {
       .pipe(catchError(this.handleError));
   }
   actualizarDispositivo(dispositivoId: number, dispositivo: any): Observable<any> {
+    console.log('Actualizar dispositivo:', dispositivo);
+    console.log('ID del dispositivo:', dispositivoId);
     return this.http.put<any>(
       `${this.apiUrlDispositivos}/actualizar_dispositivo/${dispositivoId}`, 
       dispositivo
@@ -54,6 +56,22 @@ export class ServiciosDispositivos {
   eliminarDispositivo(dispositivoId: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrlDispositivos}/eliminar_dispositivo/${dispositivoId}`)
       .pipe(catchError(this.handleError));
+  }
+
+  // ===================== SISTEMAS OPERATIVOS =====================
+  listarSistemasOperativos(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrlSistemasOperativos}/listar_sistemas_operativos`)
+      .pipe(catchError(this.handleError));
+  }
+  buscarSistemasOperativos(termino: string): Observable<any[]> {
+    const params = { q: termino };
+  
+    return this.http.get<any[]>(
+      `${this.apiUrlSistemasOperativos}/buscar_sistemas_operativos`,
+      { params }
+    ).pipe(
+      catchError(this.handleError)
+    );
   }
 
   // ===================== IP ASIGNACIONES =====================
