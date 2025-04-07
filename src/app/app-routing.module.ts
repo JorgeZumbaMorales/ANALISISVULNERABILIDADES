@@ -22,6 +22,7 @@ import { PgConfiguracionEscaneosComponent } from './ModuloConfiguracion/pg-confi
 import { PgPrincipalReportesComponent } from './ModuloReportes/pg-principal-reportes/pg-principal-reportes.component';
 import { PgReportesDocumentosComponent } from './ModuloReportes/pg-reportes-documentos/pg-reportes-documentos.component';
 import { PgDashboardVisualComponent } from './ModuloReportes/pg-dashboard-visual/pg-dashboard-visual.component';
+import { VulnerabilidadesCveComponent } from './ModuloVulnerabilidades/vulnerabilidades-cve/vulnerabilidades-cve.component';
 
 const routes: Routes = [
   { 
@@ -69,7 +70,7 @@ const routes: Routes = [
         component: PgPrincipalVulnerabilidadesComponent,
         children: [
           { path: 'dispositivos-vulnerables', component: PgDispositivosVulnerablesComponent },
-          { path: 'trafico', component: PgTraficoComponent },
+          { path: 'cve', component: VulnerabilidadesCveComponent },
           { path: '', redirectTo: 'dispositivos-vulnerables', pathMatch: 'full' } 
         ]
       },

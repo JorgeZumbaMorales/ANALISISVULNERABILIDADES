@@ -11,7 +11,7 @@ export class PgPrincipalVulnerabilidadesComponent {
   // ✅ Definir los Tabs para la navegación
   tabs = [
     { label: 'Puertos Vulnerables', route: 'dispositivos-vulnerables', icon: 'pi pi-desktop' },
-    { label: 'Tráfico', route: 'trafico', icon: 'pi pi-chart-line' }
+    { label: 'Vulnerabilidades CVE', route: 'cve', icon: 'pi pi-lock' }
   ];
   
 

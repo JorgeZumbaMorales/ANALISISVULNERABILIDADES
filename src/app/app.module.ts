@@ -78,6 +78,7 @@ import { PgReportesDocumentosComponent } from './ModuloReportes/pg-reportes-docu
 import { ChartModule } from 'primeng/chart';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ConfirmationService } from 'primeng/api';
+import { VulnerabilidadesCveComponent } from './ModuloVulnerabilidades/vulnerabilidades-cve/vulnerabilidades-cve.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -106,7 +107,8 @@ import { ConfirmationService } from 'primeng/api';
     PgConfiguracionEscaneosComponent,
     PgPrincipalReportesComponent,
     PgDashboardVisualComponent,
-    PgReportesDocumentosComponent
+    PgReportesDocumentosComponent,
+    VulnerabilidadesCveComponent
     
   ],
   imports: [

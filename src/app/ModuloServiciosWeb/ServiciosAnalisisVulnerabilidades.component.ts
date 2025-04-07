@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
 export class ServiciosAnalisisVulnerabilidades {
   private apiUrlRecomendaciones = `${environment.apiUrl}/recomendaciones`;
   private apiUrlPuertos = `${environment.apiUrl}/puertos_abiertos`;
-
+  private apiUrlVulnerabilidades = `${environment.apiUrl}/vulnerabilidades`; // ✅ Añadido
   constructor(private http: HttpClient) {}
 
   // ===================== GENERAR RECOMENDACIONES =====================
@@ -69,7 +69,18 @@ export class ServiciosAnalisisVulnerabilidades {
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(catchError(this.handleError));
   }
+    // ===================== VULNERABILIDADES =====================
 
+  /**
+   * 📌 Obtiene el listado completo de vulnerabilidades agrupadas por dispositivo y puerto.
+   * @returns Observable con los datos estructurados de vulnerabilidades
+   */
+  obtenerVulnerabilidadesCompletas(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrlVulnerabilidades}/listar_vulnerabilidades_completo`,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
   // ===================== MANEJO DE ERRORES =====================
   private handleError(error: any) {
     console.error('Error en la petición:', error);

@@ -147,8 +147,9 @@
       </p-iftalabel>
   
       <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-3 gap-2 pt-2">
-        <p-button label="Guardar" icon="pi pi-save" (click)="guardarCambios()" class="w-full sm:w-auto" />
-        <p-button label="Cancelar" icon="pi pi-times" (click)="cerrarModal()" class="p-button-text w-full sm:w-auto" />
+        <p-button label="Cancelar" severity="secondary" (click)="cerrarModal()" class="p-button-text w-full sm:w-auto" />
+        <p-button label="Guardar"  (click)="guardarCambios()" class="w-full sm:w-auto" />
+        
       </div>
     </div>
   </p-dialog>

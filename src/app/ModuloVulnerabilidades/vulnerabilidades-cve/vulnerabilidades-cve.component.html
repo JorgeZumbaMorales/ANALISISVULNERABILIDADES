@@ -1,0 +1,90 @@
+<div class="p-4">
+    <!-- 🔹 Encabezado informativo -->
+<div class="bg-baseAzulOscuro text-textoSecundario p-6 rounded-xl shadow-md text-center mb-6">
+    <h1 class="text-2xl font-semibold">Vulnerabilidades Detectadas</h1>
+    <p class="text-lg mt-1">
+      Visualiza los <strong>CVEs detectados</strong> organizados por dispositivo, puerto, servicio y versión.
+    </p>
+  </div>
+  <p class="text-base text-gray-700 font-medium mb-4 text-center">
+    Consulta los <strong>CVEs detectados</strong> por dispositivo.
+  </p>
+  
+  <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-center md:space-x-4">
+
+    <!-- Dropdown de selección -->
+    <p-dropdown
+      [options]="dispositivos"
+      [(ngModel)]="dispositivoSeleccionado"
+      optionLabel="dispositivo"
+      placeholder="Selecciona un dispositivo"
+      [filter]="true"
+      filterPlaceholder="Buscar dispositivo..."
+      class="w-full md:w-96"
+      appendTo="body"
+    ></p-dropdown>
+
+      
+  </div>
+  
+  
+    <div *ngIf="dispositivoSeleccionado">
+      <h2 class="text-xl font-semibold mb-2 text-slate-700">
+        Dispositivo: <span class="text-emerald-600">{{ dispositivoSeleccionado.dispositivo }}</span>
+      </h2>
+  
+      <p-accordion >
+        <p-accordionTab
+          *ngFor="let puerto of dispositivoSeleccionado.puertos"
+          [header]="'Puerto: ' + puerto.puerto + ' | Servicio: ' + puerto.servicio + ' | Versión: ' + (puerto.version || 'No disponible')"
+          [style]="{ 'overflow': 'visible' }"
+        >
+          <div class="overflow-x-auto">
+            <p-table
+  [value]="puerto.vulnerabilidades"
+  [paginator]="true"
+  [rows]="5"
+  [responsiveLayout]="'scroll'"
+  styleClass="p-datatable-sm"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="cve_id">CVE ID <p-sortIcon field="cve_id"></p-sortIcon></th>
+      <th pSortableColumn="score">Score <p-sortIcon field="score"></p-sortIcon></th>
+      <th>Exploit</th>
+      <th>URL</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-vuln>
+    <tr>
+      <td class="font-medium">{{ vuln.cve_id }}</td>
+      <td [ngClass]="getColor(vuln.score)">
+        {{ vuln.score }}
+      </td>
+      <td>
+        <p-tag
+          [severity]="vuln.exploit ? 'danger' : 'info'"
+          [value]="vuln.exploit ? 'Sí' : 'No'"
+        ></p-tag>
+      </td>
+      <td>
+        <a
+          [href]="vuln.url"
+          class="text-blue-600 underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Ver más
+        </a>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+  </div>
+  
