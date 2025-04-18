@@ -11,6 +11,8 @@ export class ServiciosAnalisisVulnerabilidades {
   private apiUrlRecomendaciones = `${environment.apiUrl}/recomendaciones`;
   private apiUrlPuertos = `${environment.apiUrl}/puertos_abiertos`;
   private apiUrlVulnerabilidades = `${environment.apiUrl}/vulnerabilidades`; // ✅ Añadido
+  private apiUrlEscaneoAvanzado = `${environment.apiUrl}/escaneo_avanzado`;
+
   constructor(private http: HttpClient) {}
 
   // ===================== GENERAR RECOMENDACIONES =====================
@@ -81,9 +83,29 @@ export class ServiciosAnalisisVulnerabilidades {
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(catchError(this.handleError));
   }
+        // ===================== ESCANEO + IA =====================
+
+    /**
+   * 📌 Ejecuta un escaneo avanzado (IP + Nmap + limpieza + guardar + resumen CVEs)
+   * @param datos Objeto con dispositivo_id, mac_address e ip_actual
+   * @returns Observable con la IP escaneada y los resúmenes generados
+   */
+    ejecutarEscaneoAvanzado(datos: { dispositivo_id: number, mac_address: string, ip_actual: string }): Observable<any> {
+      return this.http.post<any>(
+        `${this.apiUrlEscaneoAvanzado}/analisis_avanzado`,
+        datos,
+        { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+      ).pipe(catchError(this.handleError));
+    }
+  
+
+
   // ===================== MANEJO DE ERRORES =====================
   private handleError(error: any) {
     console.error('Error en la petición:', error);
     return throwError(() => new Error(error.message || 'Error en el servicio de análisis de vulnerabilidades'));
   }
+
+
+
 }
