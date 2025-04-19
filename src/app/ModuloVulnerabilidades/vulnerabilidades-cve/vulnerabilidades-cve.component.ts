@@ -16,6 +16,8 @@ export class VulnerabilidadesCveComponent implements OnInit {
   cargando: boolean = false;
   mostrarResumen: boolean = false;
   mostrarDetalle: boolean = false;
+  vulnerabilidadesDetalle: any[] = [];
+  dialogoVisible: boolean = false;
 
   constructor(
     private vulnerabilidadServicio: ServiciosAnalisisVulnerabilidades,
@@ -82,9 +84,28 @@ export class VulnerabilidadesCveComponent implements OnInit {
   }
 
   verDetalle(): void {
-    this.mostrarDetalle = true;
+    if (!this.dispositivoSeleccionado) return;
+  
     this.mostrarResumen = false;
+    this.dialogoVisible = true;
+  
+    const dispositivoId = this.dispositivoSeleccionado.dispositivo_id;
+  
+    this.vulnerabilidadServicio.obtenerVulnerabilidadesPorDispositivo(dispositivoId).subscribe({
+      next: (resp) => {
+        this.vulnerabilidadesDetalle = resp.data?.puertos || [];
+      },
+      error: (err) => {
+        console.error("❌ Error al obtener detalles:", err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron obtener los detalles del escaneo.'
+        });
+      }
+    });
   }
+  
 
   getColor(score: number): string {
     if (score >= 9.0) return 'text-red-600 font-semibold';
@@ -92,4 +113,5 @@ export class VulnerabilidadesCveComponent implements OnInit {
     if (score >= 4.0) return 'text-orange-500 font-medium';
     return 'text-green-600 font-medium';
   }
+  
 }

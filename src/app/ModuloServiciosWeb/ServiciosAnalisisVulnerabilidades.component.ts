@@ -83,6 +83,18 @@ export class ServiciosAnalisisVulnerabilidades {
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(catchError(this.handleError));
   }
+  /**
+ * 📌 Obtiene las vulnerabilidades asociadas a un dispositivo específico.
+ * @param dispositivoId ID del dispositivo
+ * @returns Observable con los datos de vulnerabilidades agrupados por puerto
+ */
+  obtenerVulnerabilidadesPorDispositivo(dispositivoId: number): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrlVulnerabilidades}/ver_vulnerabilidades_por_dispositivo/${dispositivoId}`,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
         // ===================== ESCANEO + IA =====================
 
     /**
