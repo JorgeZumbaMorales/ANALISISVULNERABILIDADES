@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -12,7 +12,8 @@ export class ServiciosAnalisisVulnerabilidades {
   private apiUrlPuertos = `${environment.apiUrl}/puertos_abiertos`;
   private apiUrlVulnerabilidades = `${environment.apiUrl}/vulnerabilidades`; // ✅ Añadido
   private apiUrlEscaneoAvanzado = `${environment.apiUrl}/escaneo_avanzado`;
-
+  private apiUrlResumenCVEs = `${environment.apiUrl}/resumen_cves`;
+  private apiUrlPuertoVulnerabilidad = `${environment.apiUrl}/puerto_vulnerabilidad`;
   constructor(private http: HttpClient) {}
 
   // ===================== GENERAR RECOMENDACIONES =====================
@@ -89,6 +90,7 @@ export class ServiciosAnalisisVulnerabilidades {
  * @returns Observable con los datos de vulnerabilidades agrupados por puerto
  */
   obtenerVulnerabilidadesPorDispositivo(dispositivoId: number): Observable<any> {
+    console.log("ID del dispositivo:", dispositivoId);
     return this.http.get<any>(
       `${this.apiUrlVulnerabilidades}/ver_vulnerabilidades_por_dispositivo/${dispositivoId}`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
@@ -103,14 +105,51 @@ export class ServiciosAnalisisVulnerabilidades {
    * @returns Observable con la IP escaneada y los resúmenes generados
    */
     ejecutarEscaneoAvanzado(datos: { dispositivo_id: number, mac_address: string, ip_actual: string }): Observable<any> {
+      console.log("Datos para escaneo avanzado:", datos);
       return this.http.post<any>(
         `${this.apiUrlEscaneoAvanzado}/analisis_avanzado`,
         datos,
         { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
       ).pipe(catchError(this.handleError));
     }
+    
+    obtenerResumenPorFecha(data: { dispositivo_id: number, fecha: string }): Observable<any> {
+      console.log('📤 Llamando al endpoint resumen_por_dispositivo_y_fecha con:', data);
+    
+      return this.http.post<any>(
+        `${this.apiUrlResumenCVEs}/resumen_por_dispositivo_y_fecha`,
+        data,
+        { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+      ).pipe(
+        // Puedes interceptar la respuesta aquí para debug
+        tap((res) => console.log('✅ Respuesta recibida del resumen_por_dispositivo_y_fecha:', res)),
+        catchError(this.handleError)
+      );
+    }
+    
   
+    obtenerVulnerabilidadesPorFecha(data: { dispositivo_id: number, fecha: string }): Observable<any> {
+      return this.http.post<any>(
+        `${this.apiUrlPuertoVulnerabilidad}/listar_por_dispositivo_y_fecha`,
+        data,
+        { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+      ).pipe(catchError(this.handleError));
+    }
+    // ===================== HISTORIAL DE ESCANEOS =====================
 
+/**
+ * 📌 Obtiene el historial de fechas de escaneos realizados para un dispositivo.
+ * Cada fecha representa un escaneo único.
+ * @param dispositivoId ID del dispositivo
+ * @returns Observable con las fechas de escaneo
+ */
+    obtenerHistorialFechasPorDispositivo(dispositivoId: number): Observable<any> {
+      const url = `${environment.apiUrl}/puerto_vulnerabilidad/historial_fechas/${dispositivoId}`;
+      return this.http.get<any>(
+        url,
+        { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+      ).pipe(catchError(this.handleError));
+    }
 
   // ===================== MANEJO DE ERRORES =====================
   private handleError(error: any) {

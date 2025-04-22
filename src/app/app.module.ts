@@ -78,6 +78,7 @@ import { PgReportesDocumentosComponent } from './ModuloReportes/pg-reportes-docu
 import { ChartModule } from 'primeng/chart';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ConfirmationService } from 'primeng/api';
+import { DatePickerModule } from 'primeng/datepicker';
 import { VulnerabilidadesCveComponent } from './ModuloVulnerabilidades/vulnerabilidades-cve/vulnerabilidades-cve.component';
 @NgModule({
   declarations: [
@@ -154,7 +155,8 @@ import { VulnerabilidadesCveComponent } from './ModuloVulnerabilidades/vulnerabi
     InputNumberModule,
     ConfirmDialogModule,
     ChartModule,
-    AutoCompleteModule
+    AutoCompleteModule,
+    DatePickerModule
 ],
   providers: [
     provideAnimationsAsync(),
