@@ -66,48 +66,62 @@ export class VulnerabilidadesCveComponent implements OnInit {
   }
 
   verDetalle(): void {
-    if (this.resumenDesdeHistorial && this.fechaSeleccionadaDesdeHistorial) {
-      const payload = {
-        dispositivo_id: this.dispositivoSeleccionado.dispositivo_id,
-        fecha: this.fechaSeleccionadaDesdeHistorial
-      };
+    console.log("Dispositivo seleccionado Dentro:", this.dispositivoSeleccionado);
+    console.log("Vulnerabilidades Detalle Dentro:", this.vulnerabilidadesDetalle);
   
-      this.vulnerabilidadServicio.obtenerVulnerabilidadesPorFecha(payload).subscribe({
-        next: (response) => {
-          console.log('✅ Datos recibidos del backend:', response);
-          const datosReales = this.extraerDatosArray(response);
-          this.manejarVulnerabilidades(datosReales);
-        },
-        error: () => this.mostrarError('Error al cargar vulnerabilidades por fecha')
-      });
-    } else {
-      if (!this.validarDatos(this.vulnerabilidadesDetalle)) {
-        this.mostrarError('No hay detalles para mostrar');
-        return;
-      }
-      this.dialogoVisible = true;
-      this.actualizarFiltrosPorPuerto();
+    if (!this.validarDatos(this.vulnerabilidadesDetalle)) {
+      console.warn("⚠️ No se encontró datos válidos");
+      this.mostrarError('No hay detalles para mostrar');
+      return;
     }
+  
+    console.log("✅ Entrando al diálogo");
+    this.dialogoVisible = true;
+    this.actualizarFiltrosPorPuerto();
   }
+  
+  
+  
   
   
   consultarEscaneoPorFecha(fecha: Date): void {
     const fechaFormateada = `${fecha.getFullYear()}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}-${fecha.getDate().toString().padStart(2, '0')} ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}:${fecha.getSeconds().toString().padStart(2, '0')}`;
     const payload = { dispositivo_id: this.dispositivoSeleccionado.dispositivo_id, fecha: fechaFormateada };
-
+  
     this.fechaSeleccionadaDesdeHistorial = fechaFormateada;
     this.resumenDesdeHistorial = true;
-
+  
+    console.log("📥 Llamando al endpoint resumen_por_dispositivo_y_fecha con:", payload);
+  
     this.vulnerabilidadServicio.obtenerResumenPorFecha(payload).subscribe({
       next: ({ resumen_cves }) => {
         this.resumenCves = resumen_cves;
         this.mostrarResumen = true;
         this.historialVisible = false;
         this.mostrarMensaje('success', 'Resumen cargado', 'Resumen generado para fecha seleccionada.');
+  
+        // 🔍 Agrega esto para depurar
+        console.log("✅ Respuesta recibida del resumen_por_dispositivo_y_fecha:", resumen_cves);
+  
+        // 🟡 Aquí llamamos a obtener las vulnerabilidades detalladas
+        this.vulnerabilidadServicio.obtenerVulnerabilidadesPorFecha(payload).subscribe({
+          next: (resp) => {
+            console.log("📦 Respuesta de vulnerabilidades por fecha (cruda):", resp);
+  
+            const datosReales = this.extraerDatosArray(resp);
+            console.log("✅ Datos extraídos:", datosReales);
+  
+            this.vulnerabilidadesDetalle = datosReales;
+          },
+          error: () => this.mostrarError('Error al precargar detalles del historial')
+        });
       },
       error: () => this.mostrarError('Error al generar resumen por fecha')
     });
   }
+  
+  
+
 
   consultarVulnerabilidades(onSuccess?: () => void): void {
     this.vulnerabilidadServicio.obtenerVulnerabilidadesPorDispositivo(this.dispositivoSeleccionado.dispositivo_id).subscribe({
@@ -190,8 +204,10 @@ export class VulnerabilidadesCveComponent implements OnInit {
     return 'text-green-600 font-medium';
   }
   private extraerDatosArray(response: any): any[] {
+    console.log("🔍 Dentro de extraerDatosArray:", response);
     return response?.data?.data || [];
   }
+  
   
   private mostrarMensaje(tipo: 'success' | 'error', titulo: string, detalle: string): void {
     this.messageService.add({ severity: tipo, summary: titulo, detail: detalle });

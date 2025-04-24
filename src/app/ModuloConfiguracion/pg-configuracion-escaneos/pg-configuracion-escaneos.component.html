@@ -1,104 +1,296 @@
-<div class="p-2 space-y-6 bg-white rounded-lg shadow-md">
-
-    <!-- ✅ Encabezado -->
-    <div class="flex items-center justify-between border-b pb-4">
-        <h2 class="text-xl font-semibold text-gray-800">Configuración de Escaneos</h2>
-        <div class="flex items-center space-x-4">
-            <p-button label="Nueva Configuración" icon="pi pi-plus" class="p-button-primary" (click)="mostrarModal()"></p-button>
-            <div class="flex items-center space-x-2">
-                <span>Activar Escaneo</span>
-                <p-toggleSwitch [(ngModel)]="escaneoAutomatico"></p-toggleSwitch>
-            </div>
-        </div>
-    </div>
-  
-    <!-- ✅ TABLA: Configuraciones por Frecuencia -->
-    <h3 class="text-lg font-semibold text-gray-700 mt-4">Configuraciones por Frecuencia</h3>
-  
-    <!-- 🔍 Buscador para configuraciones de frecuencia -->
-    <div class="flex justify-end">
-        <p-iconfield iconPosition="left">
-            <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-            <input pInputText type="text" (input)="filtrarFrecuencia($event)" placeholder="Buscar configuración..." />
-        </p-iconfield>
-    </div>
-  
-    <p-table #dtFrecuencia [value]="configuracionesFrecuencia" [(selection)]="configuracionesSeleccionadasFrecuencia"
-             dataKey="id" [paginator]="true" [rows]="5" [globalFilterFields]="['nombre', 'frecuencia_minutos']">
-        <ng-template pTemplate="header">
-            <tr>
-                <th style="width: 4rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
-                <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
-                <th pSortableColumn="frecuencia_minutos">Frecuencia (min) <p-sortIcon field="frecuencia_minutos" /></th>
-                <th pSortableColumn="fecha_inicio">Fecha Inicio <p-sortIcon field="fecha_inicio" /></th>
-                <th pSortableColumn="fecha_fin">Fecha Fin <p-sortIcon field="fecha_fin" /></th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-config>
-            <tr>
-                <td><p-tableCheckbox [value]="config"></p-tableCheckbox></td>
-                <td>{{ config.nombre }}</td>
-                <td>{{ config.frecuencia_minutos }}</td>
-                <td>{{ config.fecha_inicio | date:'dd/MM/yyyy' }}</td>
-                <td>{{ config.fecha_fin | date:'dd/MM/yyyy' }}</td>
-                <td>
-                    <p-tag [value]="config.estado ? 'Activo' : 'Inactivo'" [severity]="config.estado ? 'success' : 'danger'"></p-tag>
-                </td>
-                <td>
-                    <p-button icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editarConfiguracion(config)"></p-button>
-                    <p-button icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" (click)="eliminarConfiguracion(config)"></p-button>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
-  
-    <!-- ✅ TABLA: Configuraciones por Hora -->
-    <h3 class="text-lg font-semibold text-gray-700 mt-6">Configuraciones por Hora</h3>
-  
-    <!-- 🔍 Buscador para configuraciones por horas -->
-    <div class="flex justify-end">
-        <p-iconfield iconPosition="left">
-            <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-            <input pInputText type="text" (input)="filtrarHoras($event)" placeholder="Buscar configuración..." />
-        </p-iconfield>
-    </div>
-  
-    <p-table #dtHoras [value]="configuracionesHoras" [(selection)]="configuracionesSeleccionadasHoras"
-             dataKey="id" [paginator]="true" [rows]="5" [globalFilterFields]="['nombre', 'horas']">
-        <ng-template pTemplate="header">
-            <tr>
-                <th style="width: 4rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
-                <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
-                <th>Horas Programadas</th>
-                <th pSortableColumn="fecha_inicio">Fecha Inicio <p-sortIcon field="fecha_inicio" /></th>
-                <th pSortableColumn="fecha_fin">Fecha Fin <p-sortIcon field="fecha_fin" /></th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-config>
-            <tr>
-                <td><p-tableCheckbox [value]="config"></p-tableCheckbox></td>
-                <td>{{ config.nombre }}</td>
-                <td>
-                    <ul>
-                        <li *ngFor="let hora of config.horas">{{ hora }}</li>
-                    </ul>
-                </td>
-                <td>{{ config.fecha_inicio | date:'dd/MM/yyyy' }}</td>
-                <td>{{ config.fecha_fin | date:'dd/MM/yyyy' }}</td>
-                <td>
-                    <p-tag [value]="config.estado ? 'Activo' : 'Inactivo'" [severity]="config.estado ? 'success' : 'danger'"></p-tag>
-                </td>
-                <td>
-                    <p-button icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editarConfiguracion(config)"></p-button>
-                    <p-button icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" (click)="eliminarConfiguracion(config)"></p-button>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
-  
+<!-- 🧾 Fila 1: Título y botón -->
+<div class="flex items-center justify-between border-b pb-4">
+    <h2 class="text-xl font-semibold text-gray-800">Configuración de Escaneos De Dispositivos</h2>
+    <p-button 
+      label="Nueva Configuración" 
+      icon="pi pi-plus" 
+      class="p-button-success"
+      (click)="mostrarModal()"
+    ></p-button>
   </div>
+  
+  <!-- 🔘 Fila 2: Toggle switch centrado -->
+  <div class="flex justify-center py-6">
+    <div class="flex flex-col items-center gap-1">
+      <p-toggleSwitch [(ngModel)]="escaneoAutomatico"></p-toggleSwitch>
+      <span 
+        class="text-sm font-medium text-center"
+        [ngClass]="{
+          'text-green-600': escaneoAutomatico,
+          'text-gray-600 italic': !escaneoAutomatico
+        }"
+      >
+        {{ escaneoAutomatico ? 'Escaneo Automático Activado' : 'Activar Escaneo Automático' }}
+      </span>
+    </div>
+  </div>
+ <!-- 🕓 Card: Configuración por Frecuencia -->
+<div class="border rounded-lg shadow-sm p-4 mt-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+      <h3 class="text-lg font-semibold text-gray-700">Configuraciones por Frecuencia</h3>
+      <div class="w-full sm:w-auto">
+        <p-iconfield iconPosition="left" class="w-full">
+          <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+          <input pInputText type="text" (input)="filtrarFrecuencia($event)" placeholder="Buscar configuración..." class="w-full sm:w-72" />
+        </p-iconfield>
+      </div>
+    </div>
+  
+    <div class="overflow-auto">
+      <p-table #dtFrecuencia [value]="configuracionesFrecuencia" [(selection)]="configuracionesSeleccionadasFrecuencia"
+               dataKey="id" [paginator]="true" [rows]="5" [globalFilterFields]="['nombre', 'frecuencia_minutos']"
+               responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 4rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
+            <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
+            <th pSortableColumn="frecuencia_minutos">Frecuencia (min) <p-sortIcon field="frecuencia_minutos" /></th>
+            <th pSortableColumn="fecha_inicio">Fecha Inicio <p-sortIcon field="fecha_inicio" /></th>
+            <th pSortableColumn="fecha_fin">Fecha Fin <p-sortIcon field="fecha_fin" /></th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-config>
+          <tr>
+            <td><p-tableCheckbox [value]="config"></p-tableCheckbox></td>
+            <td>{{ config.nombre }}</td>
+            <td>{{ config.frecuencia_minutos }}</td>
+            <td>{{ config.fecha_inicio | date:'dd/MM/yyyy' }}</td>
+            <td>{{ config.fecha_fin | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <p-tag [value]="config.estado ? 'Activo' : 'Inactivo'" [severity]="config.estado ? 'success' : 'danger'"></p-tag>
+            </td>
+            <td class="flex gap-1">
+              <p-button icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="eliminarConfiguracion(config)"></p-button>
+              <p-button icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" (click)="eliminarConfiguracion(config)"></p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+  
+  <!-- ⏰ Card: Configuración por Hora -->
+  <div class="border rounded-lg shadow-sm p-4 mt-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+      <h3 class="text-lg font-semibold text-gray-700">Configuraciones por Hora</h3>
+      <div class="w-full sm:w-auto">
+        <p-iconfield iconPosition="left" class="w-full">
+          <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+          <input pInputText type="text" (input)="filtrarHoras($event)" placeholder="Buscar configuración..." class="w-full sm:w-72" />
+        </p-iconfield>
+      </div>
+    </div>
+  
+    <div class="overflow-auto">
+      <p-table #dtHoras [value]="configuracionesHoras" [(selection)]="configuracionesSeleccionadasHoras"
+               dataKey="id" [paginator]="true" [rows]="5" [globalFilterFields]="['nombre', 'horas']"
+               responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 4rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
+            <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
+            <th>Horas Programadas</th>
+            <th pSortableColumn="fecha_inicio">Fecha Inicio <p-sortIcon field="fecha_inicio" /></th>
+            <th pSortableColumn="fecha_fin">Fecha Fin <p-sortIcon field="fecha_fin" /></th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-config>
+          <tr>
+            <td><p-tableCheckbox [value]="config"></p-tableCheckbox></td>
+            <td>{{ config.nombre }}</td>
+            <td>
+              <ul>
+                <li *ngFor="let hora of config.horas">{{ hora }}</li>
+              </ul>
+            </td>
+            <td>{{ config.fecha_inicio | date:'dd/MM/yyyy' }}</td>
+            <td>{{ config.fecha_fin | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <p-tag [value]="config.estado ? 'Activo' : 'Inactivo'" [severity]="config.estado ? 'success' : 'danger'"></p-tag>
+            </td>
+            <td class="flex gap-1">
+              <p-button icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="eliminarConfiguracion(config)"></p-button>
+              <p-button icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" (click)="eliminarConfiguracion(config)"></p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+  <p-dialog
+  [(visible)]="modalVisible"
+  [modal]="true"
+  header="Nueva Configuración"
+  [style]="{ width: '800px' }"
+  (onHide)="cerrarModal()"
+>
+  <p-tabView [(activeIndex)]="tabSeleccionada" (onChange)="cambiarTipoEscaneo($event.index)">
+    <p-tabPanel header="Por Frecuencia">
+        <div>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 1rem;">
+    <label for="estadoToggle" style="margin-bottom: 0.5rem;">Usar esta configuración como activa</label>
+  
+    <p-toggleSwitch
+      [(ngModel)]="formulario.estado"
+      inputId="estadoToggle"
+      pTooltip="Activa o desactiva esta configuración"
+      tooltipPosition="top"
+    ></p-toggleSwitch>
+  
+    <span style="margin-top: 0.5rem; font-size: 0.875rem; font-weight: 500;" 
+          [ngClass]="{ 'text-green-600': formulario.estado, 'text-gray-500': !formulario.estado }">
+      {{ formulario.estado ? 'Activado' : 'Desactivado' }}
+    </span>
+  </div>
+  
+  
+  
+      
+          <!-- 📝 Nombre de la configuración -->
+          <div style="margin-bottom: 1rem;">
+            <p-iftalabel>
+              <input pInputText id="nombre-frec" [(ngModel)]="formulario.nombre_configuracion_escaneo" style="width: 97.5%;" />
+              <label for="nombre-frec">Nombre de la Configuración</label>
+            </p-iftalabel>
+          </div>
+      
+          <!-- 📅 Fechas y Frecuencia -->
+          <div style="display: flex; gap: 1.25rem;">
+      
+            <!-- 🟩 Columna izquierda -->
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                <p-iftalabel>
+                    <p-datepicker id="inicio-frec" [(ngModel)]="formulario.fecha_inicio" showIcon [style]="{ width: '94%' }" />
+                    <label for="inicio-frec">Fecha Inicio</label>
+                  </p-iftalabel>
+      
+                  <p-iftalabel>
+                    <p-inputNumber id="frecuencia" [(ngModel)]="formulario.frecuencia_minutos" [style]="{ width: '100%' }" />
+                    <label for="frecuencia">Frecuencia</label>
+                  </p-iftalabel>
+            </div>
+      
+            <!-- 🟦 Columna derecha -->
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                <p-iftalabel>
+                    <p-datepicker id="fin-frec" [(ngModel)]="formulario.fecha_fin" showIcon [style]="{ width: '95%' }" />
+                    <label for="fin-frec">Fecha Fin</label>
+                  </p-iftalabel>
+      
+                  <p-iftalabel>
+                    <p-dropdown
+                      [options]="[ {label: 'Minutos', value: 'min'}, {label: 'Horas', value: 'hr'} ]"
+                      [(ngModel)]="unidadFrecuencia"
+                      placeholder="Unidad"
+                      [style]="{ width: '95%' }"
+                    ></p-dropdown>
+                    <label for="unidad">Unidad</label>
+                  </p-iftalabel>
+            </div>
+      
+          </div>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="Por Hora">
+        <div>
+      
+          <!-- 🔘 Toggle centrado con estado dinámico -->
+          <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 1rem;">
+            <label for="estadoHora" style="margin-bottom: 0.5rem;">Usar esta configuración como activa</label>
+      
+            <p-toggleSwitch
+              [(ngModel)]="formulario.estado"
+              inputId="estadoHora"
+              pTooltip="Activa esta configuración como la principal"
+              tooltipPosition="top"
+            ></p-toggleSwitch>
+      
+            <span style="margin-top: 0.5rem; font-size: 0.875rem; font-weight: 500;"
+                  [ngClass]="{ 'text-green-600': formulario.estado, 'text-gray-500': !formulario.estado }">
+              {{ formulario.estado ? 'Activado' : 'Desactivado' }}
+            </span>
+          </div>
+      
+          <!-- 📝 Nombre -->
+          <div style="margin-bottom: 1rem;">
+            <p-iftalabel>
+              <input pInputText id="nombre-hora" [(ngModel)]="formulario.nombre_configuracion_escaneo" style="width: 97.5%;" />
+              <label for="nombre-hora">Nombre de la Configuración</label>
+            </p-iftalabel>
+          </div>
+      
+          <!-- 📅 Fechas -->
+          <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+              <p-iftalabel>
+                <p-datepicker id="inicio-hora" [(ngModel)]="formulario.fecha_inicio" showIcon [style]="{ width: '95%' }" />
+                <label for="inicio-hora">Fecha Inicio</label>
+              </p-iftalabel>
+            </div>
+      
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+              <p-iftalabel>
+                <p-datepicker id="fin-hora" [(ngModel)]="formulario.fecha_fin" showIcon [style]="{ width: '95%' }" />
+                <label for="fin-hora">Fecha Fin</label>
+              </p-iftalabel>
+            </div>
+          </div>
+      
+          <!-- 🕒 Selección de hora y botón alineado -->
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <p-iftalabel style="flex: 1;">
+              <p-datepicker
+                id="horaSeleccionada"
+                [(ngModel)]="horaTemporal"
+                [timeOnly]="true"
+                hourFormat="24"
+                showIcon
+                appendTo="body"
+                [style]="{ width: '100%' }"
+              />
+              <label for="horaSeleccionada">Seleccionar hora</label>
+            </p-iftalabel>
+      
+            <!-- Botón alineado -->
+            <div style="display: flex; align-items: left; height: 100%;">
+              <p-button
+                icon="pi pi-plus"
+                label="Añadir"
+                class="p-button-sm"
+                [style]="{ padding: '0.5rem 1rem', minWidth: '100px' }"
+                (onClick)="agregarHora()"
+              ></p-button>
+            </div>
+          </div>
+      
+          <!-- ⏱️ Chips de hora -->
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            <p-chip *ngFor="let hora of formulario.horas" [label]="hora"></p-chip>
+          </div>
+      
+        </div>
+      </p-tabPanel>
+      
+  </p-tabView>
+
+  <!-- ✅ Botones -->
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <p-button label="Cancelar" icon="pi pi-times" class="p-button-secondary" (onClick)="cerrarModal()"></p-button>
+      <p-button label="Guardar" icon="pi pi-check" (onClick)="guardarConfiguracion()"></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+
+
+
+
+
+
+
   

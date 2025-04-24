@@ -236,28 +236,30 @@
     <ng-container *ngIf="historialFechas.length > 0; else sinDatos">
 
       <!-- 📅 Filtro de rango de fechas -->
-      <div class="mb-4 flex justify-center items-center gap-3">
-        <p-iftalabel>
-          <p-datepicker
-            [(ngModel)]="filtroRangoFechas"
-            selectionMode="range"
-            
-            dateFormat="yy-mm-dd"
-            showIcon
-            appendTo="body"
-            monthNavigator="true"
-            yearNavigator="true"
-            
-            inputId="rangoFechas"
-            [style]="{ width: '300px' }"
-          ></p-datepicker>
-          <label for="rangoFechas">Filtrar</label>
-        </p-iftalabel>
-        
+     <!-- 📅 Filtro de rango de fechas (en columna) -->
+<div class="px-4 mt-2">
+  <p-iftalabel>
+    <p-datepicker
+      [(ngModel)]="filtroRangoFechas"
+      selectionMode="range"
+      dateFormat="yy-mm-dd"
+      showIcon
+      appendTo="body"
+      monthNavigator="true"
+      yearNavigator="true"
+      inputId="rangoFechas"
+      class="w-full md:w-80"
+    ></p-datepicker>
+    <label for="rangoFechas" class="block text-sm text-gray-600 mt-1">Filtrar por rango de fechas</label>
+  </p-iftalabel>
+</div>
 
-        <p-button label="Aplicar filtro" icon="pi pi-filter" (onClick)="filtrarHistorialPorRango()"></p-button>
-        <p-button label="Limpiar" icon="pi pi-times" severity="secondary" (onClick)="limpiarFiltroHistorial()"></p-button>
-      </div>
+<!-- 🔘 Botones debajo del filtro -->
+<div class="flex justify-center gap-3 mt-3 mb-4 px-4">
+  <p-button label="Aplicar filtro" icon="pi pi-filter" (onClick)="filtrarHistorialPorRango()" class="px-4 py-1"></p-button>
+  <p-button label="Limpiar" icon="pi pi-times" severity="secondary" (onClick)="limpiarFiltroHistorial()" class="px-4 py-1"></p-button>
+</div>
+
 
       <!-- 📋 Tabla de fechas filtradas -->
       <p-table [value]="historialFechasFiltradas" [rows]="5" [paginator]="true">
