@@ -53,6 +53,7 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { SelectModule } from 'primeng/select';
 import { CarouselModule } from 'primeng/carousel';
+import { CheckboxModule } from 'primeng/checkbox';
 import { MessageModule } from 'primeng/message';
 import { InputOtp } from 'primeng/inputotp';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -80,6 +81,12 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ConfirmationService } from 'primeng/api';
 import { DatePickerModule } from 'primeng/datepicker';
 import { VulnerabilidadesCveComponent } from './ModuloVulnerabilidades/vulnerabilidades-cve/vulnerabilidades-cve.component';
+import { SliderModule } from 'primeng/slider';
+import { FieldsetModule } from 'primeng/fieldset';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { MenuModule } from 'primeng/menu';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -156,7 +163,13 @@ import { VulnerabilidadesCveComponent } from './ModuloVulnerabilidades/vulnerabi
     ConfirmDialogModule,
     ChartModule,
     AutoCompleteModule,
-    DatePickerModule
+    DatePickerModule,
+    CheckboxModule,
+    SliderModule,
+    FieldsetModule,
+    RadioButtonModule,
+    SelectButtonModule,
+    MenuModule
 ],
   providers: [
     provideAnimationsAsync(),

@@ -39,31 +39,40 @@ export class PgLoginComponent {
   }
 
   iniciarSesion() {
-    // ✅ Verificar si los campos están vacíos antes de enviar la solicitud
-    if (!this.usuario.trim() || !this.contrasena.trim()) {
-      this.mostrarMensaje('warn', 'Campos Vacíos', 'Por favor, ingrese su usuario y contraseña');
-      return;
-    }
-
-    const credenciales = { nombre_usuario: this.usuario, contrasena: this.contrasena };
-
-    this.authService.iniciarSesion(credenciales).subscribe({
-      next: (respuesta) => {
-        console.log("Datos recibidos:", respuesta);
-
-        // ✅ Si hay token, guardar en sesión y redirigir
-        if (respuesta?.access_token) {
-          this.sesionService.guardarSesion(respuesta.access_token);
-          this.router.navigate(['/admin/inicio']);
-        } else {
-          this.mostrarMensaje('error', 'Error', 'No se pudo iniciar sesión, intente nuevamente.');
-        }
-      },
-      error: () => {
-        this.mostrarMensaje('error', 'Error', 'Usuario o contraseña incorrectos');
-      }
-    });
+  if (!this.usuario.trim() || !this.contrasena.trim()) {
+    this.mostrarMensaje('warn', 'Campos Vacíos', 'Por favor, ingrese su usuario y contraseña');
+    return;
   }
+
+  const credenciales = { nombre_usuario: this.usuario, contrasena: this.contrasena };
+
+  this.authService.iniciarSesion(credenciales).subscribe({
+    next: (respuesta) => {
+      if (respuesta?.access_token) {
+        // ✅ Guardar token
+        this.sesionService.guardarSesion(respuesta.access_token);
+
+        // ✅ Obtener perfil completo del usuario
+        this.authService.obtenerMiPerfil().subscribe({
+          next: (perfil) => {
+            this.sesionService.guardarPerfil(perfil); // ✅ Guardar perfil
+            this.router.navigate(['/admin/inicio']);  // Redirigir
+          },
+          error: () => {
+            this.mostrarMensaje('error', 'Error', 'No se pudo cargar el perfil del usuario.');
+          }
+        });
+
+      } else {
+        this.mostrarMensaje('error', 'Error', 'No se pudo iniciar sesión, intente nuevamente.');
+      }
+    },
+    error: () => {
+      this.mostrarMensaje('error', 'Error', 'Usuario o contraseña incorrectos');
+    }
+  });
+}
+
 
   volverInicio() {
     this.router.navigate(['/public']);

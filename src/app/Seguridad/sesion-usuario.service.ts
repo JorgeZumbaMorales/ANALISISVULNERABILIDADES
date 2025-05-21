@@ -40,4 +40,31 @@ export class SesionUsuarioService {
   cerrarSesion() {
     localStorage.removeItem('token');
   }
+  // ✅ Guardar el perfil completo del usuario
+  guardarPerfil(perfil: any) {
+    // Eliminar el usuario_id antes de guardar
+    const { usuario_id, ...perfilSinId } = perfil;
+
+    // Codificar en Base64 para evitar exposición directa
+    const codificado = btoa(JSON.stringify(perfilSinId));
+
+    // Guardar en localStorage
+    localStorage.setItem('perfil', codificado);
+  }
+
+  obtenerPerfil(): any {
+    const datos = localStorage.getItem('perfil');
+
+    if (!datos) return null;
+
+    try {
+      // Decodificar desde Base64 y convertir a objeto
+      return JSON.parse(atob(datos));
+    } catch (error) {
+      console.error('Error al decodificar el perfil del usuario:', error);
+      return null;
+    }
+  }
+
+
 }

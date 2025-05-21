@@ -5,22 +5,42 @@
     </div>
 
     <div class="flex items-center space-x-4">
+
+      <!-- Selector de Roles -->
       <div class="flex items-center space-x-2">
-        <label for="roles" class="text-textoSecundario">Rol:</label>
+        <label for="roles" class="text-sm text-textoSecundario ">Rol selecionado:</label>
         <p-dropdown 
           [options]="roles" 
           [(ngModel)]="selectedRole"
+          (onChange)="onCambiarRol()"
           placeholder="Seleccionar Rol"
           id="roles"
-          class="w-48">
+          class="w-44 text-sm border text-textoPrincipal rounded-md shadow-sm"
+          appendTo="body">
         </p-dropdown>
+
       </div>
 
-      <p-button 
-        icon="pi pi-sign-out" 
-        label="Cerrar Sesión" 
-        class=" text-textoSecundario font-semibold">
-      </p-button>
+      <!-- Menú de perfil -->
+      <p-menu 
+        #menu 
+        [popup]="true" 
+        [model]="perfilMenu" 
+        class="bg-white text-sm text-textoPrincipal shadow-md rounded-md"
+      ></p-menu>
+
+      <!-- Botón de usuario -->
+      <button 
+        pButton 
+        type="button" 
+        (click)="menu.toggle($event)"
+        class="border border-baseNaranja bg-baseNaranja text-white px-4 py-2 rounded-xl text-sm hover:bg-opacity-90 flex items-center space-x-2 transition duration-200"
+      >
+        <i class="pi pi-user"></i>
+        <span>{{ nombresCompletos }}</span>
+        <i class="pi pi-chevron-down text-xs"></i>
+      </button>
+
     </div>
   </nav>
 </header>

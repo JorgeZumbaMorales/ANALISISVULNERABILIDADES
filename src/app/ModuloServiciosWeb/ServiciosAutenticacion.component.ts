@@ -22,6 +22,43 @@ export class ServiciosAutenticacion {
     return this.http.post<any>(`${this.apiUrlAuth}/login`, credenciales)
         .pipe(catchError(this.handleError));
   }
+  obtenerMenuPorUsuario(): Observable<any> {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+  return this.http.get<any>(`${environment.apiUrl}/secciones/menu`, { headers })
+    .pipe(catchError(this.handleError));
+}
+obtenerMenuPorRol(nombreRol: string): Observable<any> {
+  const token = localStorage.getItem('token');
+  const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
+  // Si tienes un mapa para convertir nombre a rol_id, úsalo. Si no, ajusta según tu backend.
+  const rolIdMap: any = {
+    Administrador: 1,
+    Analista: 2,
+    Usuario: 3
+  };
+  const rolId = rolIdMap[nombreRol];
+
+  return this.http.get<any>(`${environment.apiUrl}/secciones/menu_por_rol/${rolId}`, { headers })
+    .pipe(catchError(this.handleError));
+}
+
+  obtenerMiPerfil(): Observable<any> {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+  return this.http.get<any>(`${this.apiUrlUsuarios}/mi_perfil`, { headers })
+    .pipe(catchError(this.handleError));
+}
+
   // ===================== USUARIOS =====================
 
   listarUsuarios(): Observable<any> {

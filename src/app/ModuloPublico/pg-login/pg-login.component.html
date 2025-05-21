@@ -3,10 +3,9 @@
     <div class="w-1/2 flex flex-col justify-center items-center text-center p-10 bg-baseAzulOscuro text-white">
         <h1 class="text-3xl font-bold mb-6">¡Bienvenido a RedSegura!</h1>
         <p class="text-lg mb-8 max-w-md">
-            Optimiza y protege tu red con herramientas avanzadas de análisis y gestión.
-            Ingresa a tu cuenta para comenzar a gestionar la seguridad de tu infraestructura.
+            Inicia sesión para gestionar dispositivos, ejecutar escaneos y revisar vulnerabilidades en tu red local.
         </p>
-        <img src="" alt="Seguridad informática" class="w-52 h-auto" />
+        
     </div>
     <div class="w-1/2 flex flex-col justify-center items-center bg-white p-12">
         <h2 class="text-2xl font-semibold text-center mb-6 text-baseAzulOscuro">Iniciar Sesión</h2>
@@ -28,10 +27,12 @@
             </div>
           <div class="form-group flex justify-center items-center w-full mt-6">
             <p-button 
-                type="submit" 
-                label="Acceder" 
-                class="w-2/3 md:w-1/2 lg:w-1/3 p-button-primary p-button-lg text-center">
-            </p-button>
+  icon="pi pi-sign-in"
+  type="submit" 
+  label="Acceder" 
+  [styleClass]="'bg-baseNaranja text-white border-baseNaranja transition-all duration-300 transform hover:scale-110 rounded-3xl px-5 py-2 text-sm md:text-base'">
+</p-button>
+
         </div>
       </form>
       <p class="text-center mt-4">
