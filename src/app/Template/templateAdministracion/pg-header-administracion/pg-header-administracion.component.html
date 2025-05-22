@@ -1,25 +1,74 @@
-<header class="bg-baseAzulOscuro text-textoSecundario p-3 shadow-md">
+<header class="bg-baseAzulOscuro text-textoSecundario p-2 shadow-md">
   <nav class="flex justify-between items-center">
-    <div class="flex items-center">
-      <h1 class="text-xl font-bold">RedSegura</h1>
-    </div>
+    <div class="flex items-center ml-6">
+  <h1 class="text-xl font-bold">RedSegura</h1>
+</div>
+
 
     <div class="flex items-center space-x-4">
+      <!-- Notificaciones -->
+<div class="relative flex items-center">
+  <i 
+    class="pi pi-bell text-xl cursor-pointer text-white hover:text-baseNaranja transition duration-150"
+    pBadge 
+    [value]="cantidadNotificaciones"
+    [badgeStyle]="{ backgroundColor: '#fc4b08', color: 'white' }"
+    (click)="mostrarNotificaciones($event)"
+  ></i>
+</div>
 
-      <!-- Selector de Roles -->
-      <div class="flex items-center space-x-2">
-        <label for="roles" class="text-sm text-textoSecundario ">Rol selecionado:</label>
-        <p-dropdown 
-          [options]="roles" 
-          [(ngModel)]="selectedRole"
-          (onChange)="onCambiarRol()"
-          placeholder="Seleccionar Rol"
-          id="roles"
-          class="w-44 text-sm border text-textoPrincipal rounded-md shadow-sm"
-          appendTo="body">
-        </p-dropdown>
+<p-overlayPanel #opNotificaciones [dismissable]="true" [showCloseIcon]="true" [style]="{ width: '250px' }">
+  <div *ngIf="notificaciones.length > 0; else sinNotificaciones" class="space-y-2">
+    <div *ngFor="let noti of notificaciones" class="p-2 border-b border-gray-200 text-sm text-black">
+      <i class="pi pi-info-circle text-baseNaranja mr-2"></i>
+      {{ noti.mensaje }}
+    </div>
+  </div>
+  <ng-template #sinNotificaciones>
+    <div class="text-center p-3 text-sm text-gray-500">No hay notificaciones</div>
+  </ng-template>
+</p-overlayPanel>
 
-      </div>
+
+      <!-- Selector de Roles limpio -->
+      <div class="text-white text-sm flex items-center space-x-1">
+  <p-iftalabel class="w-44">
+    <p-dropdown 
+  [options]="roles" 
+  [(ngModel)]="selectedRole"
+  optionLabel="label"
+  optionValue="value"
+  (onChange)="onCambiarRol()"
+  appendTo="body"
+  [showClear]="false"
+  class="bg-transparent border-none focus:ring-0 w-full"
+  [style]="{ color: 'white', background: 'transparent' }"
+  [panelStyle]="{ background: 'white', color: 'black' }"
+  [dropdownIcon]="'pi pi-chevron-down text-white ml-2'"
+>
+  <!-- Mostrar ítem seleccionado -->
+  <ng-template let-selected pTemplate="selectedItem">
+    <span class="text-white">{{ selected?.label }}</span>
+  </ng-template>
+
+  <!-- Estilo para cada opción -->
+  <ng-template let-option pTemplate="item">
+    <span 
+      class="block px-2 py-1 text-black" 
+      [ngClass]="{ 'active:bg-transparent font-bold': option.value === selectedRole }"
+    >
+      {{ option.label }}
+    </span>
+  </ng-template>
+</p-dropdown>
+
+    <label for="roles" class="text-orange-500">Rol seleccionado</label>
+
+  </p-iftalabel>
+</div>
+
+
+
 
       <!-- Menú de perfil -->
       <p-menu 
@@ -31,15 +80,16 @@
 
       <!-- Botón de usuario -->
       <button 
-        pButton 
-        type="button" 
-        (click)="menu.toggle($event)"
-        class="border border-baseNaranja bg-baseNaranja text-white px-4 py-2 rounded-xl text-sm hover:bg-opacity-90 flex items-center space-x-2 transition duration-200"
-      >
-        <i class="pi pi-user"></i>
-        <span>{{ nombresCompletos }}</span>
-        <i class="pi pi-chevron-down text-xs"></i>
-      </button>
+  pButton 
+  type="button" 
+  (click)="menu.toggle($event)"
+  class="bg-transparent border-none text-white text-sm px-2 py-1 hover:text-baseNaranja flex items-center space-x-2 transition duration-200"
+>
+  <i class="pi pi-user"></i>
+  <span>{{ nombresCompletos }}</span>
+  <i class="pi pi-chevron-down text-xs"></i>
+</button>
+
 
     </div>
   </nav>

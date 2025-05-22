@@ -1,8 +1,8 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { SesionUsuarioService } from '../../../Seguridad/sesion-usuario.service';
 import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
-
+import { OverlayPanel } from 'primeng/overlaypanel';
 @Component({
   selector: 'app-pg-header-administracion',
   templateUrl: './pg-header-administracion.component.html',
@@ -16,7 +16,12 @@ export class PgHeaderAdministracionComponent implements OnInit {
   nombreUsuario: string = '';
   correo: string = '';
   perfilMenu: MenuItem[] = [];
-
+  notificaciones = [
+    { mensaje: 'Nuevo escaneo completado' },
+    { mensaje: 'Se detectaron vulnerabilidades críticas' }
+  ];
+  cantidadNotificaciones = this.notificaciones.length;
+  @ViewChild('opNotificaciones') opNotificaciones!: OverlayPanel;
   constructor(
     private sesionService: SesionUsuarioService,
     private router: Router
@@ -33,28 +38,56 @@ export class PgHeaderAdministracionComponent implements OnInit {
 
       // Menú contextual del perfil
       this.perfilMenu = [
-        {
-          label: this.nombresCompletos,
-          icon: 'pi pi-id-card',
-          disabled: false
-        },
-        {
-          label: `${this.nombreUsuario}`,
-          icon: 'pi pi-user',
-          disabled: false
-        },
-        {
-          label: `${this.correo}`,
-          icon: 'pi pi-envelope',
-          disabled: false
-        },
-        { separator: true },
-        {
-          label: 'Cerrar Sesión',
-          icon: 'pi pi-sign-out',
-          command: () => this.logout()
-        }
-      ];
+  {
+    label: 'Nombres Apellidos',
+    items: [
+      {
+        label: this.nombresCompletos,
+        icon: 'pi pi-id-card',
+        disabled: true,
+        style: { opacity: 1, 'font-weight': 'bold', 'pointer-events': 'none' }
+      }
+    ]
+  },
+  {
+    label: 'Usuario',
+    items: [
+      {
+        label: this.nombreUsuario,
+        icon: 'pi pi-user',
+        disabled: true,
+        style: { opacity: 1, 'pointer-events': 'none' }
+      }
+    ]
+  },
+  {
+    label: 'Correo',
+    items: [
+      {
+        label: this.correo,
+        icon: 'pi pi-envelope',
+        disabled: true,
+        style: { opacity: 1, 'pointer-events': 'none' }
+      }
+    ]
+  },
+  {
+    separator: true
+  },
+  {
+  label: 'Salir de la cuenta',
+  items: [
+    {
+      label: 'Cerrar Sesión',
+      icon: 'pi pi-sign-out',
+      command: () => this.logout()
+    }
+  ]
+}
+
+
+];
+
     }
   }
 
@@ -64,5 +97,8 @@ export class PgHeaderAdministracionComponent implements OnInit {
   }
   onCambiarRol() {
     this.cambioRol.emit(this.selectedRole);
+  }
+   mostrarNotificaciones(event: Event) {
+    this.opNotificaciones.toggle(event);
   }
 }

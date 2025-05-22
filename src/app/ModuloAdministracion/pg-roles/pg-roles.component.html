@@ -44,3 +44,44 @@
         </ng-template>
     </p-table>
 </div>
+<p-dialog class="modal-agregar-rol" [(visible)]="mostrarModal" [modal]="true" [header]="'Agregar Rol'" [closable]="false"
+  class="w-full max-w-[45vw] md:max-w-[50vw] lg:max-w-[40vw] xl:max-w-[38vw] 2xl:max-w-[36vw]">
+
+  <form [formGroup]="formularioRol" class="mt-4">
+    <div class="grid grid-cols-1 gap-6">
+
+      <div class="flex flex-col gap-4">
+        <p-iftalabel>
+          <input pInputText id="nombre_rol" formControlName="nombre_rol" autocomplete="off" class="w-full" />
+          <label for="nombre_rol">Nombre del Rol</label>
+        </p-iftalabel>
+
+        <p-iftalabel>
+          <input pInputText id="descripcion" formControlName="descripcion" autocomplete="off" class="w-full" />
+          <label for="descripcion">Descripción</label>
+        </p-iftalabel>
+
+        <p-iftalabel>
+          <p-multiSelect 
+            formControlName="accesos_menu" 
+            [options]="opcionesMenu" 
+            optionLabel="etiqueta" 
+            display="chip" 
+            appendTo="body"
+            placeholder="Seleccione secciones del menú" 
+            class="w-full">
+            
+          </p-multiSelect>
+          <label for="accesos_menu">Acceso a Menú</label>
+        </p-iftalabel>
+      </div>
+    </div>
+  </form>
+
+  <div class="modal-footer flex justify-end items-center mt-6 space-x-4">
+    <p-button label="Guardar" icon="pi pi-save" class="p-button-success" (click)="guardarNuevoRol()"
+              [disabled]="formularioRol.invalid"></p-button>
+    <p-button label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="cerrarModal()"></p-button>
+  </div>
+</p-dialog>
+

@@ -86,6 +86,8 @@ import { FieldsetModule } from 'primeng/fieldset';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { MenuModule } from 'primeng/menu';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import MyPreset from '../mypreset'; // Importa tu preset personalizado
 
 @NgModule({
   declarations: [
@@ -169,13 +171,14 @@ import { MenuModule } from 'primeng/menu';
     FieldsetModule,
     RadioButtonModule,
     SelectButtonModule,
-    MenuModule
+    MenuModule,
+    OverlayPanelModule
 ],
   providers: [
     provideAnimationsAsync(),
         providePrimeNG({
             theme: {
-                preset: Aura,
+                preset: MyPreset,
                 options: {
                   darkModeSelector: '.my-app-dark',
                   cssLayer: {

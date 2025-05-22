@@ -6,17 +6,18 @@
           @for(item of menuItems; track item.routerLink){
               <li>
                   <button 
-                      [routerLink]="item.routerLink"
-                      class="w-full flex items-center px-4 py-3 rounded-md transition-all duration-200"
-                      [ngClass]="{
-                          ' text-white font-semibold': item.routerLink.includes(activeMenu),
-                          'hover:bg-primary hover:text-white': !item.routerLink.includes(activeMenu)
-                      }"
-                      (click)="setActiveMenu(item.routerLink)"
-                  >
-                      <i [class]="item.icon" class="mr-3 text-baseAzulOscuro"></i>
-                      <span class="text-baseAzulOscuro">{{ item.label }}</span>
-                  </button>
+  [routerLink]="item.routerLink"
+  class="w-full flex items-center px-4 py-3 rounded-md transition-all duration-200"
+  [ngClass]="{
+    'text-black font-semibold': item.routerLink.includes(activeMenu),
+    'hover:bg-baseNaranja hover:text-black': !item.routerLink.includes(activeMenu)
+  }"
+  (click)="setActiveMenu(item.routerLink)"
+>
+  <i [class]="item.icon" class="mr-3"></i>
+  <span>{{ item.label }}</span>
+</button>
+
               </li>
           }
       </ul>

@@ -167,6 +167,18 @@ obtenerMenuPorRol(nombreRol: string): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
+  listarTodasLasSecciones(): Observable<any> {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+  return this.http.get<any>(`${environment.apiUrl}/secciones/listar_secciones`, { headers })
+    .pipe(catchError(this.handleError));
+}
+
+
   // ===================== MANEJO DE ERRORES =====================
   private handleError(error: any): Observable<never> {
     console.error('Error en la petición:', error);
