@@ -1,9 +1,12 @@
 import { Component, OnInit, ViewChild} from '@angular/core';
+import { Validators } from '@angular/forms';
 import { ServiciosAutenticacion } from '../../ModuloServiciosWeb/ServiciosAutenticacion.component';
 import { Table } from 'primeng/table';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { SortEvent } from 'primeng/api';
+import { ValidacionesUsuarioService } from '../../ValidacionesFormularios/validaciones-usuario.service'; // ajusta la ruta si es necesario
+
 @Component({
   selector: 'app-pg-usuarios',
   templateUrl: './pg-usuarios.component.html',
@@ -22,7 +25,8 @@ export class PgUsuariosComponent implements OnInit {
   constructor(
     private servicioAuth: ServiciosAutenticacion,
     private fb: FormBuilder,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private validacionesUsuarioService: ValidacionesUsuarioService
   ) {}
   ngOnInit() {
     this.obtenerUsuarios();
@@ -30,17 +34,9 @@ export class PgUsuariosComponent implements OnInit {
     this.inicializarFormulario();
   }
   inicializarFormulario() {
-    this.formularioUsuario = this.fb.group({
-      nombre_usuario: [''],
-      contrasena: [''],
-      confirmar_contrasena: [''],
-      nombres_completos: [''],
-      apellidos_completos: [''],
-      email: [''],
-      telefono: [''],
-      rol_id: [null]
-    });
-  }
+  this.formularioUsuario = this.validacionesUsuarioService.obtenerValidacionesFormulario(this.fb);
+}
+
   manejarModal(nombreModal: string, abrir: boolean, datos?: any) {
     this.modalesVisibles[nombreModal] = abrir;
     if (abrir && nombreModal === 'agregarUsuario') {
@@ -65,8 +61,6 @@ export class PgUsuariosComponent implements OnInit {
     }
   });
   }
-
-
   obtenerRoles() {
     this.servicioAuth.listarRoles().subscribe({
       next: (data: any) => {
@@ -80,21 +74,32 @@ export class PgUsuariosComponent implements OnInit {
       }
     });
   }
-  guardarUsuario() {
-    const usuario = this.formularioUsuario.value;
-    const rolId = usuario.rol_id ? usuario.rol_id.value : null;
+ guardarUsuario() {
+  const resultado = this.validacionesUsuarioService.validarFormularioConMensajes(this.formularioUsuario);
+  if (resultado) {
+    this.mostrarMensaje(resultado.tipo, resultado.resumen, resultado.detalle);
+    return;
+  }
 
-    this.servicioAuth.crearUsuario(usuario, rolId).subscribe({
-      next: () => {
-        this.mostrarMensaje('success', 'Éxito', 'Usuario agregado correctamente');
-        this.obtenerUsuarios();
-        this.manejarModal('agregarUsuario', false);
-      },
-      error: (error) => { // ✅ Capturar error aquí
-        this.mostrarMensaje('error', 'Error', error.message); // ✅ Mostrar el mensaje del backend
-      }
-    });
+  const formData = this.formularioUsuario.value;
+  const usuario = {
+    ...formData,
+    rol_ids: formData.rol_ids?.map((rol: any) => rol.value) || []
+  };
+
+  this.servicioAuth.crearUsuario(usuario).subscribe({
+    next: () => {
+      this.mostrarMensaje('success', 'Éxito', 'Usuario agregado correctamente');
+      this.obtenerUsuarios();
+      this.manejarModal('agregarUsuario', false);
+    },
+    error: (error) => {
+      this.mostrarMensaje('error', 'Error', error.message);
+    }
+  });
 }
+
+
   mostrarMensaje(severity: string, summary: string, detail: string) {
     this.messageService.add({ severity, summary, detail });
   }
@@ -126,13 +131,9 @@ ordenarUsuariosRemovible(event: SortEvent) {
 ordenarDatos(event: SortEvent) {
   const field = event.field;
   const order = event.order;
-
   if (!field || order === undefined || order === null) return;
-
   this.usuarios.sort((a, b) => {
     let resultado = 0;
-
-    // Si el campo es booleano (como 'estado'), se ordena como tal
     if (field === 'estado') {
       const valorA = a[field] === true ? 1 : 0;
       const valorB = b[field] === true ? 1 : 0;
@@ -140,12 +141,10 @@ ordenarDatos(event: SortEvent) {
     } else {
       const valorA = (a[field] ?? '').toString().toLowerCase();
       const valorB = (b[field] ?? '').toString().toLowerCase();
-
       if (valorA === '' && valorB !== '') resultado = -1;
       else if (valorA !== '' && valorB === '') resultado = 1;
       else resultado = valorA.localeCompare(valorB);
     }
-
     return order * resultado;
   });
 }

@@ -16,9 +16,6 @@
     </p-button>
   </div>
 </section>
-
-
-<!-- Tabla -->
 <section class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 py-1">
   <p-table
   #dt
@@ -34,12 +31,9 @@
 >
 <ng-template pTemplate="caption">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-    <!-- Título a la izquierda -->
     <div class="bg-baseAzulOscuro text-white px-3 py-1 rounded-md shadow-sm">
       <h3 class="text-base sm:text-lg font-semibold">Lista de Usuarios</h3>
     </div>
-
-    <!-- Buscador a la derecha -->
     <p-iconfield iconPosition="left" class="mt-2 sm:mt-0">
       <p-inputicon>
         <i class="pi pi-search"></i>
@@ -54,8 +48,6 @@
     </p-iconfield>
   </div>
 </ng-template>
-
-
     <ng-template pTemplate="header">
       <tr>
   <th pSortableColumn="nombre_usuario">Usuario <p-sortIcon field="nombre_usuario" /></th>
@@ -64,16 +56,12 @@
   <th pSortableColumn="rolesTexto" class="text-left">
   Roles <p-sortIcon field="rolesTexto" />
 </th>
-
   <th pSortableColumn="estado" class="text-center">
   Estado <p-sortIcon field="estado" />
 </th>
-
   <th class="text-center w-[150px]">Acciones</th>
 </tr>
-
     </ng-template>
-
     <ng-template pTemplate="body" let-usuario>
       <tr>
         <td>{{ usuario.nombre_usuario }}</td>
@@ -88,7 +76,6 @@
     </p-chip>
   </ng-container>
 </td>
-
         <td class="text-center">
           <p-tag 
             [value]="usuario.estado ? 'Activo' : 'Inactivo'"
@@ -113,8 +100,6 @@
     </ng-template>
   </p-table>
 </section>
-
-
 <p-dialog class="modal-agregar-usuario" [(visible)]="modalesVisibles['agregarUsuario']"
     [modal]="true" [header]="'Crear Usuario'" [closable]="false"
     class="w-full max-w-[45vw] md:max-w-[50vw] lg:max-w-[40vw] xl:max-w-[38vw] 2xl:max-w-[36vw]">
@@ -135,7 +120,7 @@
                 </p-iftalabel>
                 <p-iftalabel>
                     <p-password formControlName="contrasena" [feedback]="true" [toggleMask]="true" promptLabel="Ingrese una contraseña" 
-                    weakLabel="Muy Simple" mediumLabel="Complejidad Media" strongLabel="Complejidad Fuerte" appendTo="body" class="w-full">
+                    weakLabel="Contraseña simple" mediumLabel="Contraseña media" strongLabel="Contraseña fuerte" appendTo="body" class="w-full">
                         <ng-template pTemplate="footer">
                             <p-divider />
                             <p class="mt-2">Recomendaciones:</p>
@@ -156,15 +141,17 @@
                     <label for="apellidos_completos">Apellidos Completos</label>
                 </p-iftalabel>
                 <p-iftalabel class="w-full">
-                    <p-dropdown 
-                        id="rol_id" 
-                        formControlName="rol_id" 
-                        [options]="roles" 
-                        optionLabel="label" 
-                        placeholder="Seleccione un rol" 
-                        class="w-full">
-                    </p-dropdown>
-                    <label for="rol_id">Seleccione un rol</label>
+                    <p-multiSelect 
+    id="rol_ids" 
+    formControlName="rol_ids"
+    [options]="roles" 
+    optionLabel="label"
+    display="chip"
+    
+    class="w-full">
+  </p-multiSelect>
+
+                    <label for="rol_id">Seleccione los roles</label>
                 </p-iftalabel>
                 <p-iftalabel>
                     <input pInputText id="telefono" formControlName="telefono" autocomplete="off" class="w-full" />
@@ -173,7 +160,7 @@
                 <p-iftalabel>
                     <p-password id="confirmar_contrasena" formControlName="confirmar_contrasena" 
                         promptLabel="Repita la contraseña" [toggleMask]="true" appendTo="body" class="w-full"
-                         weakLabel="Muy Simple" mediumLabel="Complejidad Media" strongLabel="Complejidad Fuerte">
+                         weakLabel="Contraseña simple" mediumLabel="Contraseña media" strongLabel="Contraseña fuerte">
                     </p-password>
                     <label for="password">Repetir contraseña</label>
                 </p-iftalabel>
@@ -181,8 +168,8 @@
         </div>
     </form>
     <div class="modal-footer flex justify-end items-center mt-6 space-x-4">
-        <p-button label="Guardar" icon="pi pi-save" class="p-button-success" (click)="guardarUsuario()"></p-button>
-        <p-button label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="manejarModal('agregarUsuario', false)"></p-button> 
+        <p-button label="Guardar" icon="pi pi-save" class="" (click)="guardarUsuario()"></p-button>
+        <p-button label="Cancelar" icon="pi pi-times" class="" (click)="manejarModal('agregarUsuario', false)"></p-button> 
     </div>
 </p-dialog>
 

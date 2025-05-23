@@ -67,20 +67,18 @@ obtenerMenuPorRol(nombreRol: string): Observable<any> {
   }
 
   
-  crearUsuario(usuario: any, rolId: number): Observable<any> {
-    console.log("SERVICIO USUARIO",usuario);
-    console.log("SERVICIO ROL ID", rolId);
-    const params = new HttpParams().set('rol_id', rolId.toString());
+  crearUsuario(usuario: any): Observable<any> {
+  console.log("📤 Enviando usuario al backend:", usuario);
 
-    return this.http.post<any>(
-      `${this.apiUrlUsuarios}/crear_usuario`, 
-      usuario, 
-      {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-        params: params 
-      }
-    ).pipe(catchError(this.handleError));
-  }
+  return this.http.post<any>(
+    `${this.apiUrlUsuarios}/crear_usuario`, 
+    usuario,
+    {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    }
+  ).pipe(catchError(this.handleError));
+}
+
 
   actualizarUsuario(usuarioId: number, usuario: any): Observable<any> {
     return this.http.put<any>(
