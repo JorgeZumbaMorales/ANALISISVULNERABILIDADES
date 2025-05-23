@@ -88,7 +88,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { MenuModule } from 'primeng/menu';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import MyPreset from '../mypreset'; // Importa tu preset personalizado
-
+import { TooltipModule } from 'primeng/tooltip';
 @NgModule({
   declarations: [
     AppComponent,
@@ -172,7 +172,8 @@ import MyPreset from '../mypreset'; // Importa tu preset personalizado
     RadioButtonModule,
     SelectButtonModule,
     MenuModule,
-    OverlayPanelModule
+    OverlayPanelModule,
+    TooltipModule
 ],
   providers: [
     provideAnimationsAsync(),

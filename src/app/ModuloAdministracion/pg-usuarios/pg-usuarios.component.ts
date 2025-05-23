@@ -16,9 +16,13 @@ import { ValidacionesUsuarioService } from '../../ValidacionesFormularios/valida
 export class PgUsuariosComponent implements OnInit {
   usuarios: any[] = [];
   @ViewChild('dt') dt!: Table;
+  accionesVisibles: { [usuarioId: number]: number } = {}; // 0 = grupo 1, 1 = grupo 2
   usuarioSeleccionado: any;
+  modoEditar: boolean = false;
   roles: any[] = [];
-  modalesVisibles: { [key: string]: boolean } = {}; 
+  modalesVisibles: { [key: string]: boolean } = {
+  usuarioFormulario: false
+};
   usuariosOriginales: any[] = [];
   formularioUsuario!: FormGroup;
   ordenActivo: boolean | null = null;
@@ -37,15 +41,47 @@ export class PgUsuariosComponent implements OnInit {
   this.formularioUsuario = this.validacionesUsuarioService.obtenerValidacionesFormulario(this.fb);
 }
 
-  manejarModal(nombreModal: string, abrir: boolean, datos?: any) {
-    this.modalesVisibles[nombreModal] = abrir;
-    if (abrir && nombreModal === 'agregarUsuario') {
+  manejarModal(abrir: boolean, datos?: any) {
+  this.modalesVisibles['usuarioFormulario'] = abrir;
+
+  if (abrir) {
+    if (datos) {
+      // Modo edición
+      this.modoEditar = true;
+      this.usuarioSeleccionado = datos;
+
+      const rolesSeleccionados = this.roles.filter(rol =>
+        datos.roles.includes(rol.label)
+      );
+
+      this.formularioUsuario.patchValue({
+        nombre_usuario: datos.nombre_usuario,
+        nombres_completos: datos.nombres_completos,
+        apellidos_completos: datos.apellidos_completos,
+        email: datos.email,
+        telefono: datos.telefono,
+        rol_ids: rolesSeleccionados
+      });
+
+      // Eliminar validaciones de contraseña al editar
+      this.formularioUsuario.get('contrasena')?.clearValidators();
+      this.formularioUsuario.get('confirmar_contrasena')?.clearValidators();
+      this.formularioUsuario.get('contrasena')?.updateValueAndValidity();
+      this.formularioUsuario.get('confirmar_contrasena')?.updateValueAndValidity();
+    } else {
+      // Modo creación
+      this.modoEditar = false;
+      this.usuarioSeleccionado = null;
       this.formularioUsuario.reset();
     }
-    if (abrir && nombreModal === 'editarUsuario' && datos) {
-      this.usuarioSeleccionado = datos;
-    }
+  } else {
+    // Cierre del modal (limpiar todo)
+    this.formularioUsuario.reset();
+    this.modoEditar = false;
+    this.usuarioSeleccionado = null;
   }
+}
+
   obtenerUsuarios() {
   this.servicioAuth.listarUsuarios().subscribe({
     next: (data: any) => {
@@ -87,25 +123,65 @@ export class PgUsuariosComponent implements OnInit {
     rol_ids: formData.rol_ids?.map((rol: any) => rol.value) || []
   };
 
-  this.servicioAuth.crearUsuario(usuario).subscribe({
-    next: () => {
-      this.mostrarMensaje('success', 'Éxito', 'Usuario agregado correctamente');
-      this.obtenerUsuarios();
-      this.manejarModal('agregarUsuario', false);
-    },
-    error: (error) => {
-      this.mostrarMensaje('error', 'Error', error.message);
-    }
-  });
+  if (this.modoEditar && this.usuarioSeleccionado?.usuario_id) {
+    // MODO EDICIÓN
+    this.servicioAuth.actualizarUsuario(this.usuarioSeleccionado.usuario_id, usuario).subscribe({
+      next: () => {
+        this.mostrarMensaje('success', 'Éxito', 'Usuario actualizado correctamente');
+        this.obtenerUsuarios();
+        this.manejarModal(false); // cerrar y limpiar
+      },
+      error: (error) => {
+        this.mostrarMensaje('error', 'Error', error.message);
+      }
+    });
+  } else {
+    // MODO CREACIÓN
+    this.servicioAuth.crearUsuario(usuario).subscribe({
+      next: () => {
+        this.mostrarMensaje('success', 'Éxito', 'Usuario agregado correctamente');
+        this.obtenerUsuarios();
+        this.manejarModal(false); // cerrar y limpiar
+      },
+      error: (error) => {
+        this.mostrarMensaje('error', 'Error', error.message);
+      }
+    });
+  }
 }
 
+  
 
   mostrarMensaje(severity: string, summary: string, detail: string) {
     this.messageService.add({ severity, summary, detail });
   }
   editarUsuario(usuario: any) {
-    console.log('Editar usuario:', usuario);
-  }
+  this.modoEditar = true;
+  this.usuarioSeleccionado = usuario;
+
+  // Transformar roles actuales del usuario al formato que espera el p-multiSelect
+  const rolesSeleccionados = this.roles.filter(rol =>
+    usuario.roles.includes(rol.label) // asumiendo que `usuario.roles` son nombres como ['Admin', 'Analista']
+  );
+
+  this.formularioUsuario.patchValue({
+    nombre_usuario: usuario.nombre_usuario,
+    nombres_completos: usuario.nombres_completos,
+    apellidos_completos: usuario.apellidos_completos,
+    email: usuario.email,
+    telefono: usuario.telefono,
+    rol_ids: rolesSeleccionados
+  });
+
+  // Eliminar validaciones de contraseña si estás editando
+  this.formularioUsuario.get('contrasena')?.clearValidators();
+  this.formularioUsuario.get('confirmar_contrasena')?.clearValidators();
+  this.formularioUsuario.get('contrasena')?.updateValueAndValidity();
+  this.formularioUsuario.get('confirmar_contrasena')?.updateValueAndValidity();
+
+  this.modalesVisibles['usuarioFormulario'] = true;
+}
+
   eliminarUsuario(usuario: any) {
     this.usuarios = this.usuarios.filter(u => u !== usuario);
   }
@@ -148,5 +224,16 @@ ordenarDatos(event: SortEvent) {
     return order * resultado;
   });
 }
+desactivarUsuario(usuario: any) {
+  console.log('Desactivar usuario:', usuario);
+  // Aquí luego implementas lógica para cambiar estado (activo/inactivo)
+}
 
+abrirModalCambioContrasena(usuario: any) {
+  console.log('Abrir modal para cambiar contraseña de:', usuario);
+  // Aquí luego abres un modal específico para editar contraseña
+}
+alternarGrupoAcciones(usuarioId: number) {
+  this.accionesVisibles[usuarioId] = this.accionesVisibles[usuarioId] === 1 ? 0 : 1;
+}
 }
