@@ -26,7 +26,8 @@
   dataKey="usuario_id"
   [paginator]="true"
   [rows]="5"
- [globalFilterFields]="['nombre_usuario', 'nombres_completos', 'email', 'estadoTexto', 'rolesTexto']"
+ [globalFilterFields]="['nombre_usuario', 'nombres_completos', 'email', 'telefono', 'estadoTexto', 'rolesTexto']"
+
   responsiveLayout="scroll"
   class="w-full"
 >
@@ -54,6 +55,7 @@
   <th pSortableColumn="nombre_usuario">Usuario <p-sortIcon field="nombre_usuario" /></th>
   <th pSortableColumn="nombres_completos">Nombres <p-sortIcon field="nombres_completos" /></th>
   <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
+  <th pSortableColumn="email">Teléfono <p-sortIcon field="telefono" /></th>
   <th pSortableColumn="rolesTexto" class="text-left">
   Roles <p-sortIcon field="rolesTexto" />
 </th>
@@ -68,6 +70,7 @@
         <td>{{ usuario.nombre_usuario }}</td>
         <td>{{ usuario.nombres_completos }}</td>
         <td>{{ usuario.email }}</td>
+        <td>{{ usuario.telefono }}</td>
         <td class="text-left">
   <ng-container *ngIf="usuario.roles?.length">
     <p-chip
@@ -96,24 +99,28 @@
         class="">
       </p-button>
 
-      <p-button 
-        icon="pi pi-trash"
-        pTooltip="Eliminar"
-        tooltipPosition="top"
-        (click)="eliminarUsuario(usuario)"
-        class="">
-      </p-button>
+     <p-button 
+  icon="pi pi-trash"
+  pTooltip="Eliminar"
+  tooltipPosition="top"
+  (click)="confirmarEliminarUsuario(usuario)"
+  class="">
+</p-button>
+
+
     </ng-container>
 
     <!-- Grupo 2: Desactivar y Cambiar Contraseña -->
     <ng-container *ngIf="accionesVisibles[usuario.usuario_id] === 1">
       <p-button 
-        icon="pi pi-user-minus"
-        pTooltip="Desactivar"
-        tooltipPosition="top"
-        (click)="desactivarUsuario(usuario)"
-        class="">
-      </p-button>
+  [icon]="usuario.estado ? 'pi pi-user-minus' : 'pi pi-user-plus'"
+  [pTooltip]="usuario.estado ? 'Desactivar usuario' : 'Activar usuario'"
+  tooltipPosition="top"
+  (click)="confirmarCambioEstadoUsuario(usuario)"
+  class="">
+</p-button>
+
+
 
       <p-button 
         icon="pi pi-key"
@@ -234,6 +241,44 @@
 
     </div>
 </p-dialog>
+<p-confirmdialog #cd>
+  <ng-template pTemplate="headless" let-message let-onAccept="onAccept" let-onReject="onReject">
+    <div class="w-full max-w-lg mx-auto flex flex-col items-center py-4 px-6 bg-white rounded-md shadow-lg relative">
+      <div
+        class="rounded-full text-white inline-flex justify-center items-center h-16 w-16 -mt-10 shadow-md"
+        [ngClass]="{
+          'bg-green-600': message.icon === 'pi pi-user-plus',
+          'bg-red-600': message.icon === 'pi pi-user-minus' || message.icon === 'pi pi-trash'
+        }"
+      >
+        <i class="{{ message.icon }} text-2xl"></i>
+      </div>
+      <span class="font-bold text-xl mt-3 text-center">{{ message.header }}</span>
+      <p class="text-center mt-2 text-sm leading-snug">{{ message.message }}</p>
+      <div class="flex justify-end gap-3 mt-5">
+        <button
+          pButton
+          type="button"
+          (click)="onReject()"
+          [label]="message.rejectLabel || 'Cancelar'"
+          class="p-button-outlined w-28"
+        ></button>
+        <button
+          pButton
+          type="button"
+          (click)="onAccept()"
+          [label]="message.acceptLabel || 'Confirmar'"
+          [class]=""
+        ></button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>
+
+
+
+
+
 
 
 

@@ -6,6 +6,7 @@ import { MessageService } from 'primeng/api';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { SortEvent } from 'primeng/api';
 import { ValidacionesUsuarioService } from '../../ValidacionesFormularios/validaciones-usuario.service'; // ajusta la ruta si es necesario
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-pg-usuarios',
@@ -16,6 +17,7 @@ import { ValidacionesUsuarioService } from '../../ValidacionesFormularios/valida
 export class PgUsuariosComponent implements OnInit {
   usuarios: any[] = [];
   @ViewChild('dt') dt!: Table;
+
   accionesVisibles: { [usuarioId: number]: number } = {}; // 0 = grupo 1, 1 = grupo 2
   usuarioSeleccionado: any;
   modoEditar: boolean = false;
@@ -30,7 +32,8 @@ export class PgUsuariosComponent implements OnInit {
     private servicioAuth: ServiciosAutenticacion,
     private fb: FormBuilder,
     private messageService: MessageService,
-    private validacionesUsuarioService: ValidacionesUsuarioService
+    private validacionesUsuarioService: ValidacionesUsuarioService,
+    private confirmationService: ConfirmationService,
   ) {}
   ngOnInit() {
     this.obtenerUsuarios();
@@ -182,9 +185,18 @@ export class PgUsuariosComponent implements OnInit {
   this.modalesVisibles['usuarioFormulario'] = true;
 }
 
-  eliminarUsuario(usuario: any) {
-    this.usuarios = this.usuarios.filter(u => u !== usuario);
-  }
+ eliminarUsuario(usuario: any) {
+  this.servicioAuth.eliminarUsuario(usuario.usuario_id).subscribe({
+    next: () => {
+      this.mostrarMensaje('success', 'Éxito', 'Usuario eliminado correctamente');
+      this.obtenerUsuarios();
+    },
+    error: (error) => {
+      this.mostrarMensaje('error', 'Error', error.message);
+    }
+  });
+}
+
   filtrarUsuarios(event: Event) {
   const inputValue = (event.target as HTMLInputElement).value;
   if (this.dt) {
@@ -224,10 +236,8 @@ ordenarDatos(event: SortEvent) {
     return order * resultado;
   });
 }
-desactivarUsuario(usuario: any) {
-  console.log('Desactivar usuario:', usuario);
-  // Aquí luego implementas lógica para cambiar estado (activo/inactivo)
-}
+
+
 
 abrirModalCambioContrasena(usuario: any) {
   console.log('Abrir modal para cambiar contraseña de:', usuario);
@@ -235,5 +245,65 @@ abrirModalCambioContrasena(usuario: any) {
 }
 alternarGrupoAcciones(usuarioId: number) {
   this.accionesVisibles[usuarioId] = this.accionesVisibles[usuarioId] === 1 ? 0 : 1;
+}
+confirmarAccion(
+  mensaje: string,
+  titulo: string,
+  accionAceptar: () => void,
+  estiloBoton: 'success' | 'danger' = 'success'
+) {
+  this.confirmationService.confirm({
+    message: mensaje,
+    header: titulo,
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: 'Sí',
+    rejectLabel: 'No',
+    acceptButtonStyleClass: estiloBoton === 'danger' ? 'p-button-danger' : 'p-button-success',
+    accept: accionAceptar
+  });
+}
+
+
+confirmarEliminarUsuario(usuario: any) {
+  this.confirmationService.confirm({
+    header: 'Confirmar eliminación',
+    message: `¿Estás seguro de que deseas eliminar al usuario "${usuario.nombre_usuario}"?`,
+    icon: 'pi pi-trash',
+    accept: () => {
+      this.eliminarUsuario(usuario);
+    },
+    acceptLabel: 'Eliminar',
+    rejectLabel: 'Cancelar',
+    acceptButtonStyleClass: 'p-button-danger w-28',
+    rejectButtonStyleClass: 'p-button-outlined w-28'
+  });
+}
+
+
+confirmarCambioEstadoUsuario(usuario: any) {
+  const nuevoEstado = !usuario.estado;
+  const accion = nuevoEstado ? 'activar' : 'desactivar';
+
+  this.confirmationService.confirm({
+  message: `¿Estás seguro de que deseas ${accion} al usuario "${usuario.nombre_usuario}"?`,
+  header: `Confirmar ${accion}`,
+  icon: nuevoEstado ? 'pi pi-user-plus' : 'pi pi-user-minus',
+  accept: () => {
+    this.servicioAuth.actualizarEstadoUsuario(usuario.usuario_id, nuevoEstado).subscribe({
+      next: (res) => {
+        this.mostrarMensaje('success', 'Éxito', res.mensaje);
+        this.obtenerUsuarios();
+      },
+      error: () => {
+        this.mostrarMensaje('error', 'Error', 'No se pudo actualizar el estado.');
+      }
+    });
+  },
+  acceptLabel: nuevoEstado ? 'Activar' : 'Desactivar',
+  acceptButtonStyleClass: nuevoEstado ? 'p-button-success w-28' : 'p-button-danger w-28',
+  rejectLabel: 'Cancelar',
+  rejectButtonStyleClass: 'p-button-outlined w-28'
+});
+
 }
 }
