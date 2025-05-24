@@ -21,12 +21,15 @@ export class PgUsuariosComponent implements OnInit {
   accionesVisibles: { [usuarioId: number]: number } = {}; // 0 = grupo 1, 1 = grupo 2
   usuarioSeleccionado: any;
   modoEditar: boolean = false;
+  modalCambioContrasenaVisible: boolean = false;
   roles: any[] = [];
   modalesVisibles: { [key: string]: boolean } = {
   usuarioFormulario: false
 };
   usuariosOriginales: any[] = [];
   formularioUsuario!: FormGroup;
+  formularioContrasena!: FormGroup;
+
   ordenActivo: boolean | null = null;
   constructor(
     private servicioAuth: ServiciosAutenticacion,
@@ -41,49 +44,85 @@ export class PgUsuariosComponent implements OnInit {
     this.inicializarFormulario();
   }
   inicializarFormulario() {
+  // Formulario de creación/edición de usuario
   this.formularioUsuario = this.validacionesUsuarioService.obtenerValidacionesFormulario(this.fb);
+
+  // Formulario de cambio de contraseña (modal aparte)
+  this.formularioContrasena = this.fb.group({
+  contrasena: ['', [Validators.required, this.validacionesUsuarioService.contrasenaFuerte()]],
+  confirmar_contrasena: ['', Validators.required]
+}, {
+  validators: this.validacionesUsuarioService.contrasenasCoinciden()
+});
 }
 
-  manejarModal(abrir: boolean, datos?: any) {
-  this.modalesVisibles['usuarioFormulario'] = abrir;
 
-  if (abrir) {
-    if (datos) {
-      // Modo edición
-      this.modoEditar = true;
-      this.usuarioSeleccionado = datos;
+  manejarModal(nombreModal: string | boolean, abrir?: boolean, datos?: any) {
+  // ✔️ Si solo se pasa true/false → usamos 'usuarioFormulario' por compatibilidad
+  if (typeof nombreModal === 'boolean') {
+    this.modalesVisibles['usuarioFormulario'] = nombreModal;
 
-      const rolesSeleccionados = this.roles.filter(rol =>
-        datos.roles.includes(rol.label)
-      );
-
-      this.formularioUsuario.patchValue({
-        nombre_usuario: datos.nombre_usuario,
-        nombres_completos: datos.nombres_completos,
-        apellidos_completos: datos.apellidos_completos,
-        email: datos.email,
-        telefono: datos.telefono,
-        rol_ids: rolesSeleccionados
-      });
-
-      // Eliminar validaciones de contraseña al editar
-      this.formularioUsuario.get('contrasena')?.clearValidators();
-      this.formularioUsuario.get('confirmar_contrasena')?.clearValidators();
-      this.formularioUsuario.get('contrasena')?.updateValueAndValidity();
-      this.formularioUsuario.get('confirmar_contrasena')?.updateValueAndValidity();
-    } else {
-      // Modo creación
+    if (!nombreModal) {
+      this.formularioUsuario.reset();
       this.modoEditar = false;
       this.usuarioSeleccionado = null;
-      this.formularioUsuario.reset();
     }
+
+    return;
+  }
+
+  // ✔️ Caso con nombre explícito del modal (como 'usuarioFormulario' o 'cambiarContrasena')
+  this.modalesVisibles[nombreModal] = abrir!;
+
+  if (abrir) {
+    if (nombreModal === 'usuarioFormulario') {
+      if (datos) {
+        this.modoEditar = true;
+        this.usuarioSeleccionado = datos;
+
+        const rolesSeleccionados = this.roles.filter(rol =>
+          datos.roles.includes(rol.label)
+        );
+
+        this.formularioUsuario.patchValue({
+          nombre_usuario: datos.nombre_usuario,
+          nombres_completos: datos.nombres_completos,
+          apellidos_completos: datos.apellidos_completos,
+          email: datos.email,
+          telefono: datos.telefono,
+          rol_ids: rolesSeleccionados
+        });
+
+        this.formularioUsuario.get('contrasena')?.clearValidators();
+        this.formularioUsuario.get('confirmar_contrasena')?.clearValidators();
+        this.formularioUsuario.get('contrasena')?.updateValueAndValidity();
+        this.formularioUsuario.get('confirmar_contrasena')?.updateValueAndValidity();
+      } else {
+        this.modoEditar = false;
+        this.usuarioSeleccionado = null;
+        this.formularioUsuario.reset();
+      }
+    }
+
+    if (nombreModal === 'cambiarContrasena' && datos) {
+      this.usuarioSeleccionado = datos;
+      this.formularioContrasena.reset();
+    }
+
   } else {
-    // Cierre del modal (limpiar todo)
-    this.formularioUsuario.reset();
-    this.modoEditar = false;
-    this.usuarioSeleccionado = null;
+    if (nombreModal === 'usuarioFormulario') {
+      this.formularioUsuario.reset();
+      this.modoEditar = false;
+      this.usuarioSeleccionado = null;
+    }
+
+    if (nombreModal === 'cambiarContrasena') {
+      this.formularioContrasena.reset();
+      this.usuarioSeleccionado = null;
+    }
   }
 }
+
 
   obtenerUsuarios() {
   this.servicioAuth.listarUsuarios().subscribe({
@@ -239,10 +278,8 @@ ordenarDatos(event: SortEvent) {
 
 
 
-abrirModalCambioContrasena(usuario: any) {
-  console.log('Abrir modal para cambiar contraseña de:', usuario);
-  // Aquí luego abres un modal específico para editar contraseña
-}
+
+
 alternarGrupoAcciones(usuarioId: number) {
   this.accionesVisibles[usuarioId] = this.accionesVisibles[usuarioId] === 1 ? 0 : 1;
 }
@@ -306,4 +343,34 @@ confirmarCambioEstadoUsuario(usuario: any) {
 });
 
 }
+
+guardarNuevaContrasena() {
+  
+  const resultado = this.validacionesUsuarioService.validarFormularioContrasena(this.formularioContrasena);
+  if (resultado) {
+    this.mostrarMensaje(resultado.tipo, resultado.resumen, resultado.detalle);
+    console.timeEnd('guardarContrasena');
+    return;
+  }
+
+  const datos = {
+    usuario_id: this.usuarioSeleccionado.usuario_id,
+    nueva_contrasena: this.formularioContrasena.value.contrasena
+  };
+  console.time('guardarContrasena');
+  this.servicioAuth.actualizarContrasena(datos).subscribe({
+    next: (res) => {
+      console.timeEnd('guardarContrasena');
+      this.mostrarMensaje('success', 'Contraseña actualizada', res.mensaje);
+      this.modalesVisibles['cambiarContrasena'] = false;
+      this.formularioContrasena.reset();
+    },
+    error: (error) => {
+      console.timeEnd('guardarContrasena');
+      this.mostrarMensaje('error', 'Error', error.message);
+    }
+  });
+}
+
+
 }

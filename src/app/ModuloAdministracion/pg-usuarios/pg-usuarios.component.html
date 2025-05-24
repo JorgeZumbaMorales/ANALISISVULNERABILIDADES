@@ -123,12 +123,13 @@
 
 
       <p-button 
-        icon="pi pi-key"
-        pTooltip="Cambiar contraseña"
-        tooltipPosition="top"
-        (click)="abrirModalCambioContrasena(usuario)"
-        class="">
-      </p-button>
+  icon="pi pi-key"
+  pTooltip="Cambiar contraseña"
+  tooltipPosition="top"
+  (click)="manejarModal('cambiarContrasena', true, usuario)"
+  class="">
+</p-button>
+
     </ng-container>
 
     <!-- Botón para alternar grupos -->
@@ -236,8 +237,9 @@
         </div>
     </form>
     <div class="modal-footer flex justify-end items-center mt-6 space-x-4">
-        <p-button label="Guardar" icon="pi pi-save" class="" (click)="guardarUsuario()"></p-button>
-        <p-button label="Cancelar" icon="pi pi-times" class="" (click)="manejarModal(false)"></p-button>
+        <p-button label="Cancelar" severity="secondary" class="" (click)="manejarModal(false)"></p-button>
+        <p-button label="Guardar" class="" (click)="guardarUsuario()"></p-button>
+        
 
     </div>
 </p-dialog>
@@ -275,6 +277,70 @@
   </ng-template>
 </p-confirmdialog>
 
+<p-dialog 
+  [(visible)]="modalesVisibles['cambiarContrasena']"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '400px' }"
+  header="Cambiar Contraseña"
+  class="modal-cambiar-contrasena"
+>
+  <form [formGroup]="formularioContrasena" class="space-y-4">
+    <p-iftalabel>
+      <p-password
+        formControlName="contrasena"
+        [feedback]="true"
+        [toggleMask]="true"
+        promptLabel="Ingrese una contraseña"
+        weakLabel="Contraseña simple"
+        mediumLabel="Contraseña media"
+        strongLabel="Contraseña fuerte"
+        appendTo="body"
+        class="w-full"
+      >
+        <ng-template pTemplate="footer">
+          <p-divider />
+          <p class="mt-2">Recomendaciones:</p>
+          <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
+            <li>Al menos una letra minúscula</li>
+            <li>Al menos una letra mayúscula</li>
+            <li>Al menos un número</li>
+            <li>Mínimo 8 caracteres</li>
+          </ul>
+        </ng-template>
+      </p-password>
+      <label for="contrasena">Nueva Contraseña</label>
+    </p-iftalabel>
+
+    <p-iftalabel>
+      <p-password
+        formControlName="confirmar_contrasena"
+        [toggleMask]="true"
+        promptLabel="Repita la contraseña"
+        weakLabel="Contraseña simple"
+        mediumLabel="Contraseña media"
+        strongLabel="Contraseña fuerte"
+        appendTo="body"
+        class="w-full"
+      ></p-password>
+      <label for="confirmar_contrasena">Confirmar Contraseña</label>
+    </p-iftalabel>
+  </form>
+
+  <div class="modal-footer flex justify-end items-center mt-6 space-x-4">
+    
+    <p-button 
+      label="Cancelar"
+      severity="secondary"
+      (click)="modalesVisibles['cambiarContrasena'] = false"
+      class=""
+    ></p-button>
+    <p-button 
+      label="Guardar" 
+      (click)="guardarNuevaContrasena()"
+    ></p-button>
+  </div>
+</p-dialog>
 
 
 

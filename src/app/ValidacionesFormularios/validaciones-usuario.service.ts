@@ -114,7 +114,7 @@ for (const campo of ordenValidacion) {
       return { tipo: 'warn', resumen: 'Correo inválido', detalle: 'Debe ingresar un correo electrónico válido.' };
     }
     if (control.errors['telefonoInvalido']) {
-      return { tipo: 'warn', resumen: 'Teléfono inválido', detalle: 'Debe tener entre 10 y 15 dígitos numéricos.' };
+      return { tipo: 'warn', resumen: 'Teléfono inválido', detalle: 'Debe tener  10 dígitos numéricos.' };
     }
     if (control.errors['nombresInvalidos']) {
       return { tipo: 'warn', resumen: 'Nombres inválidos', detalle: 'Debe contener solo letras y entre 3 y 50 caracteres.' };
@@ -155,6 +155,24 @@ private nombreAmigable(campo: string): string {
     rol_ids: 'Roles'
   };
   return nombres[campo] || campo;
+}
+validarFormularioContrasena(formulario: FormGroup): { tipo: string, resumen: string, detalle: string } | null {
+  const contrasena = formulario.get('contrasena');
+  const confirmar = formulario.get('confirmar_contrasena');
+
+  if (contrasena?.hasError('required') || confirmar?.hasError('required')) {
+    return { tipo: 'warn', resumen: 'Formulario incompleto', detalle: 'Debe ingresar y confirmar la nueva contraseña.' };
+  }
+
+  if (contrasena?.hasError('contrasenaDebil')) {
+    return { tipo: 'warn', resumen: 'Contraseña débil', detalle: 'Debe tener al menos una mayúscula, una minúscula, un número y mínimo 8 caracteres.' };
+  }
+
+  if (formulario.errors?.['contrasenasNoCoinciden']) {
+    return { tipo: 'warn', resumen: 'Error de contraseña', detalle: 'Las contraseñas no coinciden.' };
+  }
+
+  return null;
 }
 
 }
