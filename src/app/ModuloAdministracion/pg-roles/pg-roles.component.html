@@ -1,55 +1,117 @@
-<div>
-    <!-- Contenedor del título y el botón con espaciado -->
-    <div class="header-gestion flex justify-between items-center mb-4">
-        <!-- Título a la izquierda -->
-        <h2 class="titulo-gestion text-xl font-semibold">Gestión de Roles</h2>
-
-        <!-- Botón a la derecha -->
-        <p-button icon="pi pi-plus" label="Agregar Rol" 
-                  class="btn-agregar-rol p-button-success"
-                  (click)="agregarRol()"></p-button>
+<!-- Encabezado -->
+<section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 sm:py-4 mb-3">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 class="text-xl sm:text-2xl font-semibold">Gestión de Roles</h2>
+      <p class="text-sm text-textoSecundario mt-1">Administra los roles disponibles: crea, edita o elimina los permisos según sea necesario.</p>
     </div>
+    <p-button 
+      icon="pi pi-plus" 
+      label="Agregar Rol"
+      (click)="agregarRol()">
+    </p-button>
+  </div>
+</section>
 
-    <!-- Tabla de roles -->
-    <p-table [value]="roles" [paginator]="true" [rows]="5" responsiveLayout="scroll" class="tabla-roles">
-        <ng-template pTemplate="header">
-            <tr>
-                <th class="text-left">Nombre del Rol</th>
-                <th class="text-left">Descripción</th>
-                <th class="text-center">Estado</th>
-                <th class="text-center w-[150px]">Acciones</th> <!-- Ajusta el ancho -->
-            </tr>
-        </ng-template>
+<!-- Tabla de roles -->
+<section class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 py-1">
+  <p-table
+  #dt
+  [value]="roles"
+  [customSort]="true"
+  (sortFunction)="ordenarRolesRemovible($event)"
+  dataKey="rol_id"
+  [paginator]="true"
+  [rows]="5"
+  [globalFilterFields]="['nombre_rol', 'descripcion', 'estadoTexto', 'seccionesTexto']"
+  responsiveLayout="scroll"
+  class="w-full"
+>
 
-        <!-- Cuerpo de la tabla -->
-        <ng-template pTemplate="body" let-rol>
-            <tr>
-                <td>{{ rol.nombre_rol }}</td>
-                <td>{{ rol.descripcion }}</td>
-                <td class="text-center">
-                    <p-tag [value]="rol.estado ? 'Activo' : 'Inactivo'"
-                           [severity]="rol.estado ? 'success' : 'danger'">
-                    </p-tag>
-                </td>
-                <!-- Centrar botones de acciones -->
-                <td class="text-center flex justify-center items-center">
-                    <div class="acciones-roles flex gap-2">
-                        <p-button icon="pi pi-pencil" class="btn-accion editar"
-                                  (click)="editarRol(rol)"></p-button>
-                        <p-button icon="pi pi-trash" class="btn-accion eliminar"
-                                  (click)="eliminarRol(rol)"></p-button>
-                    </div>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
-</div>
-<p-dialog class="modal-agregar-rol" [(visible)]="mostrarModal" [modal]="true" [header]="'Agregar Rol'" [closable]="false"
+
+
+    <ng-template pTemplate="caption">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+    <div class="bg-baseAzulOscuro text-white px-3 py-1 rounded-md shadow-sm">
+      <h3 class="text-base sm:text-lg font-semibold">Lista de Roles</h3>
+    </div>
+    <p-iconfield iconPosition="left" class="mt-2 sm:mt-0">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        pInputText
+        type="text"
+        (input)="filtrarRoles($event)"
+        placeholder="Buscar rol..."
+        class="w-full md:w-72"
+      />
+    </p-iconfield>
+  </div>
+</ng-template>
+
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nombre_rol">Nombre del Rol <p-sortIcon field="nombre_rol" /></th>
+<th pSortableColumn="descripcion">Descripción <p-sortIcon field="descripcion" /></th>
+<th pSortableColumn="seccionesTexto">Secciones <p-sortIcon field="seccionesTexto" /></th>
+<th pSortableColumn="estadoTexto" class="text-center">Estado <p-sortIcon field="estadoTexto" /></th>
+        <th class="text-center w-[150px]">Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-rol>
+      <tr>
+        <td>{{ rol.nombre_rol }}</td>
+        <td>{{ rol.descripcion }}</td>
+        <td class="text-left">
+          <ng-container *ngIf="rol.secciones_menu?.length">
+            <p-chip
+              *ngFor="let seccion of rol.secciones_menu"
+              [label]="seccion.nombre_seccion"
+              class="m-1 px-2 py-1 rounded-md text-sm">
+            </p-chip>
+          </ng-container>
+        </td>
+        <td class="text-center">
+          <p-tag
+            [value]="rol.estado ? 'Activo' : 'Inactivo'"
+            [severity]="rol.estado ? 'success' : 'danger'">
+          </p-tag>
+        </td>
+        <td class="text-center">
+          <div class="flex justify-center gap-2 items-center">
+            <p-button
+              icon="pi pi-pencil"
+              pTooltip="Editar"
+              tooltipPosition="top"
+              (click)="editarRol(rol)">
+            </p-button>
+            <p-button
+              icon="pi pi-trash"
+              pTooltip="Eliminar"
+              tooltipPosition="top"
+              (click)="eliminarRol(rol)">
+            </p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>
+
+<!-- Modal para crear/editar rol -->
+<p-dialog
+  class="modal-agregar-rol"
+  [(visible)]="modalesVisibles['rolFormulario']"
+  [modal]="true"
+  [header]="rolEnEdicion ? 'Editar Rol' : 'Agregar Rol'"
+  [closable]="false"
   class="w-full max-w-[45vw] md:max-w-[50vw] lg:max-w-[40vw] xl:max-w-[38vw] 2xl:max-w-[36vw]">
 
   <form [formGroup]="formularioRol" class="mt-4">
     <div class="grid grid-cols-1 gap-6">
-
       <div class="flex flex-col gap-4">
         <p-iftalabel>
           <input pInputText id="nombre_rol" formControlName="nombre_rol" autocomplete="off" class="w-full" />
@@ -68,9 +130,8 @@
             optionLabel="etiqueta" 
             display="chip" 
             appendTo="body"
-            placeholder="Seleccione secciones del menú" 
+            placeholder="Seleccione secciones del menú"
             class="w-full">
-            
           </p-multiSelect>
           <label for="accesos_menu">Acceso a Menú</label>
         </p-iftalabel>
@@ -79,9 +140,10 @@
   </form>
 
   <div class="modal-footer flex justify-end items-center mt-6 space-x-4">
-    <p-button label="Guardar" icon="pi pi-save" class="p-button-success" (click)="guardarNuevoRol()"
-              [disabled]="formularioRol.invalid"></p-button>
-    <p-button label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="cerrarModal()"></p-button>
+    <p-button label="Cancelar" severity="secondary" (click)="manejarModal('rolFormulario', false)"></p-button>
+    <p-button label="Guardar" icon="pi pi-save"
+              [disabled]="formularioRol.invalid"
+              (click)="guardarNuevoRol()">
+    </p-button>
   </div>
 </p-dialog>
-

@@ -140,18 +140,21 @@ export class PgUsuariosComponent implements OnInit {
   });
   }
   obtenerRoles() {
-    this.servicioAuth.listarRoles().subscribe({
-      next: (data: any) => {
-        this.roles = data.datos.map((rol: any) => ({
-          label: rol.nombre_rol,
-          value: rol.rol_id
-        }));
-      },
-      error: () => {
-        this.mostrarMensaje('error', 'Error', 'No se pudo obtener la lista de roles.');
-      }
-    });
-  }
+  this.servicioAuth.listarRoles().subscribe({
+    next: (roles: any[]) => {
+      console.log("📌 Datos recibidos de roles:", roles);
+      this.roles = roles.map((rol: any) => ({
+        label: rol.nombre_rol,
+        value: rol.rol_id
+      }));
+    },
+    error: () => {
+      this.mostrarMensaje('error', 'Error', 'No se pudo obtener la lista de roles.');
+    }
+  });
+}
+
+
  guardarUsuario() {
   const resultado = this.validacionesUsuarioService.validarFormularioConMensajes(this.formularioUsuario);
   if (resultado) {
