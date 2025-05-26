@@ -137,6 +137,10 @@ obtenerMenuPorRol(nombreRol: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrlRoles}/listar_roles`)
       .pipe(catchError(this.handleError));
   }
+  listarRolesActivos(): Observable<any> {
+  return this.http.get<any>(`${this.apiUrlRoles}/listar_roles_activos`)
+    .pipe(catchError(this.handleError));
+}
 
   crearRol(rol: any): Observable<any> {
     return this.http.post<any>(
@@ -194,6 +198,14 @@ obtenerMenuPorRol(nombreRol: string): Observable<any> {
 
     return throwError(() => new Error(mensajeError));
   }
+
+  crearRolSinHandleError(rol: any): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlRoles}/crear_rol`,
+    rol,
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  );
+}
 
 
 }

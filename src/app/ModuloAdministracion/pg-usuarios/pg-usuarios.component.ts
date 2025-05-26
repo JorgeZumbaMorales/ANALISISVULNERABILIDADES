@@ -140,7 +140,7 @@ export class PgUsuariosComponent implements OnInit {
   });
   }
   obtenerRoles() {
-  this.servicioAuth.listarRoles().subscribe({
+  this.servicioAuth.listarRolesActivos().subscribe({
     next: (roles: any[]) => {
       console.log("📌 Datos recibidos de roles:", roles);
       this.roles = roles.map((rol: any) => ({

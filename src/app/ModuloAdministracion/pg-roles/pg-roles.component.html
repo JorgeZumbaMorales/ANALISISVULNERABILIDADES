@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <!-- Encabezado -->
 <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 sm:py-4 mb-3">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -81,21 +83,54 @@
           </p-tag>
         </td>
         <td class="text-center">
-          <div class="flex justify-center gap-2 items-center">
-            <p-button
-              icon="pi pi-pencil"
-              pTooltip="Editar"
-              tooltipPosition="top"
-              (click)="editarRol(rol)">
-            </p-button>
-            <p-button
-              icon="pi pi-trash"
-              pTooltip="Eliminar"
-              tooltipPosition="top"
-              (click)="eliminarRol(rol)">
-            </p-button>
-          </div>
-        </td>
+  <div class="flex justify-center gap-2 items-center">
+
+    <!-- Grupo 1: Editar y Eliminar -->
+    <ng-container *ngIf="accionesVisibles[rol.rol_id] !== 1">
+      <p-button 
+        icon="pi pi-pencil"
+        pTooltip="Editar"
+        tooltipPosition="top"
+        (click)="editarRol(rol)">
+      </p-button>
+
+      <p-button 
+        icon="pi pi-trash"
+        pTooltip="Eliminar"
+        tooltipPosition="top"
+        (click)="eliminarRol(rol)">
+      </p-button>
+    </ng-container>
+
+    <!-- Grupo 2: Activar/Desactivar -->
+    <ng-container *ngIf="accionesVisibles[rol.rol_id] === 1">
+      <p-button 
+        [icon]="rol.estado ? 'pi pi-eye-slash' : 'pi pi-eye'"
+        [pTooltip]="rol.estado ? 'Desactivar rol' : 'Activar rol'"
+        tooltipPosition="top"
+        (click)="confirmarCambioEstadoRol(rol)">
+      </p-button>
+    </ng-container>
+
+    <!-- Botón de alternancia -->
+    <button 
+      type="button"
+      pTooltip="Más acciones"
+      tooltipPosition="top"
+      (click)="alternarGrupoAcciones(rol.rol_id)"
+      class="text-gray-500 hover:text-gray-800 p-1 rounded-full transition-colors">
+      <i 
+        class="pi"
+        [ngClass]="{
+          'pi-angle-double-right': accionesVisibles[rol.rol_id] !== 1,
+          'pi-angle-double-left': accionesVisibles[rol.rol_id] === 1
+        }">
+      </i>
+    </button>
+
+  </div>
+</td>
+
       </tr>
     </ng-template>
   </p-table>
@@ -142,8 +177,47 @@
   <div class="modal-footer flex justify-end items-center mt-6 space-x-4">
     <p-button label="Cancelar" severity="secondary" (click)="manejarModal('rolFormulario', false)"></p-button>
     <p-button label="Guardar" icon="pi pi-save"
-              [disabled]="formularioRol.invalid"
-              (click)="guardarNuevoRol()">
+              (click)="guardarRol()">
     </p-button>
   </div>
 </p-dialog>
+<p-confirmdialog #confirmDialog>
+  <ng-template pTemplate="headless" let-message let-onAccept="onAccept" let-onReject="onReject">
+    <div class="w-full max-w-lg mx-auto flex flex-col items-center py-4 px-6 bg-white rounded-md shadow-lg relative">
+      <div
+        class="rounded-full text-white inline-flex justify-center items-center h-16 w-16 -mt-10 shadow-md"
+        [ngClass]="{
+          'bg-green-600': message.icon === 'pi pi-eye',
+          'bg-red-600': message.icon === 'pi pi-eye-slash' || message.icon === 'pi pi-trash'
+        }"
+      >
+        <i class="{{ message.icon }} text-2xl"></i>
+      </div>
+      <span class="font-bold text-xl mt-3 text-center">{{ message.header }}</span>
+      <p class="text-center mt-2 text-sm leading-snug">{{ message.message }}</p>
+      <div class="flex justify-end gap-3 mt-5">
+        <button
+          pButton
+          type="button"
+          (click)="onReject()"
+          [label]="message.rejectLabel || 'Cancelar'"
+          class="p-button-outlined w-28"
+        ></button>
+        <button
+          pButton
+          type="button"
+          (click)="onAccept()"
+          [label]="message.acceptLabel || 'Confirmar'"
+          class="w-28"
+          [ngClass]="{
+            'p-button-danger': message.icon === 'pi pi-trash' || message.icon === 'pi pi-eye-slash',
+            'p-button-success': message.icon === 'pi pi-eye'
+          }"
+        ></button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>
+
+
+
