@@ -1,24 +1,42 @@
 <p-toast></p-toast>
-<div class="card">
-  <div class="header-gestion flex justify-between items-center mb-4">
-    <h2 class="titulo-gestion text-xl font-semibold">Gestión de Dispositivos Activos</h2>
+<!-- 🟦 Encabezado -->
+<section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 sm:py-4 mb-3">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 class="text-xl sm:text-2xl font-semibold">Gestión de Dispositivos Activos</h2>
+      <p class="text-sm text-textoSecundario mt-1">Administra los dispositivos detectados en la red y realiza escaneos manuales si lo necesitas.</p>
+    </div>
+    <p-button 
+      icon="pi pi-bolt"
+      label="Escanear Dispositivos"
+      class=""
+      (click)="iniciarEscaneoDispositivos()">
+    </p-button>
   </div>
+</section>
 
-  <!-- 🛠 Tabla de dispositivos con búsqueda global -->
+<!-- 🟨 Tabla -->
+<section class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 py-1">
   <p-table
-    #dt
-    [value]="dispositivos"
-    dataKey="dispositivo_id"
-    [paginator]="true"
-    [rows]="5"
-    [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip']"
-    [tableStyle]="{ 'min-width': '75rem' }"
-    responsiveLayout="scroll"
-    class="tabla-dispositivos"
-  >
+  #dt
+  [value]="dispositivos"
+  [customSort]="true"
+  (sortFunction)="ordenarDispositivosRemovible($event)"
+  dataKey="dispositivo_id"
+  [paginator]="true"
+  [rows]="5"
+  [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip']"
+  responsiveLayout="scroll"
+  class="w-full"
+>
+
+    <!-- 🧭 Barra de búsqueda -->
     <ng-template pTemplate="caption">
-      <div class="flex justify-end">
-        <p-iconfield iconPosition="left">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+        <div class="bg-baseAzulOscuro text-white px-3 py-1 rounded-md shadow-sm">
+          <h3 class="text-base sm:text-lg font-semibold">Lista de Dispositivos Activos</h3>
+        </div>
+        <p-iconfield iconPosition="left" class="mt-2 sm:mt-0">
           <p-inputicon>
             <i class="pi pi-search"></i>
           </p-inputicon>
@@ -27,15 +45,16 @@
             type="text"
             (input)="filtrarDispositivos($event)"
             placeholder="Buscar dispositivo..."
-            class="w-full md:w-80"
+            class="w-full md:w-72"
           />
         </p-iconfield>
       </div>
     </ng-template>
 
+    <!-- 🔠 Encabezado de tabla -->
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="nombre_dispositivo">Nombre Dispositivo <p-sortIcon field="nombre_dispositivo" /></th>
+        <th pSortableColumn="nombre_dispositivo">Nombre <p-sortIcon field="nombre_dispositivo" /></th>
         <th pSortableColumn="mac_address">MAC Address <p-sortIcon field="mac_address" /></th>
         <th pSortableColumn="sistema_operativo">Sistema Operativo <p-sortIcon field="sistema_operativo" /></th>
         <th pSortableColumn="ultima_ip">IP Actual <p-sortIcon field="ultima_ip" /></th>
@@ -44,6 +63,7 @@
       </tr>
     </ng-template>
 
+    <!-- 🧩 Cuerpo de tabla -->
     <ng-template pTemplate="body" let-dispositivo>
       <tr>
         <td>{{ dispositivo.nombre_dispositivo }}</td>
@@ -53,32 +73,40 @@
         <td class="text-center">
           <p-tag
             [value]="dispositivo.estado ? 'Activo' : 'Inactivo'"
-            [severity]="dispositivo.estado ? 'success' : 'danger'"
-          ></p-tag>
+            [severity]="dispositivo.estado ? 'success' : 'danger'">
+          </p-tag>
         </td>
-        <td class="text-center flex justify-center items-center">
-          <div class="acciones-dispositivos flex gap-2">
-            <p-button icon="pi pi-pencil" class="btn-accion editar" (click)="abrirModal('editar', dispositivo)"></p-button>
+        <td class="text-center">
+          <div class="flex justify-center gap-2 items-center">
+            <p-button 
+              icon="pi pi-pencil"
+              pTooltip="Editar"
+              tooltipPosition="top"
+              (click)="abrirModal('editar', dispositivo)"
+              class="">
+            </p-button>
           </div>
         </td>
       </tr>
     </ng-template>
 
+    <!-- ❌ Mensaje si no hay datos -->
     <ng-template pTemplate="emptymessage">
       <tr>
         <td colspan="6" class="text-center">No hay dispositivos registrados.</td>
       </tr>
     </ng-template>
   </p-table>
-</div>
+</section>
+
 <p-dialog
-  [(visible)]="modal.visible"
-  *ngIf="modal.tipo === 'editar'"
+  [(visible)]="modalEditarVisible"
+  *ngIf="modalEditarVisible"
   header="Editar Dispositivo"
   [modal]="true"
   [style]="{ width: '100%', maxWidth: '25rem' }"
   [baseZIndex]="10000"
-  (onHide)="cerrarModal()"
+    (onHide)="cerrarModal('editar')"
 >
   <div *ngIf="dispositivoEditando" class="p-fluid p-4 space-y-5">
     <!-- Nombre del dispositivo -->
@@ -96,51 +124,91 @@
     <!-- Sistema operativo -->
     <p-iftalabel class="block">
       <p-autoComplete
-        inputId="so"
-        [(ngModel)]="sistemaOperativoSeleccionado"
-        [suggestions]="sistemasOperativosFiltrados"
-        (completeMethod)="buscarSistemaOperativo($event)"
-        optionLabel="nombre_so"
-        field="nombre_so"
-        placeholder="Escriba un sistema operativo"
-        [minLength]="3"
-        class="w-full"
-        [virtualScroll]="true"
-        [itemSize]="40"
-        appendTo="body"
-      >
-        <ng-template let-so pTemplate="item">
-          <div class="text-gray-900 p-2">{{ so?.nombre_so || 'SO sin nombre' }}</div>
-        </ng-template>
+  inputId="so"
+  [(ngModel)]="sistemaOperativoSeleccionado"
+  [suggestions]="sistemasOperativosFiltrados"
+  (completeMethod)="buscarSistemaOperativo($event)"
+  optionLabel="nombre_so"
+  placeholder="Escriba un sistema operativo"
+  [minLength]="3"
+  class="w-full"
+  [virtualScroll]="true"
+  [itemSize]="40"
+  appendTo="body"
+>
+  <ng-template let-so pTemplate="item">
+    <div class="text-gray-900 p-2">{{ so?.nombre_so || 'SO sin nombre' }}</div>
+  </ng-template>
 
-        <ng-template pTemplate="footer">
-          <div class="p-2 border-t text-center">
-            <button
-              pButton
-              icon="pi pi-plus"
-              label="Añadir nuevo"
-              text
-              (click)="abrirFormularioSO()"
-            ></button>
-          </div>
-        </ng-template>
-      </p-autoComplete>
+  <ng-template pTemplate="footer">
+    <div class="p-2 border-t text-center">
+      <button
+  pButton
+  icon="pi pi-plus"
+  label="Añadir nuevo sistema operativo"
+  text
+  (click)="abrirModal('crear_so')"
+></button>
+    </div>
+  </ng-template>
+</p-autoComplete>
+
       <label for="so">Sistema Operativo</label>
     </p-iftalabel>
 
     <!-- Botones -->
     <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-3 gap-2 pt-2">
       <p-button
+        label="Cancelar"
+        severity="secondary"
+        (click)="cerrarModal('editar')"
+        class="p-button-text w-full sm:w-auto"
+      />
+      <p-button
         label="Guardar"
-        icon="pi pi-save"
         (click)="guardarCambios()"
         class="w-full sm:w-auto"
       />
+      
+    </div>
+  </div>
+</p-dialog>
+<p-dialog
+  [(visible)]="modalCrearSOVisible"
+  *ngIf="modalCrearSOVisible"
+  header="Añadir Sistema Operativo"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '25rem' }"
+  [baseZIndex]="10000"
+  (onHide)="cerrarModal('crear_so')"
+>
+  <div class="p-fluid p-4 space-y-5">
+    <!-- Nombre del SO -->
+    <p-iftalabel class="block">
+      <input
+        id="nombre_so"
+        type="text"
+        pInputText
+        [(ngModel)]="nuevoSO.nombre_so"
+        class=""
+        placeholder="Ej: Ubuntu Server"
+      />
+      <label for="nombre_so">Nombre del sistema operativo</label>
+    </p-iftalabel>
+
+    <!-- Botones -->
+    <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-3 gap-2 pt-2">
       <p-button
         label="Cancelar"
-        icon="pi pi-times"
-        (click)="cerrarModal()"
+        severity="secondary"
         class="p-button-text w-full sm:w-auto"
+        (click)="cerrarModal('crear_so')"
+      />
+      <p-button
+        label="Guardar"
+        severity="primary"
+        class="w-full sm:w-auto"
+        (click)="guardarSistemaOperativo()"
       />
     </div>
   </div>

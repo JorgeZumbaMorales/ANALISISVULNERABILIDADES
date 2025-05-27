@@ -73,6 +73,14 @@ export class ServiciosDispositivos {
       catchError(this.handleError)
     );
   }
+  crearSistemaOperativo(payload: { nombre_so: string }): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlSistemasOperativos}/crear_sistema_operativo`,
+    payload
+  ).pipe(
+    catchError(this.handleError)
+  );
+}
 
   // ===================== IP ASIGNACIONES =====================
 

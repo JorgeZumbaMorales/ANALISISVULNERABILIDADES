@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
+import { NotificacionService } from './notificacion.service';
 
 @Injectable({ providedIn: 'root' })
 export class ValidacionesGeneralesService {
+  constructor(private notificacion: NotificacionService) {}
+
   campoVacio(valor: string | null | undefined): boolean {
     return !valor || valor.trim().length === 0;
   }
@@ -11,6 +14,46 @@ export class ValidacionesGeneralesService {
     const length = valor.trim().length;
     return length >= min && length <= max;
   }
-  
-}
 
+  contieneCaracteresInvalidos(valor: string, patron: RegExp = /[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ\.\-]/): boolean {
+    return patron.test(valor);
+  }
+
+  validarNombreDispositivo(nombre: string): boolean {
+    if (this.campoVacio(nombre)) {
+      this.notificacion.warning('Campo requerido', 'El nombre del dispositivo no puede estar vacío.');
+      return false;
+    }
+
+    if (!this.longitudValida(nombre, 3, 100)) {
+      this.notificacion.warning('Longitud inválida', 'Debe tener entre 3 y 100 caracteres.');
+      return false;
+    }
+
+    if (this.contieneCaracteresInvalidos(nombre)) {
+      this.notificacion.warning('Caracteres inválidos', 'El nombre contiene símbolos no permitidos.');
+      return false;
+    }
+
+    return true;
+  }
+
+  validarNombreSO(nombre: string): boolean {
+    if (this.campoVacio(nombre)) {
+      this.notificacion.warning('Campo requerido', 'El nombre del sistema operativo no puede estar vacío.');
+      return false;
+    }
+
+    if (!this.longitudValida(nombre, 3, 255)) {
+      this.notificacion.warning('Longitud inválida', 'Debe tener entre 3 y 255 caracteres.');
+      return false;
+    }
+
+    if (this.contieneCaracteresInvalidos(nombre)) {
+      this.notificacion.warning('Caracteres inválidos', 'El nombre contiene símbolos no permitidos.');
+      return false;
+    }
+
+    return true;
+  }
+}
