@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class ServiciosConfiguracion {
   private apiUrlConfiguraciones = `${environment.apiUrl}/configuracion_escaneos`;
-
+  private apiUrlEscaneoAvanzado = `${environment.apiUrl}/escaneo_avanzado`;
   constructor(private http: HttpClient) {}
 
   // ===================== CONFIGURACIONES DE ESCANEO =====================
@@ -89,6 +89,28 @@ export class ServiciosConfiguracion {
   eliminarConfiguracion(configuracionId: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrlConfiguraciones}/eliminar_configuracion_escaneo/${configuracionId}`)
       .pipe(catchError(this.handleError));
+  }
+
+  
+  // ===================== ESCANEOS =====================
+
+  /**
+   * Ejecutar escaneo manual desde el backend
+   */
+  ejecutarEscaneoManual(usuarioId: number): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlEscaneoAvanzado}/manual`, 
+    { usuario_id: usuarioId }, // 🔁 enviamos el ID
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+    /**
+   * Consultar el estado del escaneo en segundo plano.
+   */
+  obtenerEstadoEscaneo(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrlEscaneoAvanzado}/estado_escaneo`
+    ).pipe(catchError(this.handleError));
   }
 
   // ===================== MANEJO DE ERRORES =====================

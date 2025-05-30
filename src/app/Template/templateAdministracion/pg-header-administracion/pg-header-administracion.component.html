@@ -17,17 +17,34 @@
   ></i>
 </div>
 
-<p-overlayPanel #opNotificaciones [dismissable]="true" [showCloseIcon]="true" [style]="{ width: '250px' }">
-  <div *ngIf="notificaciones.length > 0; else sinNotificaciones" class="space-y-2">
-    <div *ngFor="let noti of notificaciones" class="p-2 border-b border-gray-200 text-sm text-black">
-      <i class="pi pi-info-circle text-baseNaranja mr-2"></i>
-      {{ noti.mensaje }}
+<p-overlayPanel #opNotificaciones [dismissable]="true" [showCloseIcon]="true" [style]="{ width: '270px' }">
+  <div class="space-y-2">
+    <!-- Notificaciones activas -->
+    <div *ngIf="notificaciones.length > 0">
+      <div *ngFor="let noti of notificaciones" 
+           class="p-2 border-b border-gray-200 text-sm text-black font-semibold">
+        <i class="pi pi-info-circle text-baseNaranja mr-2"></i>
+        {{ noti.mensaje_notificacion }}
+      </div>
+    </div>
+
+    <!-- Historial (vistas) solo si no hay activas -->
+    <div *ngIf="notificaciones.length === 0 && historialNotificaciones.length > 0">
+      <div class="text-xs font-bold text-gray-500 px-2 mt-2">Últimas notificaciones</div>
+      <div *ngFor="let noti of historialNotificaciones" 
+           class="p-2 border-b border-gray-100 text-sm text-gray-600 italic">
+        <i class="pi pi-history text-gray-500 mr-2"></i>
+        {{ noti.mensaje_notificacion }}
+      </div>
+    </div>
+
+    <!-- Nada que mostrar -->
+    <div *ngIf="notificaciones.length === 0 && historialNotificaciones.length === 0">
+      <div class="text-center p-3 text-sm text-gray-500">No hay notificaciones</div>
     </div>
   </div>
-  <ng-template #sinNotificaciones>
-    <div class="text-center p-3 text-sm text-gray-500">No hay notificaciones</div>
-  </ng-template>
 </p-overlayPanel>
+
 
 
       <!-- Selector de Roles limpio -->

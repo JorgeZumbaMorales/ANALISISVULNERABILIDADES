@@ -104,7 +104,7 @@ export class ServiciosDispositivos {
     return this.http.get<any>(`${this.apiUrlDispositivos}/historial_ips/${dispositivoId}`)
       .pipe(catchError(this.handleError));
   }
-
+    
   // ===================== MANEJO DE ERRORES =====================
   private handleError(error: any) {
     console.error('Error en la petición:', error);

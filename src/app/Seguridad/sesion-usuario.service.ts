@@ -45,10 +45,10 @@ export class SesionUsuarioService {
   // ===================== 👤 Perfil =====================
 
   guardarPerfil(perfil: any) {
-    const { usuario_id, ...perfilSinId } = perfil;
-    const codificado = btoa(JSON.stringify(perfilSinId));
-    localStorage.setItem('perfil', codificado);
-  }
+  const codificado = btoa(JSON.stringify(perfil));
+  localStorage.setItem('perfil', codificado);
+}
+
 
   obtenerPerfil(): any {
     const datos = localStorage.getItem('perfil');

@@ -1,9 +1,11 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit,OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { Table } from 'primeng/table';
 import { MessageService, SortEvent } from 'primeng/api';
 import { ServiciosDispositivos } from '../../ModuloServiciosWeb/ServiciosDispositivos.component';
 import { NotificacionService } from '../../ValidacionesFormularios/notificacion.service';
 import { ValidacionesGeneralesService } from '../../ValidacionesFormularios/validaciones-dispositivo.service';
+import { ServiciosConfiguracion } from '../../ModuloServiciosWeb/ServiciosConfiguracion.component'; // ✅ Importar
+import { SesionUsuarioService } from '../../Seguridad/sesion-usuario.service'; // asegúrate del path correcto
 
 interface SistemaOperativo {
   sistema_operativo_id: number;
@@ -24,15 +26,17 @@ interface Dispositivo {
   templateUrl: './pg-dispositivos.component.html',
   styleUrls: ['./pg-dispositivos.component.css']
 })
-export class PgDispositivosComponent implements OnInit, AfterViewInit {
+export class PgDispositivosComponent implements OnInit, AfterViewInit,OnDestroy {
   @ViewChild('dt') dt!: Table;
 
   dispositivos: Dispositivo[] = [];
   dispositivosOriginales: Dispositivo[] = [];
   sistemasOperativos: SistemaOperativo[] = [];
   sistemasOperativosFiltrados: SistemaOperativo[] = [];
-modalEditarVisible: boolean = false;
-modalCrearSOVisible: boolean = false;
+  modalEditarVisible: boolean = false;
+  modalCrearSOVisible: boolean = false;
+  escaneoEnProgreso: boolean = false;
+  estadoEscaneoIntervalo: any = null;
 
 
   dispositivoEditando: Dispositivo | null = null;
@@ -47,15 +51,30 @@ modalCrearSOVisible: boolean = false;
 
   constructor(
     private serviciosDispositivos: ServiciosDispositivos,
+    private serviciosConfiguracion: ServiciosConfiguracion,
     private messageService: MessageService,
     private notificacion: NotificacionService,
-    private validaciones: ValidacionesGeneralesService
+    private validaciones: ValidacionesGeneralesService,
+    private sesionUsuario: SesionUsuarioService
   ) {}
 
   ngOnInit(): void {
-    this.cargarDispositivos();
-    this.cargarSistemasOperativos();
+  this.cargarDispositivos();
+  this.cargarSistemasOperativos();
+
+  const enProgreso = localStorage.getItem('escaneoEnProgreso');
+  if (enProgreso === 'true') {
+    this.escaneoEnProgreso = true;
+    this.verificarEstadoEscaneo(); // 👈 reanudar polling
   }
+}
+ngOnDestroy(): void {
+  if (this.estadoEscaneoIntervalo) {
+    clearInterval(this.estadoEscaneoIntervalo);
+    this.estadoEscaneoIntervalo = null;
+  }
+}
+
 
   ngAfterViewInit(): void {
     if (!this.dt) console.warn('❌ dt no está inicializado aún');
@@ -176,8 +195,68 @@ modalCrearSOVisible: boolean = false;
 
 
   iniciarEscaneoDispositivos(): void {
-    console.log('🔍 Iniciando escaneo de dispositivos...');
+  const usuario = this.sesionUsuario.obtenerUsuarioDesdeToken(); // ✅ obtener desde el token
+  if (!usuario?.usuario_id) {
+    this.notificacion.error('Error', 'No se pudo identificar al usuario.');
+    return;
   }
+
+  this.escaneoEnProgreso = true;
+  localStorage.setItem('escaneoEnProgreso', 'true');
+
+  this.serviciosConfiguracion.ejecutarEscaneoManual(usuario.usuario_id).subscribe({
+    next: (res) => {
+      this.notificacion.success('Éxito', res.mensaje || 'Escaneo iniciado.');
+      this.verificarEstadoEscaneo();
+    },
+    error: (err) => {
+      console.error('Error al iniciar escaneo:', err);
+      this.notificacion.error('Error', 'No se pudo iniciar el escaneo.');
+      this.escaneoEnProgreso = false;
+      localStorage.removeItem('escaneoEnProgreso');
+    }
+  });
+}
+
+
+verificarEstadoEscaneo(): void {
+  if (this.estadoEscaneoIntervalo) {
+    clearInterval(this.estadoEscaneoIntervalo);
+  }
+
+  this.estadoEscaneoIntervalo = setInterval(() => {
+    this.serviciosConfiguracion.obtenerEstadoEscaneo().subscribe({
+      next: ({ estado }) => {
+        if (estado === 'completado') {
+          clearInterval(this.estadoEscaneoIntervalo);
+          this.estadoEscaneoIntervalo = null;
+          this.escaneoEnProgreso = false;
+          localStorage.removeItem('escaneoEnProgreso'); // ✅ eliminar variable
+          this.notificacion.success('Listo', 'El escaneo ha finalizado.');
+          this.cargarDispositivos();
+        } else if (estado.startsWith('error')) {
+          clearInterval(this.estadoEscaneoIntervalo);
+          this.estadoEscaneoIntervalo = null;
+          this.escaneoEnProgreso = false;
+          localStorage.removeItem('escaneoEnProgreso'); // ✅ también en caso de error
+          this.notificacion.error('Error en escaneo', estado);
+        }
+      },
+      error: (err) => {
+        clearInterval(this.estadoEscaneoIntervalo);
+        this.estadoEscaneoIntervalo = null;
+        this.escaneoEnProgreso = false;
+        localStorage.removeItem('escaneoEnProgreso'); // ✅ limpieza en error de red
+      }
+    });
+  }, 3000);
+}
+
+
+
+
+
+
 
   ordenarDispositivosRemovible(event: SortEvent): void {
     if (this.ordenActivo === null) {
