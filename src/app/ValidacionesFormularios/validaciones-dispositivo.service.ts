@@ -56,4 +56,12 @@ export class ValidacionesGeneralesService {
 
     return true;
   }
+  validarSistemaOperativoSeleccionado(seleccionado: any): boolean {
+  if (!seleccionado || !seleccionado.sistema_operativo_id) {
+    this.notificacion.warning('Campo requerido', 'Debe seleccionar un sistema operativo válido.');
+    return false;
+  }
+  return true;
+}
+
 }

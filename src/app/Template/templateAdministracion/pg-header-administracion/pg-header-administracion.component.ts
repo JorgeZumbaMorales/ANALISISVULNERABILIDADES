@@ -24,7 +24,7 @@ export class PgHeaderAdministracionComponent implements OnInit,OnDestroy {
   cantidadNotificaciones = this.notificaciones.length;
   notificacionesIntervalo: any = null;
   historialNotificaciones: any[] = [];
-
+  
   @ViewChild('opNotificaciones') opNotificaciones!: OverlayPanel;
   constructor(
     private sesionService: SesionUsuarioService,

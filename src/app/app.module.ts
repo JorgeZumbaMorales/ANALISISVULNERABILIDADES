@@ -89,6 +89,7 @@ import { MenuModule } from 'primeng/menu';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import MyPreset from '../mypreset'; // Importa tu preset personalizado
 import { TooltipModule } from 'primeng/tooltip';
+import { TimelineModule } from 'primeng/timeline';
 
 @NgModule({
   declarations: [
@@ -174,7 +175,8 @@ import { TooltipModule } from 'primeng/tooltip';
     SelectButtonModule,
     MenuModule,
     OverlayPanelModule,
-    TooltipModule
+    TooltipModule,
+    TimelineModule
 ],
   providers: [
     provideAnimationsAsync(),

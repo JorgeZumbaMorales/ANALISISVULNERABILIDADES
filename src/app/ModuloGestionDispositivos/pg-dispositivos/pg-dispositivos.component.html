@@ -9,7 +9,6 @@
     <div class="mt-4 flex justify-end">
   <p-button 
     [disabled]="escaneoEnProgreso"
-    severity="warn"
     (click)="iniciarEscaneoDispositivos()">
 
     <ng-container *ngIf="!escaneoEnProgreso">
@@ -104,6 +103,14 @@
               (click)="abrirModal('editar', dispositivo)"
               class="">
             </p-button>
+            <p-button 
+  icon="pi pi-eye"
+  pTooltip="Ver puertos"
+  tooltipPosition="top"
+  (click)="verPuertosDispositivo(dispositivo)"
+  class="p-button-text p-button-info">
+</p-button>
+
           </div>
         </td>
       </tr>
@@ -231,6 +238,36 @@
       />
     </div>
   </div>
+</p-dialog>
+<p-dialog 
+  header="Puertos abiertos: {{ dispositivoSeleccionado?.nombre_dispositivo }}" 
+  [(visible)]="dialogoVisible" 
+  [modal]="true" 
+  [style]="{ width: '450px' }" 
+  [closable]="true"
+  [dismissableMask]="true">
+
+  <div *ngIf="puertosDispositivo && puertosDispositivo.length > 0; else sinPuertos">
+
+    <div class="flex flex-wrap gap-2 justify-center mt-2">
+      <p-chip 
+        *ngFor="let puerto of puertosDispositivo" 
+        [label]="puerto.puerto + ' - ' + puerto.servicio "
+
+        class="">
+        <ng-template pTemplate="icon">
+          <i class="pi pi-plug"></i>
+        </ng-template>
+        <ng-template pTemplate="removeIcon">
+          <span class="text-xs text-white ml-2">({{ puerto.servicio }})</span>
+        </ng-template>
+      </p-chip>
+    </div>
+  </div>
+
+  <ng-template #sinPuertos>
+    <p class="text-center text-gray-500 text-sm mt-3">Este dispositivo no tiene puertos abiertos registrados.</p>
+  </ng-template>
 </p-dialog>
 
 

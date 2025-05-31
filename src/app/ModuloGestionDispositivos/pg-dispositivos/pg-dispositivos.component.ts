@@ -37,7 +37,9 @@ export class PgDispositivosComponent implements OnInit, AfterViewInit,OnDestroy 
   modalCrearSOVisible: boolean = false;
   escaneoEnProgreso: boolean = false;
   estadoEscaneoIntervalo: any = null;
-
+  dialogoVisible: boolean = false;
+puertosDispositivo: any[] = [];
+dispositivoSeleccionado: any = null;
 
   dispositivoEditando: Dispositivo | null = null;
   sistemaOperativoSeleccionado: SistemaOperativo | null = null;
@@ -152,27 +154,53 @@ ngOnDestroy(): void {
 
   if (!this.validaciones.validarNombreDispositivo(nombre)) return;
 
-  if (!this.sistemaOperativoSeleccionado) {
-    return this.notificacion.warning('Campo requerido', 'Debe seleccionar un sistema operativo.');
-  }
+  if (!this.validaciones.validarSistemaOperativoSeleccionado(this.sistemaOperativoSeleccionado)) {
+  return;
+}
+
 
   const payload = {
-    nuevo_nombre: nombre,
-    nuevo_sistema_operativo_id: this.sistemaOperativoSeleccionado.sistema_operativo_id
-  };
+  nuevo_nombre: nombre,
+  nuevo_sistema_operativo_id: this.sistemaOperativoSeleccionado!.sistema_operativo_id
+};
+
 
   this.serviciosDispositivos.actualizarDispositivo(this.dispositivoEditando.dispositivo_id, payload).subscribe({
     next: () => {
-      this.notificacion.success('Dispositivo actualizado', 'Los cambios se guardaron correctamente.');
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Dispositivo actualizado',
+        detail: 'Los cambios se guardaron correctamente.'
+      });
       this.cerrarModal('editar');
       this.cargarDispositivos();
     },
-    error: (err) => {
-      console.error('Error al actualizar dispositivo', err);
-      this.notificacion.error('Error', 'No se pudo actualizar el dispositivo.');
-    }
+    error: (error) => {
+  console.error('🧪 Error crudo recibido AQUIIIIIIIII:', error);
+
+  let mensaje = 'No se pudo actualizar el dispositivo.';
+
+  const detalle = error?.error?.detail;
+
+  if (typeof detalle === 'string') {
+    const match = detalle.match(/(?:\d{3}: )?(.*)/);
+    mensaje = match ? match[1].trim() : detalle;
+  } else if (typeof error?.message === 'string') {
+    mensaje = error.message;
+  }
+
+  this.messageService.add({
+    severity: 'error',
+    summary: 'Error',
+    detail: mensaje
   });
 }
+
+
+
+  });
+}
+
 
 
   guardarSistemaOperativo(): void {
@@ -291,6 +319,11 @@ verificarEstadoEscaneo(): void {
       return orden * resultado;
     });
   }
+  verPuertosDispositivo(dispositivo: any): void {
+  this.dispositivoSeleccionado = dispositivo;
+  this.puertosDispositivo = dispositivo.puertos || [];
+  this.dialogoVisible = true;
+}
 
  
 }

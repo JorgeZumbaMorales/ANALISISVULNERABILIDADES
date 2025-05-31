@@ -10,6 +10,8 @@ import { environment } from '../../environments/environment';
 export class ServiciosDispositivos {
   private apiUrlDispositivos = `${environment.apiUrl}/dispositivos`;
   private apiUrlSistemasOperativos = `${environment.apiUrl}/sistemas_operativos`;
+  private apiUrlIpAsignaciones = `${environment.apiUrl}/ip_asignaciones`;
+
   constructor(private http: HttpClient) {}
 
   // ===================== DISPOSITIVOS =====================
@@ -97,17 +99,46 @@ export class ServiciosDispositivos {
   }
 
   /**
-   * Obtener historial de IPs de un dispositivo
-   * @param dispositivoId ID del dispositivo
-   */
-  obtenerHistorialIps(dispositivoId: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrlDispositivos}/historial_ips/${dispositivoId}`)
-      .pipe(catchError(this.handleError));
-  }
-    
+ * Obtener historial de IPs de un dispositivo
+ * @param dispositivoId ID del dispositivo
+ */
+obtenerHistorialIps(dispositivoId: number): Observable<any> {
+  return this.http.get<any>(`${this.apiUrlIpAsignaciones}/historial/${dispositivoId}`)
+    .pipe(catchError(this.handleError));
+}
+  
+    /**
+ * Elimina una IP asignada por su ID
+ * @param ipAsignacionId ID de la IP a eliminar
+ */
+eliminarIp(ipAsignacionId: number): Observable<any> {
+  return this.http.delete<any>(`${this.apiUrlIpAsignaciones}/eliminar/${ipAsignacionId}`)
+    .pipe(catchError(this.handleError));
+}
+
   // ===================== MANEJO DE ERRORES =====================
-  private handleError(error: any) {
-    console.error('Error en la petición:', error);
-    return throwError(() => new Error(error.message || 'Error en el servicio de dispositivos'));
+
+// ===================== MANEJO DE ERRORES =====================
+private handleError(error: any) {
+  console.error('Error en la petición:', error);
+
+  let mensaje = 'Error en el servicio de dispositivos';
+
+  const rawDetail = error?.error?.detail;
+
+  if (typeof rawDetail === 'string') {
+    // ✅ Cortar todo antes del ÚLTIMO ":"
+    const partes = rawDetail.split(': ');
+    mensaje = partes.length > 1 ? partes[partes.length - 1].trim() : rawDetail;
+  } else if (typeof error?.message === 'string') {
+    mensaje = error.message;
   }
+
+  return throwError(() => new Error(mensaje));
+}
+
+
+
+
+  
 }
