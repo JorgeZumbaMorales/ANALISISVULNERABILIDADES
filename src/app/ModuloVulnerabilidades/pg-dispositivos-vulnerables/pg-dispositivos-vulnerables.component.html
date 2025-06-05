@@ -1,83 +1,181 @@
-<section class="p-4">
-    <!-- 🔹 Encabezado -->
-    <div class="bg-baseAzulOscuro text-textoSecundario p-6 rounded-xl shadow-md text-center mb-6">
-        <h1 class="text-2xl font-semibold">Dispositivos en Riesgo</h1>
-        <p class="text-lg mt-1">Lista de dispositivos organizados por nivel de riesgo.</p>
+<p-toast></p-toast>
+<section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 sm:py-4 mb-3">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 class="text-xl sm:text-2xl font-semibold">Evaluación de Riesgo de Dispositivos</h2>
+      <p class="text-sm text-textoSecundario mt-1">
+        Evalúa los dispositivos detectados en la red según sus puertos abiertos y el nivel de riesgo asociado.
+      </p>
     </div>
-    <p-accordion>
-        <ng-container *ngFor="let riesgo of ['Alto', 'Medio', 'Bajo']">
-            <p-accordionTab [header]="'Dispositivos con Riesgo ' + riesgo">
-                <ng-container *ngFor="let dispositivo of obtenerDispositivos(riesgo)">
-                    <p-panel>
-                        <ng-template pTemplate="header">
-                            <div class="flex items-center gap-3">
-                                <i class="pi pi-server text-lg"></i>
-                                <span class="font-semibold">{{ dispositivo.macAddress }}</span>
-                                <p-tag [value]="dispositivo.riesgo" [severity]="obtenerColorEtiqueta(dispositivo.riesgo)"></p-tag>
-                            </div>
-                        </ng-template>
-                        <div class="mt-2">
-                            <p class="text-sm font-semibold">Puertos Abiertos:</p>
-                            <div class="flex flex-wrap gap-2 mt-2">
-                                <p-chip *ngFor="let puerto of dispositivo.puertosAbiertos"
-                                    [label]="puerto.numero + ' - ' + (puerto.servicio || 'Desconocido')">
-                                </p-chip>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <p-multiSelect 
-                                [options]="dispositivo.puertosAbiertos"
-                                optionLabel="numero"
-                                [(ngModel)]="dispositivo.puertosSeleccionados"
-                                placeholder="Selecciona puertos para recomendación"
-                                appendTo="body">
-                            </p-multiSelect>
-                        </div>
-                        <div class="mt-4 flex justify-end">
-                            <p-button 
-                                [disabled]="dispositivo.cargandoRecomendaciones"
-                                severity="info"
-                                (click)="mostrarRecomendaciones(dispositivo)">
-                                
-                                <ng-container *ngIf="!dispositivo.cargandoRecomendaciones">
-                                    <i class="pi pi-shield"></i>
-                                    <span class="ml-2">Ver Recomendaciones</span>
-                                </ng-container>
-                        
-                                <ng-container *ngIf="dispositivo.cargandoRecomendaciones">
-                                    <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s"
-                                        [style]="{ width: '20px', height: '20px' }"></p-progress-spinner>
-                                    <span class="ml-2">Generando...</span>
-                                </ng-container>
-                        
-                            </p-button>
-                        </div>                        
-                    </p-panel>
-                </ng-container>
-            </p-accordionTab>
+
+    <div class="mt-4 flex justify-end">
+      <p-button 
+        [disabled]="evaluacionEnProgreso"
+        (click)="iniciarEvaluacionRiesgoConPolling()"
+      >
+        <ng-container *ngIf="!evaluacionEnProgreso">
+          <i class="pi pi-search"></i>
+          <span class="">Evaluar Riesgo</span>
         </ng-container>
-    </p-accordion>
-    <p-dialog [(visible)]="dialogoVisible" header="Recomendaciones de Seguridad" [modal]="true" [style]="{width: '50vw'}">
-        <div *ngIf="listaRecomendaciones.length > 0">
-            <p-table [value]="listaRecomendaciones">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th>Puerto</th>
-                        <th>Servicio</th>
-                        <th>Recomendación</th>
-                    </tr>
-                </ng-template>
-                <ng-template let-recomendacion pTemplate="body">
-                    <tr>
-                        <td>{{ recomendacion.numero }}</td>
-                        <td>{{ recomendacion.servicio || 'Desconocido' }}</td>
-                        <td>{{ recomendacion.recomendaciones }}</td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div>
-        <div *ngIf="listaRecomendaciones.length === 0">
-            <p class="text-center text-gray-500">No hay recomendaciones disponibles.</p>
-        </div>
-    </p-dialog>
+
+        <ng-container *ngIf="evaluacionEnProgreso">
+          <p-progress-spinner 
+            strokeWidth="8" 
+            fill="transparent" 
+            animationDuration=".5s"
+            [style]="{ width: '20px', height: '20px' }">
+          </p-progress-spinner>
+          <span class="ml-2">Evaluando...</span>
+        </ng-container>
+
+      </p-button>
+    </div>
+  </div>
 </section>
+
+<section class="w-full px-1 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 my-3 ">
+  <p-message 
+    *ngIf="!evaluacionCompletada" 
+    severity="contrast" 
+    text="Presiona el botón 'Evaluar Riesgo' para comenzar la clasificación de los dispositivos activos.">
+  </p-message>
+</section>
+
+<section 
+  *ngIf="evaluacionCompletada"
+  class="w-full flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-4 px-4 my-4"
+>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full sm:w-auto">
+    <p-card 
+      *ngFor="let item of tarjetasRiesgo"
+      class="border-l-4 shadow-sm"
+      [ngClass]="item.borde"
+      styleClass="bg-white rounded-xl px-4 py-3 text-center">
+      <div class="flex flex-col items-center justify-center gap-2">
+        <i [class]="item.icono + ' text-2xl ' + item.color"></i>
+        <p class="font-semibold text-sm text-gray-700">{{ item.titulo }}</p>
+        <p class="text-xl font-bold text-gray-900">
+          {{ obtenerCantidadPorRiesgo(item.valor) }}
+        </p>
+      </div>
+    </p-card>
+  </div>
+</section>
+
+<div class="flex justify-center my-3 px-4" *ngIf="evaluacionCompletada">
+  <p-button 
+    label="Limpiar Evaluación"
+    icon="pi pi-trash"
+    styleClass="p-button-sm p-button-outlined text-gray-700 border-gray-300"
+    (click)="limpiarEstadoEvaluacion()"
+    tooltip="Borrar resultados actuales y permitir una nueva evaluación">
+  </p-button>
+</div>
+
+<section class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 ">
+  <p-accordion [activeIndex]="evaluacionCompletada ? null : -1" [multiple]="true">
+    <ng-container *ngFor="let riesgo of ['Alto', 'Medio', 'Bajo', 'Sin Riesgo']">
+      <p-accordionTab 
+        [header]="riesgo === 'Sin Riesgo' ? 'Dispositivos Sin Riesgo' : 'Dispositivos con Riesgo ' + riesgo"
+        [disabled]="!evaluacionCompletada"
+        pTooltip="Ver resultados"
+        tooltipPosition="top"
+        [attr.id]="'acordeon-' + riesgo"
+      >
+        <ng-container *ngIf="evaluacionCompletada">
+          <ng-container *ngFor="let dispositivo of obtenerDispositivos(riesgo)">
+            <p-panel>
+              <ng-template pTemplate="header">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <div class="flex items-center gap-2">
+                    <i class="pi pi-server text-lg"></i>
+                    <span class="font-semibold">{{ dispositivo.nombreDispositivo }}</span>
+                    <p-tag [value]="dispositivo.riesgo" [severity]="obtenerColorEtiqueta(dispositivo.riesgo)"></p-tag>
+                  </div>
+                  <span class="text-sm text-gray-500">({{ dispositivo.macAddress }})</span>
+                </div>
+              </ng-template>
+
+              <div class="mt-2">
+                <p class="text-sm font-semibold">Puertos Abiertos:</p>
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <p-chip *ngFor="let puerto of dispositivo.puertosAbiertos"
+                          [label]="puerto.numero + ' - ' + (puerto.servicio || 'Desconocido')">
+                  </p-chip>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <p-multiSelect 
+                  [options]="dispositivo.puertosAbiertos"
+                  optionLabel="numero"
+                  [(ngModel)]="dispositivo.puertosSeleccionados"
+                  placeholder="Selecciona puertos para recomendación"
+                  appendTo="body"
+                  class="w-full">
+                </p-multiSelect>
+              </div>
+
+              <div class="mt-4 flex justify-end" *ngIf="dispositivo.puertosSeleccionados.length">
+                <p-button 
+                  [disabled]="dispositivo.cargandoRecomendaciones"
+                  severity="info"
+                  (click)="mostrarRecomendaciones(dispositivo)">
+                  <ng-container *ngIf="!dispositivo.cargandoRecomendaciones">
+                    <i class="pi pi-shield"></i>
+                    <span class="ml-2">Ver Recomendaciones</span>
+                  </ng-container>
+
+                  <ng-container *ngIf="dispositivo.cargandoRecomendaciones">
+                    <p-progress-spinner 
+                      strokeWidth="8" 
+                      fill="transparent" 
+                      animationDuration=".5s"
+                      [style]="{ width: '20px', height: '20px' }">
+                    </p-progress-spinner>
+                    <span class="ml-2">Generando...</span>
+                  </ng-container>
+                </p-button>
+              </div>
+            </p-panel>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngIf="!evaluacionCompletada">
+          <p class="text-sm text-gray-500">Evaluación pendiente. No hay datos disponibles aún.</p>
+        </ng-container>
+      </p-accordionTab>
+    </ng-container>
+  </p-accordion>
+</section>
+
+<p-dialog 
+  [(visible)]="dialogoVisible" 
+  header="Recomendaciones de Seguridad" 
+  [modal]="true" 
+  [style]="{width: '50vw'}"
+  [closable]="true"
+  [dismissableMask]="true">
+
+  <div *ngIf="listaRecomendaciones.length > 0">
+    <p-table [value]="listaRecomendaciones">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Puerto</th>
+          <th>Servicio</th>
+          <th>Recomendación</th>
+        </tr>
+      </ng-template>
+      <ng-template let-recomendacion pTemplate="body">
+        <tr>
+          <td>{{ recomendacion.numero }}</td>
+          <td>{{ recomendacion.servicio || 'Desconocido' }}</td>
+          <td>{{ recomendacion.recomendaciones }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div *ngIf="listaRecomendaciones.length === 0">
+    <p class="text-center text-gray-500">No hay recomendaciones disponibles.</p>
+  </div>
+</p-dialog>

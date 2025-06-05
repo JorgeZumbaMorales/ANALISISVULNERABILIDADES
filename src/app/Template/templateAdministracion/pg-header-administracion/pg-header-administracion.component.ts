@@ -105,7 +105,7 @@ this.idUsuario = usuario.usuario_id;
     // 🟢 Iniciar polling automático de notificaciones cada 10s
 this.notificacionesIntervalo = setInterval(() => {
   this.consultarNotificacionesSistema(this.idUsuario, false); // 👈 false = no marcar como vistas automáticamente
-}, 3000); // cada 3 segundos
+}, 1000); // cada 3 segundos
 
   }
 

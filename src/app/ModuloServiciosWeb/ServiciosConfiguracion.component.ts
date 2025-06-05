@@ -97,13 +97,14 @@ export class ServiciosConfiguracion {
   /**
    * Ejecutar escaneo manual desde el backend
    */
-  ejecutarEscaneoManual(usuarioId: number): Observable<any> {
+  ejecutarEscaneoManual(): Observable<any> {
   return this.http.post<any>(
-    `${this.apiUrlEscaneoAvanzado}/manual`, 
-    { usuario_id: usuarioId }, // 🔁 enviamos el ID
+    `${this.apiUrlEscaneoAvanzado}/manual`,
+    {}, // cuerpo vacío
     { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
   ).pipe(catchError(this.handleError));
 }
+
     /**
    * Consultar el estado del escaneo en segundo plano.
    */

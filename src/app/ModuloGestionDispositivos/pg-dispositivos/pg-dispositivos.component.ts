@@ -6,6 +6,9 @@ import { NotificacionService } from '../../ValidacionesFormularios/notificacion.
 import { ValidacionesGeneralesService } from '../../ValidacionesFormularios/validaciones-dispositivo.service';
 import { ServiciosConfiguracion } from '../../ModuloServiciosWeb/ServiciosConfiguracion.component'; // ✅ Importar
 import { SesionUsuarioService } from '../../Seguridad/sesion-usuario.service'; // asegúrate del path correcto
+import { ServiciosAlertas } from '../../ModuloServiciosWeb/ServiciosAlertas.component';
+import { ServiciosSegundoPlano } from '../../ModuloServiciosWeb/ServiciosSegundoPlano.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 interface SistemaOperativo {
   sistema_operativo_id: number;
@@ -36,10 +39,11 @@ export class PgDispositivosComponent implements OnInit, AfterViewInit,OnDestroy 
   modalEditarVisible: boolean = false;
   modalCrearSOVisible: boolean = false;
   escaneoEnProgreso: boolean = false;
-  estadoEscaneoIntervalo: any = null;
+  private notificacionEnviada = false;
   dialogoVisible: boolean = false;
-puertosDispositivo: any[] = [];
-dispositivoSeleccionado: any = null;
+  puertosDispositivo: any[] = [];
+  dispositivoSeleccionado: any = null;
+  usuarioIdActual: number | null = null;
 
   dispositivoEditando: Dispositivo | null = null;
   sistemaOperativoSeleccionado: SistemaOperativo | null = null;
@@ -57,7 +61,12 @@ dispositivoSeleccionado: any = null;
     private messageService: MessageService,
     private notificacion: NotificacionService,
     private validaciones: ValidacionesGeneralesService,
-    private sesionUsuario: SesionUsuarioService
+    private sesionUsuario: SesionUsuarioService,
+    private servicioAlertas: ServiciosAlertas,
+    private servicioSegundoPlano: ServiciosSegundoPlano,
+    private cdr: ChangeDetectorRef,
+
+
   ) {}
 
   ngOnInit(): void {
@@ -65,18 +74,39 @@ dispositivoSeleccionado: any = null;
   this.cargarSistemasOperativos();
 
   const enProgreso = localStorage.getItem('escaneoEnProgreso');
-  if (enProgreso === 'true') {
-    this.escaneoEnProgreso = true;
-    this.verificarEstadoEscaneo(); // 👈 reanudar polling
-  }
+  this.escaneoEnProgreso = enProgreso === 'true';
+
+  this.servicioSegundoPlano.reanudarSiEsNecesario(
+  'escaneoEnProgreso',
+  3000,
+  () => this.serviciosConfiguracion.obtenerEstadoEscaneo(),
+  () => {
+  this.escaneoEnProgreso = false;
+  localStorage.removeItem('escaneoEnProgreso');
+  this.notificacion.success('Listo', 'El escaneo ha finalizado.');
+  this.cargarDispositivos();
+  this.crearNotificacionFinalizacion();
+  this.cdr.detectChanges(); // 👈 fuerza actualización visual inmediata
 }
-ngOnDestroy(): void {
-  if (this.estadoEscaneoIntervalo) {
-    clearInterval(this.estadoEscaneoIntervalo);
-    this.estadoEscaneoIntervalo = null;
-  }
+,
+  (mensaje) => {
+  this.escaneoEnProgreso = false;
+  localStorage.removeItem('escaneoEnProgreso');
+  this.notificacion.error('Error en escaneo', mensaje || 'Error durante el escaneo.');
+  this.cdr.detectChanges(); // 👈 también en caso de error
 }
 
+);
+
+}
+
+
+  ngOnDestroy(): void {
+  const enProgreso = localStorage.getItem('escaneoEnProgreso');
+  if (enProgreso !== 'true') {
+    this.servicioSegundoPlano.detenerProceso('escaneoEnProgreso');
+  }
+}
 
   ngAfterViewInit(): void {
     if (!this.dt) console.warn('❌ dt no está inicializado aún');
@@ -222,9 +252,10 @@ ngOnDestroy(): void {
 }
 
 
-  iniciarEscaneoDispositivos(): void {
-  const usuario = this.sesionUsuario.obtenerUsuarioDesdeToken(); // ✅ obtener desde el token
-  if (!usuario?.usuario_id) {
+iniciarEscaneoDispositivos(): void {
+  this.usuarioIdActual = this.sesionUsuario.obtenerUsuarioDesdeToken()?.usuario_id || null;
+
+  if (!this.usuarioIdActual) {
     this.notificacion.error('Error', 'No se pudo identificar al usuario.');
     return;
   }
@@ -232,10 +263,24 @@ ngOnDestroy(): void {
   this.escaneoEnProgreso = true;
   localStorage.setItem('escaneoEnProgreso', 'true');
 
-  this.serviciosConfiguracion.ejecutarEscaneoManual(usuario.usuario_id).subscribe({
+  this.serviciosConfiguracion.ejecutarEscaneoManual().subscribe({
     next: (res) => {
       this.notificacion.success('Éxito', res.mensaje || 'Escaneo iniciado.');
-      this.verificarEstadoEscaneo();
+      this.servicioSegundoPlano.iniciarProcesoConPolling(
+        'escaneoEnProgreso',
+        3000,
+        () => this.serviciosConfiguracion.obtenerEstadoEscaneo(),
+        () => {
+          this.escaneoEnProgreso = false;
+          this.notificacion.success('Listo', 'El escaneo ha finalizado.');
+          this.cargarDispositivos();
+          this.crearNotificacionFinalizacion();
+        },
+        (mensaje) => {
+          this.escaneoEnProgreso = false;
+          this.notificacion.error('Error en escaneo', mensaje);
+        }
+      );
     },
     error: (err) => {
       console.error('Error al iniciar escaneo:', err);
@@ -247,39 +292,32 @@ ngOnDestroy(): void {
 }
 
 
-verificarEstadoEscaneo(): void {
-  if (this.estadoEscaneoIntervalo) {
-    clearInterval(this.estadoEscaneoIntervalo);
-  }
 
-  this.estadoEscaneoIntervalo = setInterval(() => {
-    this.serviciosConfiguracion.obtenerEstadoEscaneo().subscribe({
-      next: ({ estado }) => {
-        if (estado === 'completado') {
-          clearInterval(this.estadoEscaneoIntervalo);
-          this.estadoEscaneoIntervalo = null;
-          this.escaneoEnProgreso = false;
-          localStorage.removeItem('escaneoEnProgreso'); // ✅ eliminar variable
-          this.notificacion.success('Listo', 'El escaneo ha finalizado.');
-          this.cargarDispositivos();
-        } else if (estado.startsWith('error')) {
-          clearInterval(this.estadoEscaneoIntervalo);
-          this.estadoEscaneoIntervalo = null;
-          this.escaneoEnProgreso = false;
-          localStorage.removeItem('escaneoEnProgreso'); // ✅ también en caso de error
-          this.notificacion.error('Error en escaneo', estado);
-        }
-      },
-      error: (err) => {
-        clearInterval(this.estadoEscaneoIntervalo);
-        this.estadoEscaneoIntervalo = null;
-        this.escaneoEnProgreso = false;
-        localStorage.removeItem('escaneoEnProgreso'); // ✅ limpieza en error de red
-      }
-    });
-  }, 3000);
+
+
+private crearNotificacionFinalizacion(): void {
+  if (this.notificacionEnviada) return; // ⛔ Evita duplicados
+  this.notificacionEnviada = true;
+
+  const usuario_id = this.sesionUsuario.obtenerUsuarioDesdeToken()?.usuario_id;
+  if (!usuario_id) return;
+
+  const notificacion = {
+    mensaje_notificacion: "Escaneo manual completado correctamente.",
+    tipo_alerta_id: 1,
+    canal_alerta_id: 1,
+    usuario_id,
+    dispositivo_id: null
+  };
+
+  this.servicioAlertas.crearNotificacion(notificacion).subscribe({
+    next: () => console.log('🔔 Notificación enviada.'),
+    error: (err) => console.warn('⚠️ Error al crear notificación:', err)
+  });
 }
 
+
+  
 
 
 

@@ -16,4 +16,9 @@ export class NotificacionService {
   warning(mensaje: string, detalle: string = '') {
     this.messageService.add({ severity: 'warn', summary: mensaje, detail: detalle });
   }
+
+  info(mensaje: string, detalle: string = '') {
+    this.messageService.add({ severity: 'info', summary: mensaje, detail: detalle });
+  }
 }
+

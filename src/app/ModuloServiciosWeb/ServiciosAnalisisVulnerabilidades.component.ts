@@ -14,6 +14,8 @@ export class ServiciosAnalisisVulnerabilidades {
   private apiUrlEscaneoAvanzado = `${environment.apiUrl}/escaneo_avanzado`;
   private apiUrlResumenCVEs = `${environment.apiUrl}/resumen_cves`;
   private apiUrlPuertoVulnerabilidad = `${environment.apiUrl}/puerto_vulnerabilidad`;
+  private apiUrlEvaluacionRiesgo = `${environment.apiUrl}/evaluacion_riesgo`;
+
   constructor(private http: HttpClient) {}
 
   // ===================== GENERAR RECOMENDACIONES =====================
@@ -72,6 +74,36 @@ export class ServiciosAnalisisVulnerabilidades {
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(catchError(this.handleError));
   }
+
+  /**
+ * 📌 Evalúa el riesgo de todos los dispositivos activos y guarda los resultados.
+ * @returns Observable con la respuesta de la evaluación
+ */
+evaluarRiesgoTodosDispositivos(): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlEvaluacionRiesgo}/evaluar_todos`,
+    null, // 👉 sin cuerpo
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+  /**
+ * 📌 Obtiene el último resultado de la evaluación de riesgo (guardado en Redis).
+ * @returns Observable con los dispositivos evaluados recientemente
+ */
+obtenerResultadoUltimoRiesgo(): Observable<any> {
+  return this.http.get<any>(
+    `${this.apiUrlEvaluacionRiesgo}/resultado_ultimo_riesgo`,
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+
+  obtenerEstadoEvaluacionRiesgo(): Observable<any> {
+  return this.http.get<any>(
+    `${this.apiUrlEvaluacionRiesgo}/estado_evaluacion_riesgo`,
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+
     // ===================== VULNERABILIDADES =====================
 
   /**
@@ -112,7 +144,21 @@ export class ServiciosAnalisisVulnerabilidades {
         { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
       ).pipe(catchError(this.handleError));
     }
-    
+    /**
+ * 🔄 Consulta el estado del análisis avanzado desde Redis.
+ */
+obtenerEstadoAnalisisAvanzado(): Observable<any> {
+  return this.http.get<any>(`${this.apiUrlEscaneoAvanzado}/estado_analisis_avanzado`)
+    .pipe(catchError(this.handleError));
+}
+/**
+ * 📋 Obtiene el último resumen generado del análisis avanzado desde Redis.
+ */
+obtenerResultadoUltimoAnalisis(): Observable<any> {
+  return this.http.get<any>(`${this.apiUrlEscaneoAvanzado}/resultado_ultimo_analisis`)
+    .pipe(catchError(this.handleError));
+}
+
     obtenerResumenPorFecha(data: { dispositivo_id: number, fecha: string }): Observable<any> {
       console.log('📤 Llamando al endpoint resumen_por_dispositivo_y_fecha con:', data);
     
