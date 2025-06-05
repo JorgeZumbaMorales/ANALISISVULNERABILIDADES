@@ -74,6 +74,9 @@ tarjetasRiesgo = [
   }
 
 ngOnInit(): void {
+  const enProgreso = localStorage.getItem('evaluacionEnProgreso');
+  this.evaluacionEnProgreso = enProgreso === 'true';
+
   this.servicioSegundoPlano.reanudarSiEsNecesario(
     'evaluacionEnProgreso',
     4000,
@@ -89,6 +92,7 @@ ngOnInit(): void {
       this.notificacion.error('Error en evaluación', mensaje);
     }
   );
+
 
   const ignorarEvaluacion = localStorage.getItem('evaluacionIgnorada') === 'true';
 
