@@ -91,7 +91,19 @@ export class ServiciosConfiguracion {
       .pipe(catchError(this.handleError));
   }
 
-  
+    /**
+   * Cambiar el estado (activo/inactivo) de una configuración de escaneo.
+   * @param configuracionId ID de la configuración.
+   * @param estado Nuevo estado (true o false).
+   */
+  cambiarEstadoConfiguracion(configuracionId: number, estado: boolean): Observable<any> {
+    return this.http.put<any>(
+      `${this.apiUrlConfiguraciones}/cambiar_estado_configuracion/${configuracionId}`,
+      { estado },  // cuerpo con JSON { estado: true/false }
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
   // ===================== ESCANEOS =====================
 
   /**

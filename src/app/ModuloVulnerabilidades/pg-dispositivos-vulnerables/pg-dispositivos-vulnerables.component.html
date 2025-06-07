@@ -83,63 +83,77 @@
         [attr.id]="'acordeon-' + riesgo"
       >
         <ng-container *ngIf="evaluacionCompletada">
-          <ng-container *ngFor="let dispositivo of obtenerDispositivos(riesgo)">
-            <p-panel>
-              <ng-template pTemplate="header">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                  <div class="flex items-center gap-2">
-                    <i class="pi pi-server text-lg"></i>
-                    <span class="font-semibold">{{ dispositivo.nombreDispositivo }}</span>
-                    <p-tag [value]="dispositivo.riesgo" [severity]="obtenerColorEtiqueta(dispositivo.riesgo)"></p-tag>
-                  </div>
-                  <span class="text-sm text-gray-500">({{ dispositivo.macAddress }})</span>
-                </div>
-              </ng-template>
+          <ng-container *ngIf="obtenerDispositivos(riesgo).length > 0; else sinDispositivos">
+            <ng-container *ngFor="let dispositivo of obtenerDispositivos(riesgo)">
+              <p-panel>
+  <ng-template pTemplate="header">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-server text-lg"></i>
+        <span class="font-semibold">{{ dispositivo.nombreDispositivo }}</span>
+        <p-tag [value]="dispositivo.riesgo" [severity]="obtenerColorEtiqueta(dispositivo.riesgo)"></p-tag>
+      </div>
+      <span class="text-sm text-gray-500">({{ dispositivo.macAddress }})</span>
+    </div>
+  </ng-template>
 
-              <div class="mt-2">
-                <p class="text-sm font-semibold">Puertos Abiertos:</p>
-                <div class="flex flex-wrap gap-2 mt-2">
-                  <p-chip *ngFor="let puerto of dispositivo.puertosAbiertos"
-                          [label]="puerto.numero + ' - ' + (puerto.servicio || 'Desconocido')">
-                  </p-chip>
-                </div>
-              </div>
+  <ng-container *ngIf="dispositivo.riesgo !== 'Sin Riesgo'; else soloResumenSinRiesgo">
+    <!-- ⚠️ Mostrar chips y multiselect solo para Riesgos Alto, Medio, Bajo -->
+    <div class="mt-2">
+      <p class="text-sm font-semibold">Puertos Abiertos:</p>
+      <div class="flex flex-wrap gap-2 mt-2">
+        <p-chip *ngFor="let puerto of dispositivo.puertosAbiertos"
+                [label]="puerto.numero + ' - ' + (puerto.servicio || 'Desconocido')">
+        </p-chip>
+      </div>
+    </div>
 
-              <div class="mt-4">
-                <p-multiSelect 
-                  [options]="dispositivo.puertosAbiertos"
-                  optionLabel="numero"
-                  [(ngModel)]="dispositivo.puertosSeleccionados"
-                  placeholder="Selecciona puertos para recomendación"
-                  appendTo="body"
-                  class="w-full">
-                </p-multiSelect>
-              </div>
+    <div class="mt-4">
+      <p-multiSelect 
+        [options]="dispositivo.puertosAbiertos"
+        optionLabel="numero"
+        [(ngModel)]="dispositivo.puertosSeleccionados"
+        placeholder="Selecciona puertos para recomendación"
+        appendTo="body"
+        class="w-full">
+      </p-multiSelect>
+    </div>
 
-              <div class="mt-4 flex justify-end" *ngIf="dispositivo.puertosSeleccionados.length">
-                <p-button 
-                  [disabled]="dispositivo.cargandoRecomendaciones"
-                  severity="info"
-                  (click)="mostrarRecomendaciones(dispositivo)">
-                  <ng-container *ngIf="!dispositivo.cargandoRecomendaciones">
-                    <i class="pi pi-shield"></i>
-                    <span class="ml-2">Ver Recomendaciones</span>
-                  </ng-container>
-
-                  <ng-container *ngIf="dispositivo.cargandoRecomendaciones">
-                    <p-progress-spinner 
-                      strokeWidth="8" 
-                      fill="transparent" 
-                      animationDuration=".5s"
-                      [style]="{ width: '20px', height: '20px' }">
-                    </p-progress-spinner>
-                    <span class="ml-2">Generando...</span>
-                  </ng-container>
-                </p-button>
-              </div>
-            </p-panel>
-          </ng-container>
+    <div class="mt-4 flex justify-end" *ngIf="dispositivo.puertosSeleccionados.length">
+      <p-button 
+        [disabled]="dispositivo.cargandoRecomendaciones"
+        severity="info"
+        (click)="mostrarRecomendaciones(dispositivo)">
+        <ng-container *ngIf="!dispositivo.cargandoRecomendaciones">
+          <i class="pi pi-shield"></i>
+          <span class="ml-2">Ver Recomendaciones</span>
         </ng-container>
+
+        <ng-container *ngIf="dispositivo.cargandoRecomendaciones">
+          <p-progress-spinner 
+            strokeWidth="8" 
+            fill="transparent" 
+            animationDuration=".5s"
+            [style]="{ width: '20px', height: '20px' }">
+          </p-progress-spinner>
+          <span class="ml-2">Generando...</span>
+        </ng-container>
+      </p-button>
+    </div>
+  </ng-container>
+
+  <ng-template #soloResumenSinRiesgo>
+    <p class="text-sm text-gray-500 mt-3">Este dispositivo no presenta puertos abiertos.</p>
+  </ng-template>
+</p-panel>
+
+            </ng-container>
+          </ng-container>
+          <ng-template #sinDispositivos>
+            <p class="text-sm text-gray-500 px-4 py-2">No hay dispositivos asociados a este nivel de riesgo.</p>
+          </ng-template>
+        </ng-container>
+
         <ng-container *ngIf="!evaluacionCompletada">
           <p class="text-sm text-gray-500">Evaluación pendiente. No hay datos disponibles aún.</p>
         </ng-container>
@@ -147,6 +161,7 @@
     </ng-container>
   </p-accordion>
 </section>
+
 
 <p-dialog 
   [(visible)]="dialogoVisible" 
