@@ -22,7 +22,7 @@ interface ConfiguracionEscaneo {
   providers: [ConfirmationService, MessageService]
 })
 export class PgConfiguracionEscaneosComponent implements OnInit {
-  accionesVisibles: { [id: number]: number } = {};
+
   modoEdicion: boolean = false;
   escaneoAutomatico = true;
   modalVisible = false;
@@ -44,8 +44,8 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
   configuracionAEliminar: ConfiguracionEscaneo | null = null;
   @ViewChild('cd') confirmDialog!: any; // para acceder al dialog
   opcionesVisualizacion = [
-  { label: 'Por Frecuencia', value: 'frecuencia' },
-  { label: 'Por Hora', value: 'hora' }
+  { label: 'Historial Configuraciones Por Frecuencia', value: 'frecuencia' },
+  { label: 'Historial Configuraciones Por Hora', value: 'hora' }
 ];
   formulario: any = {
     nombre_configuracion_escaneo: '',
@@ -344,9 +344,15 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
 }
 
 onToggleEstado(): void {
-  this.camposHabilitados = this.formulario.estado;
+  // Si estamos en modo edición → sí bloqueamos según el estado
+  if (this.modoEdicion) {
+    this.camposHabilitados = this.formulario.estado;
+  } else {
+    // Si estamos creando → los campos siempre habilitados, aunque el toggle esté en false
+    this.camposHabilitados = true;
+  }
 
-  // Si se activan los campos (estado === true), puedes actualizar minDate para que se bloquee bien:
+  // Actualizar minDate si es necesario
   if (this.camposHabilitados) {
     this.minDate = new Date();
     this.minDate.setHours(0, 0, 0, 0);
@@ -355,13 +361,9 @@ onToggleEstado(): void {
 
 
 
-alternarGrupoAcciones(configId: number): void {
-  this.accionesVisibles[configId] = this.accionesVisibles[configId] === 1 ? 0 : 1;
-}
-confirmarCambioEstado(config: ConfiguracionEscaneo): void {
- console.log('Confirmar cambio de estado para:', config)
 
- }
+
+
  get configuracionActiva(): ConfiguracionEscaneo | null {
   const activa = this.configuracionesFrecuencia.find(cfg => cfg.estado) ||
                  this.configuracionesHoras.find(cfg => cfg.estado) ||

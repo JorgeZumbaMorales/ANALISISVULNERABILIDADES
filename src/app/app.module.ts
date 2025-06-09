@@ -90,6 +90,8 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import MyPreset from '../mypreset'; // Importa tu preset personalizado
 import { TooltipModule } from 'primeng/tooltip';
 import { TimelineModule } from 'primeng/timeline';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+
 
 @NgModule({
   declarations: [
@@ -176,7 +178,8 @@ import { TimelineModule } from 'primeng/timeline';
     MenuModule,
     OverlayPanelModule,
     TooltipModule,
-    TimelineModule
+    TimelineModule,
+    PdfViewerModule
 ],
   providers: [
     provideAnimationsAsync(),

@@ -142,7 +142,7 @@
           </td>
           <td class="flex gap-1 items-center">
   <!-- Grupo 1: Editar y Eliminar -->
-  <ng-container *ngIf="accionesVisibles[config.id] !== 1">
+
     <p-button 
       icon="pi pi-pencil" 
       pTooltip="Editar"
@@ -156,33 +156,11 @@
   (click)="confirmarEliminarConfiguracion(config)">
 </p-button>
 
-  </ng-container>
 
-  <!-- Grupo 2: Activar / Desactivar -->
-  <ng-container *ngIf="accionesVisibles[config.id] === 1">
-    <p-button 
-      [icon]="config.estado ? 'pi pi-ban' : 'pi pi-check-circle'" 
-      [pTooltip]="config.estado ? 'Desactivar configuración' : 'Activar configuración'"
-      tooltipPosition="top"
-      (click)="confirmarCambioEstado(config)">
-    </p-button>
-  </ng-container>
 
-  <!-- Botón de alternar grupo -->
-  <button 
-    type="button"
-    pTooltip="Más acciones"
-    tooltipPosition="top"
-    (click)="alternarGrupoAcciones(config.id)"
-    class="text-gray-500 hover:text-gray-800 p-1 rounded-full transition-colors">
-    <i 
-      class="pi"
-      [ngClass]="{
-        'pi-angle-double-right': accionesVisibles[config.id] !== 1,
-        'pi-angle-double-left': accionesVisibles[config.id] === 1
-      }">
-    </i>
-  </button>
+
+
+
 </td>
 
         </tr>
@@ -247,7 +225,7 @@
           </td>
           <td class="flex gap-1 items-center">
   <!-- Grupo 1: Editar y Eliminar -->
-  <ng-container *ngIf="accionesVisibles[config.id] !== 1">
+
     <p-button 
       icon="pi pi-pencil" 
       pTooltip="Editar"
@@ -260,33 +238,7 @@
       tooltipPosition="top"
       (click)="eliminarConfiguracion(config)">
     </p-button>
-  </ng-container>
 
-  <!-- Grupo 2: Activar / Desactivar -->
-  <ng-container *ngIf="accionesVisibles[config.id] === 1">
-    <p-button 
-      [icon]="config.estado ? 'pi pi-ban' : 'pi pi-check-circle'" 
-      [pTooltip]="config.estado ? 'Desactivar configuración' : 'Activar configuración'"
-      tooltipPosition="top"
-      (click)="confirmarCambioEstado(config)">
-    </p-button>
-  </ng-container>
-
-  <!-- Botón de alternar grupo -->
-  <button 
-    type="button"
-    pTooltip="Más acciones"
-    tooltipPosition="top"
-    (click)="alternarGrupoAcciones(config.id)"
-    class="text-gray-500 hover:text-gray-800 p-1 rounded-full transition-colors">
-    <i 
-      class="pi"
-      [ngClass]="{
-        'pi-angle-double-right': accionesVisibles[config.id] !== 1,
-        'pi-angle-double-left': accionesVisibles[config.id] === 1
-      }">
-    </i>
-  </button>
 </td>
 
 
