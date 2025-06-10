@@ -6,29 +6,73 @@ import { Component } from '@angular/core';
   styleUrls: ['./pg-dashboard-visual.component.css']
 })
 export class PgDashboardVisualComponent {
-  fechaInicio: Date = new Date();
-  fechaFin: Date = new Date();
 
-  // 📊 Métricas Totales
+  // Métricas totales
   totalDispositivos: number = 0;
   totalEscaneos: number = 0;
   totalVulnerabilidades: number = 0;
-  modoSeleccion: 'single' | 'range' = 'single';
-  fechaSeleccionada: Date | Date[] = new Date();
-  // 🎠 Carousel bloques
-  bloquesDashboard = [
-    'escaneos',
-    'estado_dispositivos',
-    'puertos',
-    'vulnerabilidades',
-    'riesgo',
-    'sistemas_operativos'
-  ];
+  totalPuertosAbiertos: number = 0;
+
+  // Estado del tab seleccionado
+  indiceActivo: number = 0;
+
+  // Definición de las pestañas
+  tabs = [
+  { valor: 0, titulo: 'Escaneos' },
+  { valor: 1, titulo: 'Estado de Dispositivos' },
+  { valor: 2, titulo: 'Puertos Abiertos' },
+  { valor: 3, titulo: 'Vulnerabilidades' },
+  { valor: 4, titulo: 'Dispositivos con CVE' },
+  { valor: 5, titulo: 'Nivel de Riesgo' }
+];
+
   ngOnInit() {
-    this.cargarTotales(); // Esto se llama una sola vez al inicio
+    this.cargarTotales();
   }
-  
-  // 📊 Bloque 1: Escaneos por día
+
+  // Carga de métricas totales
+  cargarTotales() {
+    this.totalDispositivos = 25;
+    this.totalEscaneos = 72;
+    this.totalVulnerabilidades = 134;
+    this.totalPuertosAbiertos = 58;
+  }
+
+  // Opciones reutilizables para los gráficos
+  obtenerOpcionesGraficoBarras(): any {
+    return {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      indexAxis: 'y'
+    };
+  }
+
+  obtenerOpcionesGraficoDona(): any {
+    return {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    };
+  }
+
+  obtenerOpcionesGraficoLineas(): any {
+    return {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Fecha' }},
+        y: { beginAtZero: true, title: { display: true, text: 'Cantidad' }}
+      }
+    };
+  }
+
+  // Datos simulados para cada gráfico
+
   datosEscaneos = {
     labels: ['2025-05-01', '2025-05-02', '2025-05-03', '2025-05-04'],
     datasets: [
@@ -40,18 +84,6 @@ export class PgDashboardVisualComponent {
     ]
   };
 
-  opcionesEscaneos = {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' }
-    },
-    scales: {
-      x: { title: { display: true, text: 'Fecha' }},
-      y: { beginAtZero: true, title: { display: true, text: 'Cantidad' }}
-    }
-  };
-
-  // 🧩 Bloque 3: Estado de dispositivos
   datosEstadoDispositivos = {
     labels: ['Activos', 'Inactivos'],
     datasets: [
@@ -62,14 +94,6 @@ export class PgDashboardVisualComponent {
     ]
   };
 
-  opcionesDona = {
-    responsive: true,
-    plugins: {
-      legend: { position: 'bottom' }
-    }
-  };
-
-  // 🌐 Bloque 4: Puertos más comunes
   datosPuertos = {
     labels: ['80', '443', '22', '21'],
     datasets: [
@@ -81,15 +105,6 @@ export class PgDashboardVisualComponent {
     ]
   };
 
-  opcionesPuertos = {
-    indexAxis: 'y',
-    responsive: true,
-    plugins: {
-      legend: { display: false }
-    }
-  };
-
-  // ⚠️ Bloque 5: Top vulnerabilidades
   datosVulnerabilidades = {
     labels: ['CVE-2023-1234', 'CVE-2022-4567', 'CVE-2021-7890'],
     datasets: [
@@ -101,101 +116,25 @@ export class PgDashboardVisualComponent {
     ]
   };
 
-  opcionesVulnerabilidades = {
-    responsive: true,
-    plugins: {
-      legend: { display: false }
-    }
-  };
-
-  // 🔐 Bloque 6: Riesgo promedio por dispositivo
-  datosRiesgoPromedio = {
-    labels: ['Router', 'Servidor Web', 'PC01'],
+  datosDispositivosConCVE = {
+    labels: ['Dispositivo 1', 'Dispositivo 2', 'Dispositivo 3'],
     datasets: [
       {
-        label: 'Score Promedio',
-        data: [8.1, 6.5, 7.2],
-        backgroundColor: '#f43f5e'
+        label: 'Cantidad de Vulnerabilidades',
+        data: [12, 9, 6],
+        backgroundColor: '#3b82f6'
       }
     ]
   };
 
-  opcionesRiesgoPromedio = {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' }
-    }
-  };
-
-  // 🧠 Bloque 7: Sistemas operativos
-  datosSistemasOperativos = {
-    labels: ['Windows', 'Linux', 'Android'],
+  datosNivelRiesgo = {
+    labels: ['Alto', 'Medio', 'Bajo', 'Sin Riesgo'],
     datasets: [
       {
-        data: [14, 9, 2],
-        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
+        data: [8, 15, 20, 5],
+        backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#9ca3af']
       }
     ]
   };
 
-  opcionesSistemasOperativos = {
-    responsive: true,
-    plugins: {
-      legend: { position: 'bottom' }
-    }
-  };
-
-  // 🔄 Simula carga inicial
-  actualizarDashboard() {
-    console.log("📆 Actualizando gráficos con fechas:", this.fechaInicio, this.fechaFin);
-    
-    // Aquí luego pondrás llamadas filtradas por fecha a la base de datos
-    this.actualizarGraficoEscaneos();
-    this.actualizarGraficoEstadoDispositivos();
-    this.actualizarGraficoPuertos();
-    this.actualizarGraficoVulnerabilidades();
-    this.actualizarGraficoRiesgos();
-    this.actualizarGraficoSistemasOperativos();
-  }
-
-  cargarTotales() {
-    // Datos estáticos o consulta directa sin filtro de fechas
-    this.totalDispositivos = 25;
-    this.totalEscaneos = 72;
-    this.totalVulnerabilidades = 134;
-  }
-  
-  actualizarGraficoEscaneos() {
-    console.log("📊 Actualizando gráfico de escaneos...");
-  }
-  
-  actualizarGraficoEstadoDispositivos() {
-    console.log("🧩 Actualizando gráfico de estado de dispositivos...");
-  }
-  
-  actualizarGraficoPuertos() {
-    console.log("🌐 Actualizando gráfico de puertos más comunes...");
-  }
-  
-  actualizarGraficoVulnerabilidades() {
-    console.log("⚠️ Actualizando gráfico de vulnerabilidades más comunes...");
-  }
-  
-  actualizarGraficoRiesgos() {
-    console.log("🔐 Actualizando gráfico de riesgo promedio por dispositivo...");
-  }
-  
-  actualizarGraficoSistemasOperativos() {
-    console.log("🧠 Actualizando gráfico de sistemas operativos...");
-  }
-  
-  alternarModoSeleccion() {
-    this.modoSeleccion = this.modoSeleccion === 'single' ? 'range' : 'single';
-    this.fechaSeleccionada = this.modoSeleccion === 'single' ? new Date() : [];
-  }
-  
-  visualizarDatos() {
-    console.log("🔍 Visualizando con:", this.modoSeleccion, this.fechaSeleccionada);
-    // Aquí llamas a las funciones correspondientes según el tipo
-  }
 }

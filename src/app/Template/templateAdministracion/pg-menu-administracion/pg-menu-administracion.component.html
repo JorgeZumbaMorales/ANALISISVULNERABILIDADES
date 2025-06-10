@@ -1,4 +1,4 @@
-<aside class="w-64 bg-fondoClaro  text-baseAzulOscuro shadow-lg p-4 flex flex-col h-[calc(100vh-4rem)] border-r border-baseAzulOscuro ">
+<aside class="w-50 bg-fondoClaro  text-baseAzulOscuro shadow-lg  flex flex-col  h-[calc(100vh-4rem)] border-r border-baseAzulOscuro ">
 
   <!-- Contenedor del Menú -->
   <nav class="flex-1">
@@ -7,7 +7,7 @@
               <li>
                   <button 
   [routerLink]="item.routerLink"
-  class="w-full flex items-center px-4 py-3 rounded-md transition-all duration-200"
+  class="w-full flex items-center px-4 py-3  transition-all duration-200"
   [ngClass]="{
     'text-black font-semibold': item.routerLink.includes(activeMenu),
     'hover:bg-baseNaranja hover:text-black': !item.routerLink.includes(activeMenu)
