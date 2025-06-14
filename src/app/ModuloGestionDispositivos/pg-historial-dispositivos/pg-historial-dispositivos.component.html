@@ -35,7 +35,7 @@
   [customSort]="true"
     [paginator]="true"
     [rows]="10"
-    [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip', 'estado']"
+    [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip', 'estado', 'precision_so']"
     responsiveLayout="scroll"
     class="w-full"
   >
@@ -66,6 +66,7 @@
         <th pSortableColumn="nombre_dispositivo">Nombre <p-sortIcon field="nombre_dispositivo" /></th>
         <th pSortableColumn="mac_address">MAC Address <p-sortIcon field="mac_address" /></th>
         <th pSortableColumn="sistema_operativo">Sistema Operativo <p-sortIcon field="sistema_operativo" /></th>
+        <th pSortableColumn="precision_so">Precisión <p-sortIcon field="precision_so" /></th>
         <th pSortableColumn="ultima_ip">Última IP <p-sortIcon field="ultima_ip" /></th>
         <th pSortableColumn="estado">
   Estado <p-sortIcon field="estado" />
@@ -81,6 +82,10 @@
         <td>{{ dispositivo.nombre_dispositivo }}</td>
         <td>{{ dispositivo.mac_address }}</td>
         <td>{{ dispositivo.sistema_operativo || 'Desconocido' }}</td>
+        <td>
+  {{ dispositivo.precision_so !== null ? dispositivo.precision_so + '%' : '—' }}
+</td>
+
         <td>{{ dispositivo.ultima_ip || 'No asignada' }}</td>
         <td class="text-center">
           <p-tag [value]="dispositivo.estado ? 'Activo' : 'Inactivo'" [severity]="dispositivo.estado ? 'success' : 'danger'"></p-tag>
@@ -189,15 +194,7 @@
           <div class="text-gray-900 p-2">{{ so?.nombre_so || 'SO sin nombre' }}</div>
         </ng-template>
         <ng-template pTemplate="footer">
-  <div class="p-2 border-t text-center">
-    <button
-      pButton
-      icon="pi pi-plus"
-      label="Añadir nuevo sistema operativo"
-      text
-      (click)="abrirFormularioSO()"
-    ></button>
-  </div>
+ 
 </ng-template>
 
       </p-autoComplete>

@@ -20,6 +20,8 @@ interface Dispositivo {
   nombre_dispositivo: string;
   mac_address: string;
   sistema_operativo: string;
+  
+  precision_so: number;
   ultima_ip: string;
   estado: boolean;
 }
@@ -177,7 +179,7 @@ export class PgDispositivosComponent implements OnInit, AfterViewInit,OnDestroy 
 }
 
 
-  guardarCambios(): void {
+guardarCambios(): void {
   if (!this.dispositivoEditando) return;
 
   const nombre = this.dispositivoEditando.nombre_dispositivo;
@@ -185,17 +187,19 @@ export class PgDispositivosComponent implements OnInit, AfterViewInit,OnDestroy 
   if (!this.validaciones.validarNombreDispositivo(nombre)) return;
 
   if (!this.validaciones.validarSistemaOperativoSeleccionado(this.sistemaOperativoSeleccionado)) {
-  return;
-}
-
+    return;
+  }
 
   const payload = {
-  nuevo_nombre: nombre,
-  nuevo_sistema_operativo_id: this.sistemaOperativoSeleccionado!.sistema_operativo_id
-};
+    nuevo_nombre: nombre,
+    nuevo_sistema_operativo_id: this.sistemaOperativoSeleccionado!.sistema_operativo_id,
+    nueva_precision_so: 100.0  
+  };
 
-
-  this.serviciosDispositivos.actualizarDispositivo(this.dispositivoEditando.dispositivo_id, payload).subscribe({
+  this.serviciosDispositivos.actualizarDispositivo(
+    this.dispositivoEditando.dispositivo_id,
+    payload
+  ).subscribe({
     next: () => {
       this.messageService.add({
         severity: 'success',
@@ -206,28 +210,24 @@ export class PgDispositivosComponent implements OnInit, AfterViewInit,OnDestroy 
       this.cargarDispositivos();
     },
     error: (error) => {
-  console.error('🧪 Error crudo recibido AQUIIIIIIIII:', error);
+      console.error('🧪 Error crudo recibido:', error);
 
-  let mensaje = 'No se pudo actualizar el dispositivo.';
+      let mensaje = 'No se pudo actualizar el dispositivo.';
+      const detalle = error?.error?.detail;
 
-  const detalle = error?.error?.detail;
+      if (typeof detalle === 'string') {
+        const match = detalle.match(/(?:\d{3}: )?(.*)/);
+        mensaje = match ? match[1].trim() : detalle;
+      } else if (typeof error?.message === 'string') {
+        mensaje = error.message;
+      }
 
-  if (typeof detalle === 'string') {
-    const match = detalle.match(/(?:\d{3}: )?(.*)/);
-    mensaje = match ? match[1].trim() : detalle;
-  } else if (typeof error?.message === 'string') {
-    mensaje = error.message;
-  }
-
-  this.messageService.add({
-    severity: 'error',
-    summary: 'Error',
-    detail: mensaje
-  });
-}
-
-
-
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: mensaje
+      });
+    }
   });
 }
 

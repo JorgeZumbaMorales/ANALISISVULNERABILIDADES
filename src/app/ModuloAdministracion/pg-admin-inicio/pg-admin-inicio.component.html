@@ -1,35 +1,11 @@
 <section class="w-full flex flex-col items-center px-2 sm:px-4 py-2 overflow-x-hidden">
   <div class="w-full max-w-[85rem] bg-baseAzulOscuro text-textoSecundario px-2 sm:px-6 lg:px-10 py-4 sm:py-6 rounded-2xl shadow-lg text-center">
     <h1 class="text-xl sm:text-3xl font-bold">¡Bienvenido, {{ nombreUsuario }}!</h1>
-    <p class="text-sm sm:text-base mt-1 sm:mt-2">Estas son las secciones disponibles según tu rol actual.</p>
+    <p class="text-sm sm:text-base mt-1 sm:mt-2">Interactúa con el mapa de red para explorar las secciones disponibles.</p>
 
-    <!-- 🎠 Carrusel dinámico -->
-    <div class="mt-4 sm:mt-6">
-      <p-carousel 
-        [value]="secciones" 
-        [numVisible]="3" 
-        [numScroll]="1" 
-        [circular]="true" 
-        [autoplayInterval]="0"
-        [responsiveOptions]="[
-          { breakpoint: '1400px', numVisible: 3, numScroll: 1 },
-          { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
-          { breakpoint: '768px', numVisible: 1, numScroll: 1 }
-        ]"
-        class="w-full"
-      >
-        <ng-template let-seccion pTemplate="item">
-          <div class="p-1 sm:p-2">
-<div class="bg-white rounded-xl p-2 sm:p-4 text-black shadow-md h-full flex flex-col justify-center items-center hover:shadow-lg transition text-center min-h-[12rem] sm:min-h-[14rem] border-1 border-[#fc4b08]">
-              <div>
-                <h2 class="text-base sm:text-lg font-semibold mb-1 break-words">{{ seccion.nombre_seccion }}</h2>
-                <p class="text-xs sm:text-sm break-words leading-snug">{{ seccion.descripcion }}</p>
-              </div>
-        
-            </div>
-          </div>
-        </ng-template>
-      </p-carousel>
+    <!-- Mapa de red visual -->
+    <div class="mt-6">
+      <div id="network" class="w-full h-[500px] border border-gray-300 rounded-lg shadow"></div>
     </div>
   </div>
 </section>

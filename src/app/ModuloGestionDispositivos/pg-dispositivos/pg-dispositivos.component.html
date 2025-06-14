@@ -43,7 +43,7 @@
   dataKey="dispositivo_id"
   [paginator]="true"
   [rows]="5"
-  [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip']"
+  [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip', 'precision_so']"
   responsiveLayout="scroll"
   class="w-full"
 >
@@ -75,6 +75,7 @@
         <th pSortableColumn="nombre_dispositivo">Nombre <p-sortIcon field="nombre_dispositivo" /></th>
         <th pSortableColumn="mac_address">MAC Address <p-sortIcon field="mac_address" /></th>
         <th pSortableColumn="sistema_operativo">Sistema Operativo <p-sortIcon field="sistema_operativo" /></th>
+        <th pSortableColumn="precision_so">Precisión Sistema Operativo <p-sortIcon field="precision_so" /></th>
         <th pSortableColumn="ultima_ip">IP Actual <p-sortIcon field="ultima_ip" /></th>
         <th class="text-center">Estado</th>
         <th class="text-center w-[150px]">Acciones</th>
@@ -87,6 +88,7 @@
         <td>{{ dispositivo.nombre_dispositivo }}</td>
         <td>{{ dispositivo.mac_address }}</td>
         <td>{{ dispositivo.sistema_operativo || 'Desconocido' }}</td>
+        <td>{{ dispositivo.precision_so | number: '1.0-1' }}%</td>
         <td>{{ dispositivo.ultima_ip || 'No asignada' }}</td>
         <td class="text-center">
           <p-tag
@@ -119,7 +121,7 @@
     <!-- ❌ Mensaje si no hay datos -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="6" class="text-center">No hay dispositivos registrados.</td>
+        <td colspan="7" class="text-center">No hay dispositivos registrados.</td>
       </tr>
     </ng-template>
   </p-table>
@@ -167,15 +169,7 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <div class="p-2 border-t text-center">
-      <button
-  pButton
-  icon="pi pi-plus"
-  label="Añadir nuevo sistema operativo"
-  text
-  (click)="abrirModal('crear_so')"
-></button>
-    </div>
+
   </ng-template>
 </p-autoComplete>
 

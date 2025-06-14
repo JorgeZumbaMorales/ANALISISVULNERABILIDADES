@@ -16,6 +16,7 @@ interface Dispositivo {
   nombre_dispositivo: string;
   mac_address: string;
   sistema_operativo: string;
+  precision_so: number;
   ultima_ip: string;
   estado: boolean;
 }
@@ -142,9 +143,11 @@ ipSeleccionada: { ip_asignacion_id: number, ip: string, fecha: string } | null =
   }
 
   const payload = {
-    nuevo_nombre: nombre,
-    nuevo_sistema_operativo_id: this.sistemaOperativoSeleccionado!.sistema_operativo_id
-  };
+  nuevo_nombre: nombre,
+  nuevo_sistema_operativo_id: this.sistemaOperativoSeleccionado!.sistema_operativo_id,
+  precision_so: 100  // al actualizar manualmente, siempre 100%
+};
+
 
   this.servicioDispositivos.actualizarDispositivo(this.dispositivoEditando.dispositivo_id, payload).subscribe({
     next: () => {

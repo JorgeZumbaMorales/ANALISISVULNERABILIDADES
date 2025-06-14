@@ -33,10 +33,10 @@ export class PgDispositivosVulnerablesComponent {
 
 
 tarjetasRiesgo = [
-  { valor: 'Alto', titulo: 'Riesgo Alto', color: 'text-red-600', borde: 'border-red-500', icono: 'pi pi-exclamation-triangle' },
-  { valor: 'Medio', titulo: 'Riesgo Medio', color: 'text-yellow-600', borde: 'border-yellow-400', icono: 'pi pi-exclamation-circle' },
-  { valor: 'Bajo', titulo: 'Riesgo Bajo', color: 'text-blue-600', borde: 'border-blue-400', icono: 'pi pi-info-circle' },
-  { valor: 'Sin Riesgo', titulo: 'Sin Riesgo', color: 'text-gray-600', borde: 'border-gray-400', icono: 'pi pi-check-circle' }
+  { valor: 'Alto', titulo: 'Riesgo Alto', color: 'text-baseNaranja', borde: 'border-baseNaranja', icono: 'pi pi-exclamation-triangle' },
+  { valor: 'Medio', titulo: 'Riesgo Medio', color: 'text-yellow-600', borde: 'border-baseNaranja', icono: 'pi pi-exclamation-circle' },
+  { valor: 'Bajo', titulo: 'Riesgo Bajo', color: 'text-blue-600', borde: 'border-baseNaranja', icono: 'pi pi-info-circle' },
+  { valor: 'Sin Riesgo', titulo: 'Sin Riesgo', color: 'text-gray-600', borde: 'border-baseNaranja', icono: 'pi pi-check-circle' }
 ];
 
   listaRecomendaciones: any[] = [];
