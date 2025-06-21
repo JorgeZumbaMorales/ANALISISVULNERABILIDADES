@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { interval, Subscription } from 'rxjs';
 
 @Injectable({
@@ -6,6 +6,8 @@ import { interval, Subscription } from 'rxjs';
 })
 export class ServiciosSegundoPlano {
   private intervalosActivos: Map<string, Subscription | number> = new Map();
+
+  constructor(private zone: NgZone) {}
 
   /**
    * 🔁 Inicia un proceso en segundo plano con localStorage y callback de verificación.
@@ -29,15 +31,15 @@ export class ServiciosSegundoPlano {
         next: (res: any) => {
           if (res.estado === 'completado') {
             this.detenerProceso(claveStorage);
-            alFinalizar();
+            this.zone.run(() => alFinalizar());
           } else if (res.estado?.startsWith('error')) {
             this.detenerProceso(claveStorage);
-            alError(res.estado);
+            this.zone.run(() => alError(res.estado));
           }
         },
         error: () => {
           this.detenerProceso(claveStorage);
-          alError('Error de red o backend');
+          this.zone.run(() => alError('Error de red o backend'));
         }
       });
     });
@@ -49,48 +51,53 @@ export class ServiciosSegundoPlano {
    * ✅ Reanuda el polling si el valor en localStorage indica que está en progreso
    */
   reanudarSiEsNecesario(
-  claveStorage: string,
-  intervaloMs: number,
-  verificarEstado: () => any,
-  alFinalizar: () => void,
-  alError: (mensaje?: string) => void
-): void {
-  const enProgreso = localStorage.getItem(claveStorage);
+    claveStorage: string,
+    intervaloMs: number,
+    verificarEstado: () => any,
+    alFinalizar: () => void,
+    alError: (mensaje?: string) => void
+  ): void {
+    const enProgreso = localStorage.getItem(claveStorage);
 
-  if (enProgreso === 'true') {
-    console.log(`♻️ Reanudando verificación inmediata de ${claveStorage}...`);
+    if (enProgreso === 'true') {
+      console.log(`♻️ Reanudando verificación inmediata de ${claveStorage}...`);
 
-    verificarEstado().subscribe({
-      next: (res: any) => {
-        if (res.estado === 'completado') {
-          this.detenerProceso(claveStorage);
-          localStorage.removeItem(claveStorage); // ✅ Limpieza obligatoria
-          alFinalizar();
-        } else {
-          if (!this.intervalosActivos.has(claveStorage)) {
-            console.log(`🔁 Reanudando polling de ${claveStorage}...`);
-            this.iniciarProcesoConPolling(claveStorage, intervaloMs, verificarEstado, () => {
-              localStorage.removeItem(claveStorage); // ✅ también al finalizar por polling
-              alFinalizar();
-            }, (mensaje) => {
-              localStorage.removeItem(claveStorage); // ✅ también al fallar por polling
-              alError(mensaje);
-            });
+      verificarEstado().subscribe({
+        next: (res: any) => {
+          if (res.estado === 'completado') {
+            this.detenerProceso(claveStorage);
+            localStorage.removeItem(claveStorage);
+            this.zone.run(() => alFinalizar());
+          } else {
+            if (!this.intervalosActivos.has(claveStorage)) {
+              console.log(`🔁 Reanudando polling de ${claveStorage}...`);
+              this.iniciarProcesoConPolling(
+                claveStorage,
+                intervaloMs,
+                verificarEstado,
+                () => {
+                  localStorage.removeItem(claveStorage);
+                  this.zone.run(() => alFinalizar());
+                },
+                (mensaje) => {
+                  localStorage.removeItem(claveStorage);
+                  this.zone.run(() => alError(mensaje));
+                }
+              );
+            }
           }
+        },
+        error: (err: any) => {
+          console.warn(`⚠️ Error al verificar el estado de ${claveStorage}`, err);
+          this.detenerProceso(claveStorage);
+          localStorage.removeItem(claveStorage);
+          this.zone.run(() =>
+            alError(err?.error?.detail || 'Error al consultar el estado del proceso.')
+          );
         }
-      },
-      error: (err: any) => {
-        console.warn(`⚠️ Error al verificar el estado de ${claveStorage}`, err);
-        this.detenerProceso(claveStorage);
-        localStorage.removeItem(claveStorage); // ✅ Limpieza por error inmediato
-        alError(err?.error?.detail || 'Error al consultar el estado del proceso.');
-      }
-    });
+      });
+    }
   }
-}
-
-
-
 
   /**
    * ⛔ Detiene y limpia el polling de un proceso

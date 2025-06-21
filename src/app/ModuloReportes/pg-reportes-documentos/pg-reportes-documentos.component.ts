@@ -7,6 +7,8 @@ import { NotificacionService } from '../../ValidacionesFormularios/notificacion.
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { environment } from '../../../environments/environment';  // al inicio de tu component.ts
 import { ConfirmationService } from 'primeng/api';
+import { ServiciosDispositivos } from '../../ModuloServiciosWeb/ServiciosDispositivos.component';
+
 interface ReporteGenerado {
   reporte_generado_id: number;
   tipo_reporte_id: number;
@@ -35,7 +37,10 @@ export class PgReportesDocumentosComponent {
   private servicioReportes: ServiciosReportes,
       private notificacion: NotificacionService,
       private sanitizer: DomSanitizer,
-      private confirmationService: ConfirmationService
+      private confirmationService: ConfirmationService,
+      private servicioDispositivos: ServiciosDispositivos
+
+
 
 
 
@@ -66,6 +71,7 @@ listaConfiguraciones: any[] = [];
 
   tipoReporteSeleccionado: string = 'dispositivos';
   tipoConfiguracionSeleccionado: string = 'ambos';
+dispositivos: any[] = [];
 
   // Listas filtradas
   dispositivosFiltrados: any[] = [];
@@ -94,15 +100,13 @@ listaConfiguraciones: any[] = [];
   filtros: any = {
     // Dispositivos
     dispositivos: [],
-    incluirPuertos: false,
-    incluirVulnerabilidades: false,
-    soloConExploit: false,
-    incluirHistorialIps: false,
-    formato: 'pdf',
-    activarFiltroScore: false,
-    tipoFiltroScore: 'rango',
-    rangoCVSS: [7.0, 10.0],
-    scoresEspecificos: [],
+incluirPuertos: false,
+incluirVulnerabilidades: false,
+incluirResumenesTecnicos: false,
+incluirExploit: false, // antes llamado soloConExploit
+incluirUrl: false,
+incluirRiesgo: false,
+incluirHistorialIps: false,
     
 
     // Usuarios
@@ -112,7 +116,7 @@ listaConfiguraciones: any[] = [];
     incluirEmail: true,
     incluirTelefono: true,
     incluirRoles: true,
-    incluirFechaCreacion: true,
+
 
     // Roles
     roles: [],
@@ -133,9 +137,27 @@ listaConfiguraciones: any[] = [];
       this.obtenerRoles();
       this.obtenerConfiguraciones();
     this.actualizarTodo();
+    this.obtenerTodosLosDispositivos();
     this.obtenerReportesGenerados();
   }
-  
+  obtenerTodosLosDispositivos() {
+  this.servicioDispositivos.listarTodosLosDispositivosCompleto().subscribe({
+    next: ({ data }) => {
+      this.listaDispositivos = data.map((d: any) => ({
+        id: d.dispositivo_id,
+        nombre: d.nombre_dispositivo,
+        activo: d.estado
+      }));
+      this.actualizarLista('dispositivos');  // 🔁 asegurarse que filtre bien al inicio
+    },
+    error: (err) => {
+      console.error('Error al obtener dispositivos', err);
+      this.notificacion.error('Error', 'No se pudo cargar la lista de dispositivos.');
+    }
+  });
+}
+
+
   obtenerUsuarios() {
   this.servicioAuth.listarUsuarios().subscribe({
     next: (data: any) => {
@@ -496,17 +518,16 @@ private construirPayloadReporte(): any {
 
   switch (this.tipoReporteSeleccionado) {
     case 'dispositivos':
-      payload.agrupar_por = 'dispositivo';
-      payload.dispositivos = this.filtros.dispositivos;
-      payload.incluirHistorialIps = this.filtros.incluirHistorialIps;
-      payload.incluirPuertos = this.filtros.incluirPuertos;
-      payload.incluirVulnerabilidades = this.filtros.incluirVulnerabilidades;
-      payload.soloConExploit = this.filtros.soloConExploit;
-      payload.activarFiltroScore = this.filtros.activarFiltroScore;
-      payload.tipoFiltroScore = this.filtros.tipoFiltroScore;
-      payload.rangoCVSS = this.filtros.rangoCVSS;
-      payload.scoresEspecificos = this.filtros.scoresEspecificos;
-      break;
+  payload.agrupar_por = 'dispositivo';
+  payload.dispositivo_ids = this.filtros.dispositivos;
+  payload.incluirHistorialIps = this.filtros.incluirHistorialIps;
+  payload.incluirPuertos = this.filtros.incluirPuertos;
+  payload.incluirVulnerabilidades = this.filtros.incluirVulnerabilidades;
+  payload.incluirResumenesTecnicos = this.filtros.incluirResumenesTecnicos;
+  payload.incluirExploit = this.filtros.soloConExploit;
+  payload.incluirRiesgo = this.filtros.activarFiltroScore;
+  payload.incluirUrl = true; // si quieres controlar por toggle, usa una nueva propiedad
+  break;
 
     case 'usuarios':
       payload.agrupar_por = 'usuario';
@@ -516,7 +537,7 @@ private construirPayloadReporte(): any {
       payload.incluirEmail = this.filtros.incluirEmail;
       payload.incluirTelefono = this.filtros.incluirTelefono;
       payload.incluirRoles = this.filtros.incluirRoles;
-      payload.incluirFechaCreacion = this.filtros.incluirFechaCreacion;
+
       break;
 
     case 'roles':

@@ -196,6 +196,18 @@ obtenerResultadoUltimoAnalisis(): Observable<any> {
         { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
       ).pipe(catchError(this.handleError));
     }
+      /**
+   * 📌 Genera resúmenes de vulnerabilidades por cada puerto de un dispositivo.
+   * @param dispositivoId ID del dispositivo
+   * @returns Observable con la lista de resúmenes generados
+   */
+  generarResumenPorDispositivo(dispositivoId: number): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrlResumenCVEs}/generar_resumen_dispositivo/${dispositivoId}`,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
 
   // ===================== MANEJO DE ERRORES =====================
   private handleError(error: any) {

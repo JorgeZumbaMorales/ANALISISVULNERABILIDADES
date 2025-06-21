@@ -8,7 +8,7 @@ import { ServiciosConfiguracion } from '../../ModuloServiciosWeb/ServiciosConfig
 import { SesionUsuarioService } from '../../Seguridad/sesion-usuario.service'; // asegúrate del path correcto
 import { ServiciosAlertas } from '../../ModuloServiciosWeb/ServiciosAlertas.component';
 import { ServiciosSegundoPlano } from '../../ModuloServiciosWeb/ServiciosSegundoPlano.service';
-import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef,NgZone} from '@angular/core';
 
 interface SistemaOperativo {
   sistema_operativo_id: number;
@@ -33,7 +33,7 @@ interface Dispositivo {
 })
 export class PgDispositivosComponent implements OnInit, AfterViewInit,OnDestroy {
   @ViewChild('dt') dt!: Table;
-
+  escaneoCompletado: boolean = false;
   dispositivos: Dispositivo[] = [];
   dispositivosOriginales: Dispositivo[] = [];
   sistemasOperativos: SistemaOperativo[] = [];
@@ -46,7 +46,6 @@ export class PgDispositivosComponent implements OnInit, AfterViewInit,OnDestroy 
   puertosDispositivo: any[] = [];
   dispositivoSeleccionado: any = null;
   usuarioIdActual: number | null = null;
-
   dispositivoEditando: Dispositivo | null = null;
   sistemaOperativoSeleccionado: SistemaOperativo | null = null;
   ordenActivo: boolean | null = null;
@@ -67,11 +66,11 @@ export class PgDispositivosComponent implements OnInit, AfterViewInit,OnDestroy 
     private servicioAlertas: ServiciosAlertas,
     private servicioSegundoPlano: ServiciosSegundoPlano,
     private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
 
 
   ) {}
-
-  ngOnInit(): void {
+ngOnInit(): void {
   this.cargarDispositivos();
   this.cargarSistemasOperativos();
 
@@ -83,24 +82,56 @@ export class PgDispositivosComponent implements OnInit, AfterViewInit,OnDestroy 
   3000,
   () => this.serviciosConfiguracion.obtenerEstadoEscaneo(),
   () => {
-  this.escaneoEnProgreso = false;
-  localStorage.removeItem('escaneoEnProgreso');
-  this.notificacion.success('Listo', 'El escaneo ha finalizado.');
-  this.cargarDispositivos();
-  this.crearNotificacionFinalizacion();
-  this.cdr.detectChanges(); // 👈 fuerza actualización visual inmediata
-}
-,
+    this.ngZone.run(() => {
+      this.escaneoEnProgreso = false;
+      this.escaneoCompletado = true; // ✅ NUEVO
+      localStorage.removeItem('escaneoEnProgreso');
+      this.notificacion.success('Listo', 'El escaneo ha finalizado.');
+      this.cargarDispositivos();
+      this.crearNotificacionFinalizacion();
+      this.cdr.detectChanges();
+    });
+  },
   (mensaje) => {
-  this.escaneoEnProgreso = false;
-  localStorage.removeItem('escaneoEnProgreso');
-  this.notificacion.error('Error en escaneo', mensaje || 'Error durante el escaneo.');
-  this.cdr.detectChanges(); // 👈 también en caso de error
-}
-
+    this.ngZone.run(() => {
+      this.escaneoEnProgreso = false;
+      this.notificacion.error('Error en escaneo', mensaje || 'Error durante el escaneo.');
+      this.cdr.detectChanges();
+    });
+  }
 );
 
+
+  // ✅ Verificación directa por si ya finalizó
+  this.serviciosConfiguracion.obtenerEstadoEscaneo().subscribe({
+  next: (res: any) => {
+    if (res.estado === 'completado') {
+      const estabaEnProgreso = localStorage.getItem('escaneoEnProgreso') === 'true';
+      this.ngZone.run(() => {
+        this.escaneoEnProgreso = false;
+        localStorage.removeItem('escaneoEnProgreso');
+        if (estabaEnProgreso) {
+          this.notificacion.success('Listo', 'El escaneo ha finalizado.');
+          this.crearNotificacionFinalizacion();
+
+        }
+        this.cargarDispositivos();
+        this.cdr.detectChanges();
+      });
+
+      }
+    },
+    error: () => {
+      this.ngZone.run(() => {
+        this.escaneoEnProgreso = false;
+        this.cdr.detectChanges();
+      });
+    }
+  });
 }
+
+
+
 
 
   ngOnDestroy(): void {
@@ -253,6 +284,11 @@ guardarCambios(): void {
 
 
 iniciarEscaneoDispositivos(): void {
+  if (this.escaneoEnProgreso) {
+    this.notificacion.error('En progreso', 'Ya hay un escaneo en curso.');
+    return;
+  }
+
   this.usuarioIdActual = this.sesionUsuario.obtenerUsuarioDesdeToken()?.usuario_id || null;
 
   if (!this.usuarioIdActual) {
@@ -267,29 +303,44 @@ iniciarEscaneoDispositivos(): void {
     next: (res) => {
       this.notificacion.success('Éxito', res.mensaje || 'Escaneo iniciado.');
       this.servicioSegundoPlano.iniciarProcesoConPolling(
-        'escaneoEnProgreso',
-        3000,
-        () => this.serviciosConfiguracion.obtenerEstadoEscaneo(),
-        () => {
-          this.escaneoEnProgreso = false;
-          this.notificacion.success('Listo', 'El escaneo ha finalizado.');
-          this.cargarDispositivos();
-          this.crearNotificacionFinalizacion();
-        },
-        (mensaje) => {
-          this.escaneoEnProgreso = false;
-          this.notificacion.error('Error en escaneo', mensaje);
-        }
-      );
+  'escaneoEnProgreso',
+  3000,
+  () => this.serviciosConfiguracion.obtenerEstadoEscaneo(),
+  () => {
+    this.ngZone.run(() => {
+      this.escaneoEnProgreso = false;
+      this.escaneoCompletado = true; // ✅ NUEVO
+      localStorage.removeItem('escaneoEnProgreso');
+      this.notificacion.success('Listo', 'El escaneo ha finalizado.');
+      this.cargarDispositivos();
+      this.crearNotificacionFinalizacion();
+      this.cdr.detectChanges();
+    });
+  },
+  (mensaje) => {
+    this.ngZone.run(() => {
+      this.escaneoEnProgreso = false;
+      localStorage.removeItem('escaneoEnProgreso');
+      this.notificacion.error('Error en escaneo', mensaje);
+      this.cdr.detectChanges();
+    });
+  }
+);
+
     },
     error: (err) => {
       console.error('Error al iniciar escaneo:', err);
-      this.notificacion.error('Error', 'No se pudo iniciar el escaneo.');
-      this.escaneoEnProgreso = false;
-      localStorage.removeItem('escaneoEnProgreso');
+      this.ngZone.run(() => {
+        this.escaneoEnProgreso = false;
+        localStorage.removeItem('escaneoEnProgreso');
+        this.notificacion.error('Error', 'No se pudo iniciar el escaneo.');
+        this.cdr.detectChanges();
+      });
     }
   });
 }
+
+
 
 
 
@@ -358,6 +409,7 @@ private crearNotificacionFinalizacion(): void {
     });
   }
   verPuertosDispositivo(dispositivo: any): void {
+    console.log("Abrienedo")
   this.dispositivoSeleccionado = dispositivo;
   this.puertosDispositivo = dispositivo.puertos || [];
   this.dialogoVisible = true;

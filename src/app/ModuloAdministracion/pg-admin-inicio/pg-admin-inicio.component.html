@@ -1,11 +1,75 @@
-<section class="w-full flex flex-col items-center px-2 sm:px-4 py-2 overflow-x-hidden">
-  <div class="w-full max-w-[85rem] bg-baseAzulOscuro text-textoSecundario px-2 sm:px-6 lg:px-10 py-4 sm:py-6 rounded-2xl shadow-lg text-center">
-    <h1 class="text-xl sm:text-3xl font-bold">¡Bienvenido, {{ nombreUsuario }}!</h1>
-    <p class="text-sm sm:text-base mt-1 sm:mt-2">Interactúa con el mapa de red para explorar las secciones disponibles.</p>
+<section class="w-full px-4 lg:px-10 py-6  text-textoPrincipal">
+  <div class="max-w-[1600px] mx-auto flex flex-col items-center gap-6">
 
-    <!-- Mapa de red visual -->
-    <div class="mt-6">
-      <div id="network" class="w-full h-[500px] border border-gray-300 rounded-lg shadow"></div>
+    <!-- Encabezado -->
+    <div class="text-center">
+      <h1 class="text-2xl font-bold text-baseAzulOscuro">
+        ¡Bienvenido a RedSegura!
+      </h1>
+      <p class="text-base mt-2 text-black">
+        Administra tu red, dispositivos, configuraciones y vulnerabilidades desde este panel.<br />
+        Usa las secciones disponibles para acceder rápidamente a cada módulo.
+      </p>
+    </div>
+
+    <!-- Card usuario -->
+    <div class="w-full max-w-sm">
+      <p-card class="rounded-xl overflow-hidden shadow-md text-center bg-white">
+        <!-- Imagen -->
+        <ng-template pTemplate="header">
+          <img
+            src="https://primefaces.org/cdn/primeng/images/card-ng.jpg"
+            alt="Banner usuario"
+            class="w-full h-32 object-cover"
+          />
+        </ng-template>
+
+        <!-- Nombre + Rol -->
+        <ng-template pTemplate="title">
+          <div class="mt-2">
+            <span class="text-xl font-semibold text-baseAzulOscuro block">{{ nombreUsuario }}</span>
+            <div class="flex items-center justify-center mt-1 gap-1">
+              <i class="pi pi-briefcase text-sm text-gray-500"></i>
+              <span class="text-sm text-gray-600">Rol: {{ rolActivo }}</span>
+            </div>
+          </div>
+        </ng-template>
+
+        <!-- Línea decorativa -->
+        <div class="w-10 mx-auto border-t border-gray-200 my-2"></div>
+
+        <!-- Descripción -->
+        <p class="text-xs text-textoPrincipal px-4 mt-1 leading-relaxed italic">
+          Panel de control para gestionar las funciones asignadas según tu rol en la organización.
+        </p>
+      </p-card>
+    </div>
+
+    <!-- Carrusel debajo -->
+    <div class="w-full">
+      <p-carousel
+        [value]="seccionesTarjetas"
+        [numVisible]="3"
+        [numScroll]="1"
+        [circular]="false"
+        [showIndicators]="true"
+        [showNavigators]="true"
+        [responsiveOptions]="responsiveOptions"
+        contentClass="gap-0"
+      >
+        <ng-template let-item pTemplate="item">
+          <div class="flex flex-col items-center justify-center gap-2 text-textoPrincipal text-center px-2 py-3">
+            <i class="{{ item.icono }} text-3xl"></i>
+            <span class="text-sm font-semibold mt-1">{{ item.nombre_seccion }}</span>
+            <button
+              (click)="navegarASeccion(item)"
+              class="mt-1 bg-baseNaranja text-white text-xs px-4 py-1 rounded hover:bg-orange-500 transition duration-200"
+            >
+              Ir a sección
+            </button>
+          </div>
+        </ng-template>
+      </p-carousel>
     </div>
   </div>
 </section>

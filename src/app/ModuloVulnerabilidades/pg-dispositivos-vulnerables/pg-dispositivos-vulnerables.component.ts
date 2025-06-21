@@ -19,10 +19,12 @@ interface Dispositivo {
   nombreDispositivo: string;
   macAddress: string;
   riesgo: string;
+  descripcion?: string;
   puertosAbiertos: Puerto[];
   puertosSeleccionados: Puerto[];
   cargandoRecomendaciones?: boolean;
 }
+
 
 @Component({
   selector: 'app-pg-dispositivos-vulnerables',
@@ -59,19 +61,23 @@ tarjetasRiesgo = [
   ) {}
 
   private formatearDispositivo(d: any): Dispositivo {
-    return {
-      nombreDispositivo: d.nombre_dispositivo || 'Sin nombre',
-      macAddress: d.mac_address,
-      riesgo: d.riesgo || 'Sin Riesgo',
-      puertosAbiertos: (d.puertos_abiertos || []).map((p: any) => ({
-        puerto_id: p.puerto_id,
-        numero: p.numero,
-        servicio: p.servicio || 'Desconocido'
-      })),
-      puertosSeleccionados: [],
-      cargandoRecomendaciones: false
-    };
-  }
+  return {
+    nombreDispositivo: d.nombre_dispositivo || 'Sin nombre',
+    macAddress: d.mac_address,
+    riesgo: d.riesgo || 'Sin Riesgo',
+    descripcion: d.descripcion || '',
+    puertosAbiertos: (d.puertos_abiertos || []).map((p: any) => ({
+      puerto_id: p.puerto_id,
+      numero: p.numero,
+      servicio: p.servicio || 'Desconocido',
+      label: `${p.numero} - ${p.servicio || 'Desconocido'}`  // 🔹 Aquí formateas la opción
+    })),
+    puertosSeleccionados: [],
+    cargandoRecomendaciones: false
+  };
+}
+
+
 
 ngOnInit(): void {
   const enProgreso = localStorage.getItem('evaluacionEnProgreso');

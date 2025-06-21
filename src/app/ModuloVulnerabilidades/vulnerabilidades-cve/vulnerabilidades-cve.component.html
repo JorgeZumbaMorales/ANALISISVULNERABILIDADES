@@ -1,4 +1,6 @@
-<!-- 🔹 Encabezado principal -->
+<p-toast></p-toast>
+
+
 <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 sm:py-4 mb-3">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
@@ -10,21 +12,31 @@
   </div>
 </section>
 
-<section class="w-full px-1 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 my-3">
-  <p-message
-    severity="contrast"
-    text="Presiona el botón 'Escanear vulnerabilidades' para analizar un dispositivo activo en la red.">
-  </p-message>
-</section>
 
-<section class="w-full  bg-white rounded-2xl px-4 sm:px-6 py-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-  <!-- 🔽 Selector de dispositivo -->
+<section class="w-full mt-3 mb-6">
+  
+
+  <!-- 🔸 Subtítulo y acciones -->
+  <div class="w-full flex flex-col items-center mt-5 gap-4">
+    <!-- 📝 Submensaje centrado -->
+    <p-message
+      styleClass="text-white text-sm sm:text-base bg-baseAzulOscuro rounded-xl font-medium py-2 px-4 text-center"
+      text="Selecciona un dispositivo activo y elige una acción.">
+    </p-message>
+
+    <!-- 🔘 Select + Botones -->
+    <div class="flex flex-col sm:flex-row gap-3 items-center justify-center w-full sm:w-auto">
+      
+<p-iftalabel class="w-full sm:min-w-[16rem] sm:max-w-[22rem]">
   <p-select
-    [options]="dispositivos"
     [(ngModel)]="dispositivoSeleccionado"
+  (onChange)="onChangeDispositivo()"
+    inputId="dd-dispositivo"
+    [options]="dispositivos"
     optionLabel="nombre_dispositivo"
-    placeholder="Selecciona un dispositivo"
-    class="w-full sm:w-80"
+    appendTo="body"
+    styleClass="w-full"
+    [disabled]="analisisEnProgreso"
   >
     <ng-template let-dispositivo pTemplate="item">
       <div>
@@ -35,187 +47,195 @@
       </div>
     </ng-template>
   </p-select>
+  <label for="dd-dispositivo">Dispositivo</label>
+</p-iftalabel>
 
-  <!-- 🔘 Botón Escanear -->
-  <p-button
-    class="w-full sm:w-60"
-    [disabled]="!dispositivoSeleccionado || cargando"
-    (click)="escanearDispositivo()"
-  >
-    <ng-container *ngIf="!cargando">
-      <i class="pi pi-search"></i>
-      <span class="ml-2">Escanear vulnerabilidades</span>
-    </ng-container>
-    <ng-container *ngIf="cargando">
-      <p-progress-spinner
-        strokeWidth="8"
-        fill="transparent"
-        animationDuration=".5s"
-        [style]="{ width: '20px', height: '20px' }"
-      ></p-progress-spinner>
-      <span class="ml-2">Cargando...</span>
-    </ng-container>
-  </p-button>
-</section>
 
-<!-- ⏳ Indicador de análisis avanzado en segundo plano -->
-<section *ngIf="analisisEnProgreso" class="w-full flex items-center justify-center gap-4 bg-yellow-100 border border-yellow-300 rounded-xl p-4 mb-4 shadow-inner">
-  <p-progress-spinner
-    strokeWidth="8"
-    animationDuration=".5s"
-    styleClass="w-6 h-6"
-    fill="transparent"
-  ></p-progress-spinner>
-  <div class="text-sm sm:text-base text-yellow-900 font-medium">
-    Análisis avanzado en curso... por favor espera.
-  </div>
-</section>
 
-<!-- 📄 Resumen técnico generado por IA -->
-<section *ngIf="resumenCves.length > 0" class="w-full bg-white rounded-2xl shadow-md px-4 sm:px-6 py-4 sm:py-4 mb-6">
-  <div class="text-lg font-semibold text-gray-800 mb-4">Resumen técnico generado por IA</div>
-  <ng-container *ngFor="let resumen of resumenCves">
-    <div class="mb-4">
-      <p class="text-base font-semibold text-sky-700 flex items-center gap-2">
-        <i class="pi pi-server"></i> Puerto {{ resumen.puerto }} 
-        <span class="text-gray-500">({{ resumen.servicio }})</span>
-      </p>
-      <p class="text-sm text-gray-700 leading-relaxed mt-1">
-        {{ resumen.resumen }}
-      </p>
-    </div>
-    <p-divider type="dashed"></p-divider>
-  </ng-container>
-</section>
-
-<!-- 📊 Vulnerabilidades por puerto -->
-<section *ngIf="vulnerabilidadesDetalle.length > 0" class="w-full bg-white rounded-2xl shadow-md px-4 sm:px-6 py-4 mb-6">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
-    <div class="text-lg font-semibold text-gray-800">Vulnerabilidades detectadas por puerto</div>
-    <div class="flex gap-3">
+      <!-- 🔍 Botón Escanear -->
       <p-button
-        label="Generar resumen técnico"
-        icon="pi pi-pencil"
-        class="p-button-warning"
-        (onClick)="generarResumenTecnico()"
+  (click)="escanearDispositivo()"
+  class="whitespace-nowrap"
+  [styleClass]="'py-3 px-4'"
+  [disabled]="analisisEnProgreso"
+>
+
+        <ng-container *ngIf="!cargando">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-search"></i>
+            Escanear vulnerabilidades
+          </span>
+        </ng-container>
+        <ng-container *ngIf="cargando">
+          <span class="flex items-center gap-2">
+            <p-progress-spinner
+              strokeWidth="8"
+              fill="transparent"
+              animationDuration=".5s"
+              [style]="{ width: '20px', height: '20px' }"
+            ></p-progress-spinner>
+            Evaluando Dispositivo..
+          </span>
+        </ng-container>
+      </p-button>
+
+      <!-- 🔁 Botón Consultar -->
+      <p-button
+        icon="pi pi-refresh"
+        label="Consultar Último Escaneo"
+        class="whitespace-nowrap"
+        [styleClass]="'py-3 px-4'"
+        (click)="consultarResultadoAnterior()"
+        [disabled]="analisisEnProgreso"
       ></p-button>
     </div>
   </div>
-
-  <div class="flex flex-wrap gap-2 mb-4">
-    <button
-      *ngFor="let puerto of vulnerabilidadesDetalle"
-      (click)="puertoSeleccionado = puerto; actualizarFiltrosPorPuerto()"
-      [ngClass]="{
-        'bg-sky-500 text-white': puertoSeleccionado === puerto,
-        'bg-gray-100 text-gray-700 hover:bg-gray-200': puertoSeleccionado !== puerto
-      }"
-      class="px-3 py-1 rounded-full text-sm font-medium transition duration-200"
-    >
-      {{ puerto.puerto }} - {{ puerto.servicio }}
-    </button>
+</section>
+<section
+  *ngIf="resultadoPersistente && !cargando && !analisisEnProgreso && analisisFinalizado && resumenTecnico.length === 0 && mensajeErrorAnalisis"
+  class="w-full bg-red-100 border border-red-300 rounded-xl p-5 text-red-900 shadow-inner"
+>
+  <div class="flex flex-col sm:flex-row items-center justify-center text-center gap-2">
+    <div class="text-base sm:text-lg leading-snug">
+      <strong>Error:</strong> {{ mensajeErrorAnalisis }}
+    </div>
   </div>
+</section>
 
-  <div *ngIf="puertoSeleccionado">
+<section *ngIf="resumenTecnico.length > 0" class="w-full mt-6 space-y-4">
+  <h3 class="text-xl font-semibold text-baseAzulOscuro mb-4">
+    📄 Resumen Técnico de Vulnerabilidades por Puerto
+  </h3>
+
+  <!-- 🔘 Selector de puertos como chips -->
+  <div class="flex flex-wrap gap-2 my-3">
+  <p-chip
+    *ngFor="let resumen of resumenTecnico"
+    [label]="'Puerto ' + resumen.puerto"
+    [class.bg-blue-100]="puertoSeleccionado?.puerto === resumen.puerto"
+    [class.text-blue-800]="puertoSeleccionado?.puerto === resumen.puerto"
+    [class.font-semibold]="puertoSeleccionado?.puerto === resumen.puerto"
+    (click)="actualizarPuertoSeleccionado(resumen)"
+    class="cursor-pointer px-3 py-2 text-sm rounded-full border"
+  ></p-chip>
+</div>
+
+
+  <!-- 📋 Card de resumen -->
+  <p-card
+    *ngIf="puertoSeleccionado"
+    [header]="'Puerto ' + puertoSeleccionado.puerto + ' — Servicio: ' + puertoSeleccionado.servicio"
+    class="shadow-md bg-gray-50"
+  >
+    <p class="text-sm text-gray-700 text-justify whitespace-pre-line mb-4">
+      {{ puertoSeleccionado.resumen }}
+    </p>
+
+    <!-- Botón para CVEs -->
+    <div class="text-right" *ngIf="puertoSeleccionado.vulnerabilidades?.length > 0">
+      <p-button
+        label="🔍 Ver CVEs relacionados"
+        icon="pi pi-search"
+        class="p-button-sm p-button-outlined"
+        (click)="abrirModalCves(puertoSeleccionado)"
+      ></p-button>
+    </div>
+  </p-card>
+
+  <!-- 🧹 Botón limpiar -->
+  <div class="text-center mt-4">
+    <p-button
+      icon="pi pi-times"
+      label="Limpiar Resultados"
+      severity="danger"
+      class="p-button-sm"
+      (click)="limpiarResultado()"
+    ></p-button>
+  </div>
+</section>
+
+
+
+<p-dialog 
+  header="CVEs relacionados con el puerto"
+  [(visible)]="dialogoCvesVisible"
+  [modal]="true"
+  [style]="{ width: '800px' }"
+  [dismissableMask]="true"
+  [baseZIndex]="10000"
+>
+  <section class="space-y-4">
+    <!-- 🔍 Buscador -->
+    <div class="flex justify-end">
+      <p-iconfield iconPosition="left" class="w-full sm:w-1/2">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          pInputText
+          type="text"
+          [(ngModel)]="busquedaCve"
+          (ngModelChange)="tablaCves.filterGlobal($event, 'contains')"
+          placeholder="Buscar CVE..."
+          class="w-full"
+        />
+      </p-iconfield>
+    </div>
+
+    <!-- 📋 Tabla -->
     <p-table
-      #tablaVulnerabilidades
-      [value]="puertoSeleccionado.vulnerabilidades"
+      #tablaCves
+      [value]="cvesSeleccionados"
       [paginator]="true"
       [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
       [responsiveLayout]="'scroll'"
-      [sortMode]="'multiple'"
-      [tableStyle]="{ 'min-width': '75rem' }"
+      [globalFilterFields]="['id', 'score', 'url']"
+      sortField="score"
+      [sortOrder]="-1"
+      dataKey="id"
+      class="w-full"
     >
-      <!-- Encabezados y filtros -->
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="cve_id">CVE <p-sortIcon field="cve_id" /></th>
-          <th pSortableColumn="score">Riesgo <p-sortIcon field="score" /></th>
-          <th pSortableColumn="exploit">Exploit <p-sortIcon field="exploit" /></th>
-          <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo" /></th>
-          <th>URL</th>
-        </tr>
-        <tr>
-          <th>
-            <p-columnFilter type="text" field="cve_id" placeholder="Buscar CVE" ariaLabel="Filtro CVE"></p-columnFilter>
-          </th>
-          <th>
-            <p-columnFilter field="score" matchMode="in" [showMenu]="false">
-              <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                <p-multiSelect
-                  [options]="riesgosDisponiblesFiltrados"
-                  [ngModel]="value"
-                  (onChange)="filter($event.value)"
-                  placeholder="Filtrar riesgo"
-                  display="chip"
-                  appendTo="body"
-                  styleClass="w-full"
-                ></p-multiSelect>
-              </ng-template>
-            </p-columnFilter>
-          </th>
-          <th>
-            <p-columnFilter field="exploit" matchMode="in" [showMenu]="false">
-              <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                <p-multiSelect
-                  [options]="opcionesExploitFiltradas"
-                  [ngModel]="value"
-                  (onChange)="filter($event.value)"
-                  placeholder="Filtrar exploit"
-                  display="chip"
-                  appendTo="body"
-                  styleClass="w-full"
-                >
-                  <ng-template let-option pTemplate="item">
-                    {{ option ? 'Sí' : 'No' }}
-                  </ng-template>
-                  <ng-template let-option pTemplate="selectedItem">
-                    {{ option ? 'Sí' : 'No' }}
-                  </ng-template>
-                </p-multiSelect>
-              </ng-template>
-            </p-columnFilter>
-          </th>
-          <th>
-            <p-columnFilter field="tipo" matchMode="in" [showMenu]="false">
-              <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                <p-multiSelect
-                  [options]="tiposDisponiblesFiltrados"
-                  [ngModel]="value"
-                  (onChange)="filter($event.value)"
-                  placeholder="Filtrar tipo"
-                  display="chip"
-                  appendTo="body"
-                  styleClass="w-full"
-                ></p-multiSelect>
-              </ng-template>
-            </p-columnFilter>
-          </th>
-          <th></th>
+          <th pSortableColumn="id">ID CVE <p-sortIcon field="id" /></th>
+          <th pSortableColumn="score">Score <p-sortIcon field="score" /></th>
+          <th pSortableColumn="url">Más información <p-sortIcon field="url" /></th>
         </tr>
       </ng-template>
 
-      <!-- Cuerpo -->
-      <ng-template pTemplate="body" let-vuln>
+      <ng-template pTemplate="body" let-cve>
         <tr>
-          <td class="font-medium">{{ vuln.cve_id }}</td>
-          <td [ngClass]="getColor(vuln.score)">{{ vuln.score }}</td>
+          <td><strong>{{ cve.id }}</strong></td>
+          <td>{{ cve.score ?? 'N/A' }}</td>
           <td>
-            <p-tag [severity]="vuln.exploit ? 'danger' : 'info'" [value]="vuln.exploit ? 'Sí' : 'No'"></p-tag>
+            <a
+              [href]="cve.url"
+              target="_blank"
+              class="text-blue-700 underline hover:text-blue-900"
+            >
+              Ver CVE
+            </a>
           </td>
-          <td>{{ vuln.tipo || 'N/A' }}</td>
-          <td><a [href]="vuln.url" target="_blank" class="text-blue-600 underline">Ver más</a></td>
         </tr>
       </ng-template>
 
-      <!-- Sin resultados -->
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="5" class="text-center text-gray-400">No se encontraron vulnerabilidades.</td>
+          <td colspan="3" class="text-center">No se encontraron CVEs relacionados.</td>
         </tr>
       </ng-template>
     </p-table>
-  </div>
-</section>
+  </section>
+</p-dialog>
+
+
+
+
+
+
+
+
+
 
 

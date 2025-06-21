@@ -1,168 +1,77 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SesionUsuarioService } from '../../Seguridad/sesion-usuario.service';
 import { ServiciosAutenticacion } from '../../ModuloServiciosWeb/ServiciosAutenticacion.component';
 import { Subscription } from 'rxjs';
-import { DataSet, Network } from 'vis-network/standalone/esm/vis-network';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-pg-admin-inicio',
   templateUrl: './pg-admin-inicio.component.html',
   styleUrls: ['./pg-admin-inicio.component.css']
 })
-export class PgAdminInicioComponent implements OnInit, OnDestroy, AfterViewInit {
+export class PgAdminInicioComponent implements OnInit, OnDestroy {
   nombreUsuario: string = '';
   rolActivo: string = '';
-  secciones: any[] = [];
+  seccionesTarjetas: any[] = [];
+
+  responsiveOptions = [
+    { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+    { breakpoint: '768px', numVisible: 1, numScroll: 1 }
+  ];
+
   private subscripcionRol!: Subscription;
-  private network!: Network;
 
   constructor(
     private sesionService: SesionUsuarioService,
-    private authService: ServiciosAutenticacion
+    private authService: ServiciosAutenticacion,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     const perfil = this.sesionService.obtenerPerfil();
-    if (perfil) {
-      this.nombreUsuario = perfil.nombres_completos;
-    }
+    this.nombreUsuario = perfil?.nombres_completos || '';
 
     this.subscripcionRol = this.sesionService.getRolActivo().subscribe((rol) => {
       this.rolActivo = rol;
-      this.cargarSecciones(rol);
-    });
-  }
 
-  ngAfterViewInit(): void {
-    // Inicializamos el mapa de red vacío
-    this.inicializarMapaRed([]);
-  }
-
-  cargarSecciones(rol: string) {
-    this.authService.obtenerMenuPorRol(rol).subscribe({
-      next: (res) => {
-        this.secciones = res
-          .filter((seccion: any) => seccion.nombre_seccion?.trim().toLowerCase() !== 'inicio') // Filtramos "Inicio"
-          .map((seccion: any) => {
-            return {
-              ...seccion,
-              descripcion: this.generarDescripcion(seccion.nombre_seccion)
-            };
-          });
-
-        // Generamos el mapa de red
-        this.inicializarMapaRed(this.secciones);
-      },
-      error: (error) => {
-        console.error('Error al obtener secciones:', error);
-      }
-    });
-  }
-
-  generarDescripcion(nombreSeccion: string): string {
-    const clave = nombreSeccion?.trim().toLowerCase();
-
-    const descripciones: { [key: string]: string } = {
-      'inicio': 'Visualiza un resumen general y accede rápidamente a las áreas principales.',
-      'dispositivos': 'Administra los dispositivos conectados a tu red.',
-      'vulnerabilidades': 'Analiza y gestiona las vulnerabilidades detectadas.',
-      'reportes': 'Genera reportes técnicos detallados de tus análisis.',
-      'administración': 'Gestiona usuarios, roles y configuraciones del sistema.',
-      'configuraciones': 'Ajusta parámetros y define reglas de análisis de red.'
-    };
-
-    return descripciones[clave] || 'Accede a la sección correspondiente para más detalles.';
-  }
-
-  inicializarMapaRed(secciones: any[]) {
-    const contenedor = document.getElementById('network');
-    if (!contenedor) return;
-
-    const nodos = new DataSet<any>([
-      { id: 1, label: 'Inicio', shape: 'circle', color: '#fc4b08', font: { color: '#fff' } },
-      ...secciones.map((seccion, indice) => ({
-        id: indice + 2,
-        label: seccion.nombre_seccion,
-        shape: 'box',
-        title: seccion.descripcion
-      }))
-    ]);
-
-    const conexiones = new DataSet<any>(
-      secciones.map((seccion, indice) => ({
-        from: 1,
-        to: indice + 2
-      }))
-    );
-
-    const datos = { nodes: nodos, edges: conexiones };
-
-    const opciones = {
-      nodes: {
-        borderWidth: 2,
-        size: 30,
-        color: {
-          border: '#222222',
-          background: '#97C2FC'
+      this.authService.obtenerMenuPorRol(rol).subscribe({
+        next: (res) => {
+          const todas = res.filter((s: any) => s.nombre_seccion?.toLowerCase() !== 'inicio');
+          this.seccionesTarjetas = todas.map((s: any) => ({
+            ...s,
+            
+            icono: this.obtenerIcono(s.nombre_seccion),
+            ruta: s.ruta // ✅ Asegúrate que el backend devuelve 'ruta'
+          }));
         },
-        font: { size: 14, color: '#000' },
-        shadow: true
-      },
-      edges: {
-        width: 2,
-        color: { color: '#fc4b08' },
-        smooth: {
-          enabled: true,
-          type: 'continuous',
-          roundness: 0.5
-        },
-        shadow: true
-      },
-      interaction: {
-        hover: true,
-        navigationButtons: true,
-        keyboard: true
-      },
-      physics: {
-        enabled: true,
-        barnesHut: {
-          gravitationalConstant: -2000,
-          springLength: 150
-        }
-      }
-    };
-
-    // Si ya existe el mapa de red, lo destruimos para evitar duplicados
-    if (this.network) {
-      this.network.destroy();
-    }
-
-    this.network = new Network(contenedor, datos, opciones);
-
-    // Manejamos el clic en los nodos
-    this.network.on('click', (parametros) => {
-      if (parametros.nodes.length) {
-        const idNodo = parametros.nodes[0];
-        if (idNodo === 1) return; // "Inicio" no navega
-
-        const seccion = secciones[idNodo - 2];
-        if (seccion) {
-          this.navegarASeccion(seccion);
-        }
-      }
+        error: (err) => console.error('Error al obtener secciones:', err)
+      });
     });
   }
 
-  navegarASeccion(seccion: any) {
-    console.log('Navegar a:', seccion.nombre_seccion);
-    // Aquí puedes implementar navegación real con el Router
-    // Ejemplo: this.router.navigate(['/ruta-relacionada']);
+  
+
+  obtenerIcono(nombre: string): string {
+    const clave = nombre?.trim().toLowerCase();
+    const iconos: { [key: string]: string } = {
+      'dispositivos': 'pi pi-desktop',
+      'vulnerabilidades': 'pi pi-shield',
+      'reportes': 'pi pi-file',
+      'administración': 'pi pi-users',
+      'configuraciones': 'pi pi-cog'
+    };
+    return iconos[clave] || 'pi pi-box';
   }
+
+  navegarASeccion(seccion: any): void {
+  if (seccion?.ruta) {
+    this.router.navigate([seccion.ruta]);
+  }
+}
+
+
 
   ngOnDestroy(): void {
     this.subscripcionRol?.unsubscribe();
-    if (this.network) {
-      this.network.destroy();
-    }
   }
 }

@@ -204,121 +204,74 @@
     name="dispositivos">
   </p-multiSelect>
 
-  <!-- Título general para los toggles -->
+  <!-- Título general -->
   <div class="mt-3 mb-2">
     <h4 class="text-lg font-semibold text-gray-800 mb-2">
-       Seleccione la información a incluir en el reporte
+      Seleccione la información a incluir en el reporte
     </h4>
   </div>
 
-  <!-- Historial IPs -->
+  <!-- IPs -->
   <div class="flex items-center justify-between mb-3">
-    <label for="toggleHistorialIps" class="text-sm text-gray-700 flex items-center gap-2">
-      <i class="pi pi-history "></i> Historial de direcciones IP
+    <label class="text-sm text-gray-700 flex items-center gap-2">
+      <i class="pi pi-history"></i> Historial de direcciones IP
     </label>
-    <p-toggleSwitch 
-      [(ngModel)]="filtros.incluirHistorialIps" 
-      inputId="toggleHistorialIps" 
-      name="incluirHistorialIps" />
+    <p-toggleSwitch [(ngModel)]="filtros.incluirHistorialIps" name="incluirHistorialIps" />
   </div>
 
   <!-- Puertos -->
   <div class="flex items-center justify-between mb-3">
-    <label for="togglePuertos" class="text-sm text-gray-700 flex items-center gap-2">
-      <i class="pi pi-server "></i> Puertos abiertos
+    <label class="text-sm text-gray-700 flex items-center gap-2">
+      <i class="pi pi-server"></i> Puertos abiertos
     </label>
-    <p-toggleSwitch [(ngModel)]="filtros.incluirPuertos" inputId="togglePuertos" name="incluirPuertos" />
+    <p-toggleSwitch [(ngModel)]="filtros.incluirPuertos" name="incluirPuertos" />
   </div>
 
   <!-- Vulnerabilidades -->
   <div class="flex flex-col space-y-4">
     <div class="flex items-center justify-between">
-      <label for="toggleVuln" class="text-sm text-gray-700 flex items-center gap-2">
-        <i class="pi pi-shield "></i> Vulnerabilidades
+      <label class="text-sm text-gray-700 flex items-center gap-2">
+        <i class="pi pi-shield"></i> Vulnerabilidades
       </label>
-      <p-toggleSwitch [(ngModel)]="filtros.incluirVulnerabilidades" inputId="toggleVuln" name="incluirVulnerabilidades" />
+      <p-toggleSwitch [(ngModel)]="filtros.incluirVulnerabilidades" name="incluirVulnerabilidades" />
     </div>
 
-    <!-- Vulnerabilidades activas -->
     <div *ngIf="filtros.incluirVulnerabilidades" class="space-y-4">
-
       <!-- Exploit -->
       <div class="flex items-center justify-between">
-        <label for="toggleExploit" class="text-sm text-gray-700 flex items-center gap-2">
-          <i class="pi pi-bolt "></i> Solo con exploit
+        <label class="text-sm text-gray-700 flex items-center gap-2">
+          <i class="pi pi-bolt"></i> Incluir columna de exploit
         </label>
-        <p-toggleSwitch [(ngModel)]="filtros.soloConExploit" inputId="toggleExploit" name="soloConExploit" />
+        <p-toggleSwitch [(ngModel)]="filtros.incluirExploit" name="incluirExploit" />
       </div>
 
-      <!-- Filtro Riesgo -->
+      <!-- Riesgo -->
       <div class="flex items-center justify-between">
-        <label for="toggleFiltrarRiesgo" class="text-sm text-gray-700 flex items-center gap-2">
-          <i class="pi pi-chart-line "></i> Filtro por riesgo CVSS
+        <label class="text-sm text-gray-700 flex items-center gap-2">
+          <i class="pi pi-chart-line"></i> Incluir columna de riesgo CVSS
         </label>
-        <p-toggleSwitch [(ngModel)]="filtros.activarFiltroScore" inputId="toggleFiltrarRiesgo" name="activarFiltroScore" />
+        <p-toggleSwitch [(ngModel)]="filtros.incluirRiesgo" name="incluirRiesgo" />
       </div>
 
-      <!-- Filtros de score -->
-      <div *ngIf="filtros.activarFiltroScore" class="space-y-3">
-        <p-selectButton 
-          [(ngModel)]="filtros.tipoFiltroScore" 
-          [options]="opcionesTipoScore" 
-          optionLabel="label" 
-          optionValue="value"
-          class="w-full"
-          name="tipoFiltroScore" />
-
-        <!-- Rango -->
-        <div *ngIf="filtros.tipoFiltroScore === 'rango'">
-          <label class="block text-sm text-gray-700">Rango de riesgo (CVSS)</label>
-          <div class="flex items-center gap-4">
-            <p-slider 
-              [(ngModel)]="filtros.rangoCVSS" 
-              [min]="7" [max]="10" [step]="0.1" 
-              [range]="true"
-              class="w-full"
-              name="rangoCVSS" />
-            <span class="text-sm text-gray-800 whitespace-nowrap">{{ filtros.rangoCVSS[0] }} - {{ filtros.rangoCVSS[1] }}</span>
-          </div>
-        </div>
-
-        <!-- Específicos -->
-        <div *ngIf="filtros.tipoFiltroScore === 'especificos'">
-          <label class="block text-sm mb-1 text-gray-700">Agregar valores CVSS específicos</label>
-          <div class="flex items-center gap-2">
-            <input 
-              type="number"
-              step="0.1"
-              min="7"
-              max="10"
-              [(ngModel)]="nuevoScore"
-              (keydown.enter)="agregarScoreEspecifico()"
-              class="p-inputtext p-component w-full"
-              placeholder="Ej: 7.5"
-              name="nuevoScore"
-              [ngModelOptions]="{ standalone: true }" />
-            <p-button 
-              icon="pi pi-plus" 
-              class="p-button-sm"
-              (click)="agregarScoreEspecifico()" 
-              [disabled]="!nuevoScore && nuevoScore !== 0"></p-button>
-          </div>
-
-          <!-- Chips -->
-          <div class="flex flex-wrap gap-2 mt-3">
-            <p-chip 
-              *ngFor="let score of filtros.scoresEspecificos; let i = index"
-              [label]="score"
-              [removable]="true"
-              (onRemove)="eliminarScoreEspecifico(i)"></p-chip>
-          </div>
-        </div>
-
+      <!-- URL -->
+      <div class="flex items-center justify-between">
+        <label class="text-sm text-gray-700 flex items-center gap-2">
+          <i class="pi pi-link"></i> Incluir columna de URL
+        </label>
+        <p-toggleSwitch [(ngModel)]="filtros.incluirUrl" name="incluirUrl" />
       </div>
-
     </div>
   </div>
+
+  <!-- Resumen técnico -->
+  <div class="flex items-center justify-between mt-4">
+    <label class="text-sm text-gray-700 flex items-center gap-2">
+      <i class="pi pi-align-left"></i> Incluir resumen técnico por puerto
+    </label>
+    <p-toggleSwitch [(ngModel)]="filtros.incluirResumenesTecnicos" name="incluirResumenesTecnicos" />
+  </div>
 </section>
+
 
 
     <!-- SECTION: Usuarios -->
@@ -413,12 +366,7 @@
       </span>
       <p-toggleSwitch [(ngModel)]="filtros.incluirRoles" name="incluirRoles" />
     </div>
-    <div class="flex items-center justify-between">
-  <span class="flex items-center gap-2">
-    <i class="pi pi-calendar"></i> Fecha de Creación
-  </span>
-  <p-toggleSwitch [(ngModel)]="filtros.incluirFechaCreacion" name="incluirFechaCreacion" />
-</div>
+    
 
   </div>
 </section>
@@ -617,12 +565,7 @@
         <i class="pi pi-file-pdf text-red-600"></i> PDF
       </label>
     </div>
-    <div class="flex items-center">
-      <p-radiobutton name="formato" value="excel" [(ngModel)]="filtros.formato" inputId="formatoExcel" />
-      <label for="formatoExcel" class="ml-2 text-sm text-gray-700 flex items-center gap-2">
-        <i class="pi pi-file-excel text-green-600"></i> Excel
-      </label>
-    </div>
+  
   </div>
 </section>
 

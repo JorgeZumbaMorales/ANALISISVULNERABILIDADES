@@ -207,7 +207,15 @@ import { ToolbarModule } from 'primeng/toolbar';
   dayNamesMin: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
   monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
   monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-  dateFormat: 'dd-mm-yy'
+  dateFormat: 'dd-mm-yy',
+  emptyFilterMessage: 'No se encontraron coincidencias',
+searchMessage: '{0} resultados disponibles',
+selectionMessage: '{0} elementos seleccionados',
+emptySelectionMessage: 'Ningún elemento seleccionado',
+emptySearchMessage: 'No se encontraron resultados',
+emptyMessage: 'No hay opciones disponibles',
+
+
 }
 
 })

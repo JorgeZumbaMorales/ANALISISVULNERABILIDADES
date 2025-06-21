@@ -51,7 +51,7 @@ export class PgMenuAdministracionComponent implements OnInit {
     const iconos: any = {
       Inicio: 'pi pi-home',
       Administración: 'pi pi-users',
-      Dispositivos: 'pi pi-tablet',
+      Dispositivos: 'pi pi-desktop',
       Vulnerabilidades: 'pi pi-shield',
       Reportes: 'pi pi-chart-line',
       Configuraciones: 'pi pi-cog'
