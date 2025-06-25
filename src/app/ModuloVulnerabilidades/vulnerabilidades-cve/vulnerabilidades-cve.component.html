@@ -102,57 +102,82 @@
   </div>
 </section>
 
-<section *ngIf="resumenTecnico.length > 0" class="w-full mt-6 space-y-4">
-  <h3 class="text-xl font-semibold text-baseAzulOscuro mb-4">
-    📄 Resumen Técnico de Vulnerabilidades por Puerto
-  </h3>
+<section
+  *ngIf="resumenTecnico.length > 0"
+  class="w-full mt-6 px-6 py-6 rounded-xl shadow-md border border-gray-200 bg-white space-y-6"
+>
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h3 class="text-xl font-semibold text-baseAzulOscuro">
+      Resumen Técnico de Vulnerabilidades por Puerto
+    </h3>
 
-  <!-- 🔘 Selector de puertos como chips -->
-  <div class="flex flex-wrap gap-2 my-3">
-  <p-chip
-    *ngFor="let resumen of resumenTecnico"
-    [label]="'Puerto ' + resumen.puerto"
-    [class.bg-blue-100]="puertoSeleccionado?.puerto === resumen.puerto"
-    [class.text-blue-800]="puertoSeleccionado?.puerto === resumen.puerto"
-    [class.font-semibold]="puertoSeleccionado?.puerto === resumen.puerto"
-    (click)="actualizarPuertoSeleccionado(resumen)"
-    class="cursor-pointer px-3 py-2 text-sm rounded-full border"
-  ></p-chip>
-</div>
-
-
-  <!-- 📋 Card de resumen -->
-  <p-card
-    *ngIf="puertoSeleccionado"
-    [header]="'Puerto ' + puertoSeleccionado.puerto + ' — Servicio: ' + puertoSeleccionado.servicio"
-    class="shadow-md bg-gray-50"
-  >
-    <p class="text-sm text-gray-700 text-justify whitespace-pre-line mb-4">
-      {{ puertoSeleccionado.resumen }}
-    </p>
-
-    <!-- Botón para CVEs -->
-    <div class="text-right" *ngIf="puertoSeleccionado.vulnerabilidades?.length > 0">
-      <p-button
-        label="🔍 Ver CVEs relacionados"
-        icon="pi pi-search"
-        class="p-button-sm p-button-outlined"
-        (click)="abrirModalCves(puertoSeleccionado)"
-      ></p-button>
-    </div>
-  </p-card>
-
-  <!-- 🧹 Botón limpiar -->
-  <div class="text-center mt-4">
     <p-button
-      icon="pi pi-times"
       label="Limpiar Resultados"
       severity="danger"
-      class="p-button-sm"
       (click)="limpiarResultado()"
     ></p-button>
   </div>
+
+  <div class="flex flex-wrap gap-2">
+    <p-chip
+      *ngFor="let resumen of resumenTecnico"
+      [label]="'Puerto ' + resumen.puerto"
+      [class.bg-blue-100]="puertoSeleccionado?.puerto === resumen.puerto"
+      [class.text-blue-800]="puertoSeleccionado?.puerto === resumen.puerto"
+      [class.font-semibold]="puertoSeleccionado?.puerto === resumen.puerto"
+      (click)="actualizarPuertoSeleccionado(resumen)"
+      class="cursor-pointer px-3 py-2 text-sm rounded-full border"
+    ></p-chip>
+  </div>
+
+  <div *ngIf="puertoSeleccionado" class="overflow-hidden rounded-lg border border-gray-100">
+    <div class="bg-baseAzulOscuro text-white px-6 py-4">
+      <h4 class="text-lg font-bold">
+        Puerto {{ puertoSeleccionado.puerto }} — Servicio: {{ puertoSeleccionado.servicio }}
+      </h4>
+      <p class="text-sm opacity-90 mt-1">
+        Protocolo: {{ puertoSeleccionado.protocolo }}
+      </p>
+    </div>
+
+    <div class="px-6 py-5 space-y-6 bg-white">
+      <ng-container *ngFor="let bloque of bloquesResumen">
+        <div>
+          <h5 class="text-base font-semibold text-textoPrincipal border-b pb-1 mb-2">
+            {{ bloque.titulo }}
+          </h5>
+          <p class="text-sm text-gray-700 text-justify leading-relaxed">
+            {{ obtenerBloque(bloque.clave) }}
+          </p>
+        </div>
+      </ng-container>
+
+      <div class="bg-gray-50 p-4 rounded-md border">
+        <h5 class="text-base font-semibold text-textoPrincipal mb-2">
+          Recomendaciones
+        </h5>
+        <ul class="list-decimal list-inside text-sm text-gray-700 space-y-1 pl-2">
+          <li *ngFor="let rec of obtenerRecomendaciones(puertoSeleccionado.resumen)">
+            {{ rec }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="text-right pt-2" *ngIf="puertoSeleccionado.vulnerabilidades?.length > 0">
+        <p-button
+          label="Ver CVE mencionados"
+          icon="pi pi-search"
+          class="p-button-sm"
+          styleClass="p-button-rounded p-button-warning"
+          (click)="abrirModalCves(puertoSeleccionado)"
+        ></p-button>
+      </div>
+    </div>
+  </div>
 </section>
+
+
+
 
 
 
@@ -199,14 +224,14 @@
       <ng-template pTemplate="header">
         <tr>
           <th pSortableColumn="id">ID CVE <p-sortIcon field="id" /></th>
-          <th pSortableColumn="score">Score <p-sortIcon field="score" /></th>
+          <th pSortableColumn="score">Nivel de riesgo <p-sortIcon field="score" /></th>
           <th pSortableColumn="url">Más información <p-sortIcon field="url" /></th>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-cve>
         <tr>
-          <td><strong>{{ cve.id }}</strong></td>
+          <td>{{ cve.id }}</td>
           <td>{{ cve.score ?? 'N/A' }}</td>
           <td>
             <a

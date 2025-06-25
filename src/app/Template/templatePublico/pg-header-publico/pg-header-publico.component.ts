@@ -12,4 +12,9 @@ export class PgHeaderPublicoComponent {
   navigateToLogin() {
     this.router.navigate(['/public/login']);
   }
+  onFormularioClick(): void {
+  window.open('https://forms.gle/XbKSWnkgpydxY9Q28', '_blank');
+}
+
+
 }

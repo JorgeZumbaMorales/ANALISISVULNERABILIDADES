@@ -1,19 +1,26 @@
 <header class="bg-baseAzulOscuro text-textoSecundario shadow-md py-4">
   <nav class="container mx-auto flex justify-between items-center px-6">
 
-    <!-- Título con margen izquierdo -->
+    <!-- Logo temporal o nombre -->
     <h1 class="text-4xl md:text-4xl font-extrabold tracking-wide ml-8">
       RedSegura
     </h1>
 
-    <!-- Botón alineado a la derecha -->
-    <p-button 
-  icon="pi pi-sign-in" 
-  label="Iniciar Sesión"
-  [styleClass]="'bg-baseNaranja text-white border-baseNaranja transition-all duration-300 transform hover:scale-110 rounded-3xl px-5 py-2 text-sm md:text-base'"
-  (click)="navigateToLogin()">
-</p-button>
+    <!-- Botones alineados a la derecha -->
+    <div class="flex items-center gap-3">
+      <p-button 
+        label="Formulario"
+        [styleClass]="'bg-baseAzulClaro text-white border-baseAzulClaro transition-all duration-300 transform hover:scale-110 rounded-3xl px-5 py-2 text-sm md:text-base'"
+        (click)="onFormularioClick()"
+      ></p-button>
 
+      <p-button 
+        icon="pi pi-sign-in" 
+        label="Iniciar Sesión"
+        [styleClass]="'bg-baseNaranja text-white border-baseNaranja transition-all duration-300 transform hover:scale-110 rounded-3xl px-5 py-2 text-sm md:text-base'"
+        (click)="navigateToLogin()"
+      ></p-button>
+    </div>
 
   </nav>
 </header>

@@ -7,7 +7,7 @@ import { MessageService } from 'primeng/api';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'AnalisisVulnerabilidades';
+  title = 'RedSegura';
   constructor(private messageService: MessageService) {}
 
   show() {

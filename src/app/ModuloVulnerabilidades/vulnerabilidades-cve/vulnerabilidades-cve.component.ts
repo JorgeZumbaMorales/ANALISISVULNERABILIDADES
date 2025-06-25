@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
-
+import { SesionUsuarioService } from '../../Seguridad/sesion-usuario.service';
+import { NgZone,ChangeDetectorRef } from '@angular/core';
 import { ServiciosAnalisisVulnerabilidades } from '../../ModuloServiciosWeb/ServiciosAnalisisVulnerabilidades.component';
 import { ServiciosDispositivos } from '../../ModuloServiciosWeb/ServiciosDispositivos.component';
 import { ServiciosSegundoPlano } from '../../ModuloServiciosWeb/ServiciosSegundoPlano.service';
@@ -32,6 +33,13 @@ export class VulnerabilidadesCveComponent implements OnInit {
   riesgosDisponiblesFiltrados: number[] = [];
   opcionesExploitFiltradas: boolean[] = [];
   tiposDisponiblesFiltrados: string[] = [];
+  bloquesResumen: { titulo: string; clave: 'estado' | 'analisis' | 'riesgos' }[] = [
+  { titulo: 'Estado del Servicio', clave: 'estado' },
+  { titulo: 'Análisis Técnico del Escaneo', clave: 'analisis' },
+  { titulo: 'Riesgos Identificados', clave: 'riesgos' }
+];
+
+
 
   constructor(
     private vulnerabilidadServicio: ServiciosAnalisisVulnerabilidades,
@@ -39,15 +47,57 @@ export class VulnerabilidadesCveComponent implements OnInit {
     private procesoSegundoPlano: ServiciosSegundoPlano,
     private notificacion: NotificacionService,
     private servicioAlertas: ServiciosAlertas,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private sesionUsuario: SesionUsuarioService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void {
-    this.notificacion.success('Bienvenido', 'Sistema iniciado correctamente');
+ 
+ngOnInit(): void {
     this.cargarDispositivos();
     this.recuperarDatosLocales();
-    this.verificarProcesoEnSegundoPlano();
+
+    const enProgreso = localStorage.getItem('analisisEnProgreso') === 'true';
+    this.analisisEnProgreso = enProgreso;
+
+    if (enProgreso) {
+      this.cargando = true;
+
+      this.procesoSegundoPlano.reanudarSiEsNecesario(
+        'analisisEnProgreso',
+        3000,
+        () => this.vulnerabilidadServicio.obtenerEstadoAnalisisAvanzado(),
+        () => {
+          this.vulnerabilidadServicio.obtenerResultadoUltimoAnalisis().subscribe({
+            next: resultado => {
+              this.ngZone.run(() => {
+                this.procesarResultadoAnalisis(resultado);
+                this.crearNotificacionFinalizacion();
+                this.cdr.detectChanges();
+              });
+            },
+            error: () => {
+              this.ngZone.run(() => {
+                this.terminarConError('Error al recuperar resultado del análisis');
+                this.cdr.detectChanges();
+              });
+            }
+          });
+        },
+        mensajeError => {
+          this.ngZone.run(() => {
+            this.terminarConError(mensajeError ?? 'Error durante el análisis');
+            this.cdr.detectChanges();
+          });
+        }
+      );
+    } else {
+      this.reanudarSiEstabaFinalizado();
+    }
   }
+
+
 
   private cargarDispositivos(): void {
     this.serviciosDispositivos.listarDispositivosCompleto().subscribe({
@@ -64,22 +114,27 @@ export class VulnerabilidadesCveComponent implements OnInit {
   }
 
   private recuperarDatosLocales(): void {
-    const datos = localStorage.getItem('vulnerabilidadesDetalle');
-    const resumen = localStorage.getItem('resumenesPorPuerto');
+  const datos = localStorage.getItem('vulnerabilidadesDetalle');
+  const resumen = localStorage.getItem('resumenesPorPuerto');
 
-    if (datos) {
-      this.vulnerabilidadesDetalle = JSON.parse(datos);
-      this.resultadoPersistente = true;
-      this.analisisFinalizado = true;
-    }
-
-    if (resumen) this.resumenTecnico = JSON.parse(resumen);
-
-    if (this.vulnerabilidadesDetalle.length > 0) {
-      this.puertoSeleccionado = this.vulnerabilidadesDetalle[0];
-      this.actualizarFiltrosPorPuerto();
-    }
+  if (datos) {
+    this.vulnerabilidadesDetalle = JSON.parse(datos);
+    this.resultadoPersistente = true;
+    this.analisisFinalizado = true;
   }
+
+  if (resumen) {
+    this.resumenTecnico = JSON.parse(resumen);
+  }
+
+  // ✅ Seleccionar primer puerto si está disponible y no hay uno ya seleccionado
+  if (!this.puertoSeleccionado && this.resumenTecnico.length > 0) {
+    this.puertoSeleccionado = this.resumenTecnico[0];
+    this.puertoSeleccionadoChip = this.resumenTecnico[0];
+    this.actualizarFiltrosPorPuerto();
+  }
+}
+
 
   private verificarProcesoEnSegundoPlano(): void {
     this.procesoSegundoPlano.reanudarSiEsNecesario(
@@ -96,81 +151,140 @@ export class VulnerabilidadesCveComponent implements OnInit {
   }
 
   escanearDispositivo(): void {
-    if (!this.dispositivoSeleccionado) {
-      this.notificacion.error('Selecciona un dispositivo antes de escanear');
-      return;
-    }
-
-    this.limpiarResultado();
-    this.analisisEnProgreso = true;
-    this.cargando = true;
-
-    const datos = {
-      dispositivo_id: this.dispositivoSeleccionado.dispositivo_id,
-      mac_address: this.dispositivoSeleccionado.mac_address,
-      ip_actual: this.dispositivoSeleccionado.ultima_ip
-    };
-
-    this.vulnerabilidadServicio.ejecutarEscaneoAvanzado(datos).subscribe({
-      next: ({ mensaje }) => {
-        this.notificacion.success(mensaje || 'Análisis iniciado correctamente');
-        localStorage.setItem('dispositivoSeleccionado', JSON.stringify(this.dispositivoSeleccionado));
-
-        this.procesoSegundoPlano.iniciarProcesoConPolling(
-          'analisisEnProgreso',
-          3000,
-          () => this.vulnerabilidadServicio.obtenerEstadoAnalisisAvanzado(),
-          () => this.vulnerabilidadServicio.obtenerResultadoUltimoAnalisis().subscribe({
-            next: resultado => this.procesarResultadoAnalisis(resultado),
-            error: () => this.terminarConError('Error al obtener resultado del análisis')
-          }),
-          mensajeError => this.terminarConError(mensajeError ?? 'Error durante el análisis')
-
-        );
-      },
-      error: () => this.terminarConError('No se pudo iniciar el análisis')
-    });
+  if (!this.dispositivoSeleccionado) {
+    this.notificacion.error('Selecciona un dispositivo antes de escanear');
+    return;
   }
 
+  this.limpiarSoloResultado();
+  this.analisisEnProgreso = true;
+  this.cargando = true;
+  localStorage.setItem('analisisEnProgreso', 'true');
+
+  const datos = {
+    dispositivo_id: this.dispositivoSeleccionado.dispositivo_id,
+    mac_address: this.dispositivoSeleccionado.mac_address,
+    ip_actual: this.dispositivoSeleccionado.ultima_ip
+  };
+
+  this.vulnerabilidadServicio.ejecutarEscaneoAvanzado(datos).subscribe({
+    next: ({ mensaje }) => {
+      this.notificacion.success(mensaje || 'Análisis iniciado correctamente');
+      localStorage.setItem('dispositivoSeleccionado', JSON.stringify(this.dispositivoSeleccionado));
+
+      this.procesoSegundoPlano.iniciarProcesoConPolling(
+        'analisisEnProgreso',
+        3000,
+        () => this.vulnerabilidadServicio.obtenerEstadoAnalisisAvanzado(),
+        () => {
+          this.vulnerabilidadServicio.obtenerResultadoUltimoAnalisis().subscribe({
+            next: resultado => {
+              this.ngZone.run(() => {
+                this.procesarResultadoAnalisis(resultado);
+                this.crearNotificacionFinalizacion();
+                this.cdr.detectChanges(); // 💥 Forzar redibujado
+              });
+            },
+            error: () => {
+              this.ngZone.run(() => {
+                this.terminarConError('Error al obtener resultado del análisis');
+                this.cdr.detectChanges();
+              });
+            }
+          });
+        },
+        mensajeError => {
+          this.ngZone.run(() => {
+            this.terminarConError(mensajeError ?? 'Error durante el análisis');
+            this.cdr.detectChanges();
+          });
+        }
+      );
+    },
+    error: () => this.terminarConError('No se pudo iniciar el análisis')
+  });
+}
+
+
+
   private terminarConError(mensaje: string): void {
+  this.ngZone.run(() => {
     this.notificacion.error(mensaje);
     this.analisisEnProgreso = false;
     this.cargando = false;
     localStorage.removeItem('analisisEnProgreso');
-  }
+  });
+}
 
-  private procesarResultadoAnalisis(resultado: any): void {
-    this.vulnerabilidadesDetalle = resultado.vulnerabilidades || [];
-    this.resumenTecnico = resultado.resumenes_por_puerto || [];
 
-    if (!resultado.dispositivo_activo) {
-      this.mensajeErrorAnalisis = resultado.mensaje || 'El dispositivo ya no está activo en la red.';
-      this.notificacion.warning('Advertencia', this.mensajeErrorAnalisis ?? 'Mensaje no disponible');
 
+private procesarResultadoAnalisis(resultado: any): void {
+  this.vulnerabilidadesDetalle = resultado.vulnerabilidades || [];
+  this.resumenTecnico = resultado.resumenes_por_puerto || [];
+
+  if (!resultado.dispositivo_activo) {
+    this.mensajeErrorAnalisis = resultado.mensaje || 'El dispositivo ya no está activo en la red.';
+
+    // 🔴 Eliminar el dispositivo desactivado de la lista y limpiar selección
+    const idInactivo = this.dispositivoSeleccionado?.dispositivo_id;
+    if (idInactivo) {
+      this.dispositivos = this.dispositivos.filter(d => d.dispositivo_id !== idInactivo);
+      this.dispositivoSeleccionado = null;
+      localStorage.removeItem('dispositivoSeleccionado');
     }
 
-    this.resultadoPersistente = true;
-    this.analisisFinalizado = true;
-    this.analisisEnProgreso = false;
-    this.cargando = false;
+    this.notificacion.warning('Advertencia', this.mensajeErrorAnalisis ?? 'Mensaje no disponible');
 
-    localStorage.setItem('vulnerabilidadesDetalle', JSON.stringify(this.vulnerabilidadesDetalle));
-    localStorage.removeItem('analisisEnProgreso');
   }
 
-  limpiarResultado(): void {
-    this.vulnerabilidadesDetalle = [];
-    this.resumenTecnico = [];
-    this.puertoSeleccionado = null;
-    this.mensajeErrorAnalisis = null;
-    this.resultadoPersistente = false;
-    this.analisisFinalizado = false;
-    this.analisisEnProgreso = false;
+  this.resultadoPersistente = true;
+  this.analisisFinalizado = true;
+  this.analisisEnProgreso = false;
+  this.cargando = false;
 
-    localStorage.removeItem('vulnerabilidadesDetalle');
-    localStorage.removeItem('resumenesPorPuerto');
-    localStorage.removeItem('analisisEnProgreso');
+  localStorage.setItem('vulnerabilidadesDetalle', JSON.stringify(this.vulnerabilidadesDetalle));
+  localStorage.setItem('resumenesPorPuerto', JSON.stringify(this.resumenTecnico));
+  localStorage.removeItem('analisisEnProgreso');
+
+  // ✅ Seleccionar automáticamente el primer puerto si no hay uno ya activo
+  if (this.resumenTecnico.length > 0 && !this.puertoSeleccionado) {
+    this.puertoSeleccionado = this.resumenTecnico[0];
+    this.puertoSeleccionadoChip = this.resumenTecnico[0];
+    this.actualizarFiltrosPorPuerto();
   }
+}
+
+
+
+
+
+ limpiarResultado(): void {
+  this.vulnerabilidadesDetalle = [];
+  this.resumenTecnico = [];
+  this.puertoSeleccionado = null;
+  this.dispositivoSeleccionado = null; // <-- aquí se elimina la selección del dispositivo
+  this.mensajeErrorAnalisis = null;
+  this.resultadoPersistente = false;
+  this.analisisFinalizado = false;
+  this.analisisEnProgreso = false;
+
+  localStorage.removeItem('vulnerabilidadesDetalle');
+  localStorage.removeItem('resumenesPorPuerto');
+  localStorage.removeItem('analisisEnProgreso');
+  localStorage.removeItem('dispositivoSeleccionado'); // <-- también borramos de localStorage por si se había guardado
+}
+private limpiarSoloResultado(): void {
+  this.vulnerabilidadesDetalle = [];
+  this.resumenTecnico = [];
+  this.puertoSeleccionado = null;
+  this.mensajeErrorAnalisis = null;
+  this.resultadoPersistente = false;
+  this.analisisFinalizado = false;
+
+  localStorage.removeItem('vulnerabilidadesDetalle');
+  localStorage.removeItem('resumenesPorPuerto');
+}
+
 
   generarResumenTecnico(): void {
   if (!this.dispositivoSeleccionado) {
@@ -203,20 +317,45 @@ export class VulnerabilidadesCveComponent implements OnInit {
 
 
   consultarResultadoAnterior(): void {
-    if (!this.dispositivoSeleccionado) {
-      this.notificacion.error('Selecciona un dispositivo para consultar vulnerabilidades.');
-      return;
-    }
-
-    const id = this.dispositivoSeleccionado.dispositivo_id;
-    this.vulnerabilidadServicio.obtenerVulnerabilidadesPorDispositivo(id).subscribe({
-      next: resultado => {
-        localStorage.setItem('dispositivoSeleccionado', JSON.stringify(this.dispositivoSeleccionado));
-        this.procesarResultadoAnalisis(resultado);
-      },
-      error: () => this.notificacion.error('Error al consultar vulnerabilidades anteriores')
-    });
+  if (!this.dispositivoSeleccionado) {
+    this.notificacion.error('Selecciona un dispositivo para consultar vulnerabilidades.');
+    return;
   }
+
+  const id = this.dispositivoSeleccionado.dispositivo_id;
+  this.cargando = true;
+
+  this.vulnerabilidadServicio.consultarResumenesYCvesPorDispositivo(id).subscribe({
+    next: ({ data }) => {
+      if (!data || data.length === 0) {
+        this.notificacion.warning('No se encontraron resultados de un análisis.');
+        this.cargando = false;
+        return;
+      }
+
+      const resultado = {
+        dispositivo_activo: true,
+        vulnerabilidades: data,
+        resumenes_por_puerto: data.map((puerto: any) => ({
+          puerto: puerto.puerto,
+          servicio: puerto.servicio,
+          resumen: puerto.resumen,
+          vulnerabilidades: puerto.vulnerabilidades || []
+        }))
+      };
+
+      this.ngZone.run(() => {
+        this.procesarResultadoAnalisis(resultado);
+        localStorage.setItem('dispositivoSeleccionado', JSON.stringify(this.dispositivoSeleccionado));
+        this.cdr.detectChanges();
+      });
+    },
+    error: () => {
+      this.cargando = false;
+      this.notificacion.error('Ocurrió un error al consultar el escaneo anterior desde base de datos.');
+    }
+  });
+}
 
   actualizarFiltrosPorPuerto(): void {
   const vuls: any[] = this.puertoSeleccionado?.vulnerabilidades ?? [];
@@ -266,6 +405,98 @@ export class VulnerabilidadesCveComponent implements OnInit {
   this.puertoSeleccionado = puerto;
   this.actualizarFiltrosPorPuerto();
 }
+
+private crearNotificacionFinalizacion(): void {
+  const usuario_id = this.sesionUsuario?.obtenerUsuarioDesdeToken?.()?.usuario_id;
+  if (!usuario_id) return;
+
+  const notificacion = {
+    mensaje_notificacion: 'Análisis de vulnerabilidades completado correctamente.',
+    tipo_alerta_id: 1,
+    canal_alerta_id: 1,
+    usuario_id,
+    dispositivo_id: this.dispositivoSeleccionado?.dispositivo_id || null
+  };
+
+  this.servicioAlertas.crearNotificacion(notificacion).subscribe({
+    next: () => console.log('🔔 Notificación de análisis enviada.'),
+    error: (err) => console.warn('⚠️ Error al crear notificación:', err)
+  });
+}
+ private reanudarSiEstabaFinalizado(): void {
+    const data = localStorage.getItem('vulnerabilidadesDetalle');
+    const resumen = localStorage.getItem('resumenesPorPuerto');
+
+    if (data) {
+      this.ngZone.run(() => {
+        this.vulnerabilidadesDetalle = JSON.parse(data);
+        this.resultadoPersistente = true;
+        this.analisisFinalizado = true;
+        this.analisisEnProgreso = false;
+        this.cargando = false;
+
+        if (this.vulnerabilidadesDetalle.length > 0) {
+          this.puertoSeleccionado = this.vulnerabilidadesDetalle[0];
+          this.actualizarFiltrosPorPuerto();
+        }
+
+        if (resumen) {
+          this.resumenTecnico = JSON.parse(resumen);
+        }
+
+        this.cdr.detectChanges();
+      });
+    }
+  }
+
+obtenerBloque(tipo: 'estado' | 'analisis' | 'riesgos'): string {
+  const resumen = this.puertoSeleccionado?.resumen || '';
+  const patrones = {
+    estado: 'Estado general del puerto y su servicio:',
+    analisis: 'Análisis técnico del resultado del escaneo:',
+    riesgos: 'Riesgos identificados o potenciales:',
+  };
+
+  const inicio = resumen.indexOf(`• ${patrones[tipo]}`);
+  if (inicio === -1) return '';
+
+  const siguientes = Object.values(patrones)
+    .filter(t => t !== patrones[tipo])
+    .map(t => resumen.indexOf(`• ${t}`))
+    .filter(i => i > inicio);
+
+  const finBloque = siguientes.length > 0 ? Math.min(...siguientes) : resumen.length;
+
+  const bloqueExtraido = resumen.slice(inicio + patrones[tipo].length + 2, finBloque).trim();
+
+  if (tipo === 'riesgos') {
+    const corte = bloqueExtraido.indexOf('• Recomendaciones específicas:');
+    return corte !== -1 ? bloqueExtraido.slice(0, corte).trim() : bloqueExtraido;
+  }
+
+  return bloqueExtraido;
+}
+
+
+obtenerRecomendaciones(resumen: string): string[] {
+  const inicio = resumen.indexOf('• Recomendaciones específicas:');
+  if (inicio === -1) return [];
+
+  const bloque = resumen.slice(inicio + '• Recomendaciones específicas:'.length).trim();
+
+  const recomendacionNumerada = bloque.split(/\d+\.\s+/).slice(1).map(line => line.trim()).filter(line => line.length > 0);
+  if (recomendacionNumerada.length > 0) {
+    return recomendacionNumerada;
+  }
+
+  // Si no hay numeración, pero hay contenido plano
+  if (bloque.length > 0) {
+    return [bloque];
+  }
+
+  return [];
+}
+
 
 
 }

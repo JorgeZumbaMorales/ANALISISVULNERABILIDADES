@@ -106,26 +106,7 @@ export class ServiciosConfiguracion {
 
   // ===================== ESCANEOS =====================
 
-  /**
-   * Ejecutar escaneo manual desde el backend
-   */
-  ejecutarEscaneoManual(): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrlEscaneoAvanzado}/manual`,
-    {}, // cuerpo vacío
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
-
-    /**
-   * Consultar el estado del escaneo en segundo plano.
-   */
-  obtenerEstadoEscaneo(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrlEscaneoAvanzado}/estado_escaneo`
-    ).pipe(catchError(this.handleError));
-  }
-
+  
   // ===================== MANEJO DE ERRORES =====================
   private handleError(error: any) {
     console.error('Error en la petición:', error);

@@ -1,46 +1,39 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { interval, Subscription } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class ServiciosSegundoPlano {
-  private intervalosActivos: Map<string, Subscription | number> = new Map();
+  private intervalosActivos = new Map<string, Subscription>();
 
-  constructor(private zone: NgZone) {}
+  constructor() {}
 
   /**
-   * 🔁 Inicia un proceso en segundo plano con localStorage y callback de verificación.
-   * @param claveStorage Ej: 'escaneoEnProgreso'
-   * @param intervaloMs Frecuencia del polling en milisegundos
-   * @param verificarEstado Función que retorna un Observable con la respuesta del estado
-   * @param alFinalizar Callback cuando el proceso finaliza exitosamente
-   * @param alError Callback cuando hay error en la respuesta o polling
+   * 🔁 Inicia un proceso de polling asociado a una clave de localStorage.
    */
   iniciarProcesoConPolling(
     claveStorage: string,
     intervaloMs: number,
     verificarEstado: () => any,
     alFinalizar: () => void,
-    alError: (mensaje?: string) => void
+    alError: (mensaje?: string) => void,
+    actualizarProgreso?: () => void
   ): void {
     localStorage.setItem(claveStorage, 'true');
 
     const intervalo = interval(intervaloMs).subscribe(() => {
+      actualizarProgreso?.();
+
       verificarEstado().subscribe({
         next: (res: any) => {
-          if (res.estado === 'completado') {
-            this.detenerProceso(claveStorage);
-            this.zone.run(() => alFinalizar());
-          } else if (res.estado?.startsWith('error')) {
-            this.detenerProceso(claveStorage);
-            this.zone.run(() => alError(res.estado));
+          const estado = res?.estado;
+
+          if (estado === 'completado') {
+            this.finalizarProceso(claveStorage, alFinalizar, actualizarProgreso);
+          } else if (estado === 'cancelado' || estado?.startsWith('error')) {
+            this.terminarConError(claveStorage, alError, estado);
           }
         },
-        error: () => {
-          this.detenerProceso(claveStorage);
-          this.zone.run(() => alError('Error de red o backend'));
-        }
+        error: () => this.terminarConError(claveStorage, alError, 'Error de red o backend')
       });
     });
 
@@ -48,66 +41,64 @@ export class ServiciosSegundoPlano {
   }
 
   /**
-   * ✅ Reanuda el polling si el valor en localStorage indica que está en progreso
+   * ♻️ Reanuda un polling si la clave está activa en localStorage.
    */
   reanudarSiEsNecesario(
     claveStorage: string,
     intervaloMs: number,
     verificarEstado: () => any,
     alFinalizar: () => void,
-    alError: (mensaje?: string) => void
+    alError: (mensaje?: string) => void,
+    actualizarProgreso?: () => void
   ): void {
-    const enProgreso = localStorage.getItem(claveStorage);
+    if (localStorage.getItem(claveStorage) !== 'true') return;
 
-    if (enProgreso === 'true') {
-      console.log(`♻️ Reanudando verificación inmediata de ${claveStorage}...`);
+    console.log(`♻️ Reanudando proceso ${claveStorage}...`);
 
-      verificarEstado().subscribe({
-        next: (res: any) => {
-          if (res.estado === 'completado') {
-            this.detenerProceso(claveStorage);
-            localStorage.removeItem(claveStorage);
-            this.zone.run(() => alFinalizar());
-          } else {
-            if (!this.intervalosActivos.has(claveStorage)) {
-              console.log(`🔁 Reanudando polling de ${claveStorage}...`);
-              this.iniciarProcesoConPolling(
-                claveStorage,
-                intervaloMs,
-                verificarEstado,
-                () => {
-                  localStorage.removeItem(claveStorage);
-                  this.zone.run(() => alFinalizar());
-                },
-                (mensaje) => {
-                  localStorage.removeItem(claveStorage);
-                  this.zone.run(() => alError(mensaje));
-                }
-              );
-            }
-          }
-        },
-        error: (err: any) => {
-          console.warn(`⚠️ Error al verificar el estado de ${claveStorage}`, err);
+    verificarEstado().subscribe({
+      next: (res: any) => {
+        const estado = res?.estado;
+
+        if (estado === 'completado' || estado === 'cancelado') {
           this.detenerProceso(claveStorage);
-          localStorage.removeItem(claveStorage);
-          this.zone.run(() =>
-            alError(err?.error?.detail || 'Error al consultar el estado del proceso.')
-          );
+          alFinalizar();
+        } else if (!this.intervalosActivos.has(claveStorage)) {
+          this.iniciarProcesoConPolling(claveStorage, intervaloMs, verificarEstado, alFinalizar, alError, actualizarProgreso);
+        } else {
+          actualizarProgreso?.();
         }
-      });
-    }
+      },
+      error: (err: any) => {
+        this.terminarConError(claveStorage, alError, err?.error?.detail || 'Error al consultar el estado del proceso.');
+      }
+    });
   }
 
   /**
-   * ⛔ Detiene y limpia el polling de un proceso
+   * ⛔ Detiene un proceso de polling y limpia la clave en localStorage.
    */
   detenerProceso(claveStorage: string): void {
-    const intervalo = this.intervalosActivos.get(claveStorage);
-    if (intervalo) {
-      (intervalo as Subscription).unsubscribe?.();
-      this.intervalosActivos.delete(claveStorage);
-    }
+    this.intervalosActivos.get(claveStorage)?.unsubscribe();
+    this.intervalosActivos.delete(claveStorage);
     localStorage.removeItem(claveStorage);
+  }
+
+  // 🔒 Métodos internos para limpieza
+  private finalizarProceso(clave: string, callback: () => void, actualizarProgreso?: () => void): void {
+    try {
+      actualizarProgreso?.();
+    } catch (e) {
+      console.warn(`⚠️ Error en progreso final de ${clave}:`, e);
+    }
+
+    setTimeout(() => {
+      this.detenerProceso(clave);
+      callback();
+    }, 500);
+  }
+
+  private terminarConError(clave: string, callback: (msg?: string) => void, mensaje: string): void {
+    this.detenerProceso(clave);
+    callback(mensaje);
   }
 }

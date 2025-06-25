@@ -1,14 +1,23 @@
-import { Component, OnInit,OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ViewChild,
+} from '@angular/core';
+
 import { Table } from 'primeng/table';
-import { MessageService, SortEvent } from 'primeng/api';
+import { MessageService, ConfirmationService, SortEvent } from 'primeng/api';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+
 import { ServiciosDispositivos } from '../../ModuloServiciosWeb/ServiciosDispositivos.component';
+import { ServiciosAnalisisVulnerabilidades } from '../../ModuloServiciosWeb/ServiciosAnalisisVulnerabilidades.component';
+import { ServiciosSegundoPlano } from '../../ModuloServiciosWeb/ServiciosSegundoPlano.service';
+import { ServiciosAlertas } from '../../ModuloServiciosWeb/ServiciosAlertas.component';
+
+import { SesionUsuarioService } from '../../Seguridad/sesion-usuario.service';
 import { NotificacionService } from '../../ValidacionesFormularios/notificacion.service';
 import { ValidacionesGeneralesService } from '../../ValidacionesFormularios/validaciones-dispositivo.service';
-import { ServiciosConfiguracion } from '../../ModuloServiciosWeb/ServiciosConfiguracion.component'; // ✅ Importar
-import { SesionUsuarioService } from '../../Seguridad/sesion-usuario.service'; // asegúrate del path correcto
-import { ServiciosAlertas } from '../../ModuloServiciosWeb/ServiciosAlertas.component';
-import { ServiciosSegundoPlano } from '../../ModuloServiciosWeb/ServiciosSegundoPlano.service';
-import { ChangeDetectorRef,NgZone} from '@angular/core';
 
 interface SistemaOperativo {
   sistema_operativo_id: number;
@@ -20,112 +29,117 @@ interface Dispositivo {
   nombre_dispositivo: string;
   mac_address: string;
   sistema_operativo: string;
-  
   precision_so: number;
   ultima_ip: string;
   estado: boolean;
+  puertos?: any[]; 
 }
-
 @Component({
   selector: 'app-pg-dispositivos',
   templateUrl: './pg-dispositivos.component.html',
   styleUrls: ['./pg-dispositivos.component.css']
 })
-export class PgDispositivosComponent implements OnInit, AfterViewInit,OnDestroy {
+export class PgDispositivosComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('cdCancelarEscaneo') cdCancelarEscaneo!: ConfirmDialog;
   @ViewChild('dt') dt!: Table;
-  escaneoCompletado: boolean = false;
+
   dispositivos: Dispositivo[] = [];
   dispositivosOriginales: Dispositivo[] = [];
+
   sistemasOperativos: SistemaOperativo[] = [];
   sistemasOperativosFiltrados: SistemaOperativo[] = [];
-  modalEditarVisible: boolean = false;
-  modalCrearSOVisible: boolean = false;
-  escaneoEnProgreso: boolean = false;
-  private notificacionEnviada = false;
-  dialogoVisible: boolean = false;
+
+  modalEditarVisible = false;
+  modalCrearSOVisible = false;
+
+  escaneoEnProgreso = false;
+  escaneoCompletado = false;
+  notificacionEnviada = false;
+
+  progresoTotal = 0;
+  progresoActual = 0;
+  estadoEscaneoFinal = '';
+
+  dialogoVisible = false;
   puertosDispositivo: any[] = [];
   dispositivoSeleccionado: any = null;
-  usuarioIdActual: number | null = null;
   dispositivoEditando: Dispositivo | null = null;
   sistemaOperativoSeleccionado: SistemaOperativo | null = null;
   ordenActivo: boolean | null = null;
 
- 
+  usuarioIdActual: number | null = null;
 
-  nuevoSO = {
-    nombre_so: ''
-  };
+  nuevoSO = { nombre_so: '' };
 
   constructor(
     private serviciosDispositivos: ServiciosDispositivos,
-    private serviciosConfiguracion: ServiciosConfiguracion,
-    private messageService: MessageService,
+    private serviciosAnalisisVulnerabilidades: ServiciosAnalisisVulnerabilidades,
+    private servicioSegundoPlano: ServiciosSegundoPlano,
+    private servicioAlertas: ServiciosAlertas,
+    private sesionUsuario: SesionUsuarioService,
     private notificacion: NotificacionService,
     private validaciones: ValidacionesGeneralesService,
-    private sesionUsuario: SesionUsuarioService,
-    private servicioAlertas: ServiciosAlertas,
-    private servicioSegundoPlano: ServiciosSegundoPlano,
-    private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
-
-
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {}
-ngOnInit(): void {
+
+ ngOnInit(): void {
   this.cargarDispositivos();
   this.cargarSistemasOperativos();
 
-  const enProgreso = localStorage.getItem('escaneoEnProgreso');
-  this.escaneoEnProgreso = enProgreso === 'true';
+  this.escaneoEnProgreso = localStorage.getItem('escaneoEnProgreso') === 'true';
 
+  // Actualizar el progreso antes de validar el estado final
   this.servicioSegundoPlano.reanudarSiEsNecesario(
-  'escaneoEnProgreso',
-  3000,
-  () => this.serviciosConfiguracion.obtenerEstadoEscaneo(),
-  () => {
-    this.ngZone.run(() => {
-      this.escaneoEnProgreso = false;
-      this.escaneoCompletado = true; // ✅ NUEVO
-      localStorage.removeItem('escaneoEnProgreso');
-      this.notificacion.success('Listo', 'El escaneo ha finalizado.');
-      this.cargarDispositivos();
-      this.crearNotificacionFinalizacion();
-      this.cdr.detectChanges();
-    });
-  },
-  (mensaje) => {
-    this.ngZone.run(() => {
-      this.escaneoEnProgreso = false;
-      this.notificacion.error('Error en escaneo', mensaje || 'Error durante el escaneo.');
-      this.cdr.detectChanges();
-    });
+    'escaneoEnProgreso',
+    1000,  // Intervalo de 1 segundo
+    () => this.serviciosAnalisisVulnerabilidades.obtenerEstadoEscaneo(),
+    () => this.validarEstadoFinalDeEscaneo(),
+    (mensaje) => this.finalizarConError(mensaje),
+    () => this.actualizarProgresoDesdeBackend()  // Este es el punto donde se actualiza el progreso.
+  );
+}
+
+
+ngAfterViewInit(): void {
+  if (!this.dt) {
+    console.warn('❌ Tabla de dispositivos (dt) no inicializada.');
   }
-);
+}
 
+ngOnDestroy(): void {
+  if (localStorage.getItem('escaneoEnProgreso') !== 'true') {
+    this.servicioSegundoPlano.detenerProceso('escaneoEnProgreso');
+    this.servicioSegundoPlano.detenerProceso('progreso_escaneo');
+  }
+}
+/** 
+ * ✅ Valida el estado final del escaneo y actúa en consecuencia.
+ */
+private validarEstadoFinalDeEscaneo(): void {
+  this.serviciosAnalisisVulnerabilidades.obtenerEstadoEscaneo().subscribe({
+    next: (estadoRes: any) => {
+      const estado = estadoRes.estado;
 
-  // ✅ Verificación directa por si ya finalizó
-  this.serviciosConfiguracion.obtenerEstadoEscaneo().subscribe({
-  next: (res: any) => {
-    if (res.estado === 'completado') {
-      const estabaEnProgreso = localStorage.getItem('escaneoEnProgreso') === 'true';
-      this.ngZone.run(() => {
+      setTimeout(() => {
         this.escaneoEnProgreso = false;
         localStorage.removeItem('escaneoEnProgreso');
-        if (estabaEnProgreso) {
+
+        if (estado === 'completado') {
+          this.escaneoCompletado = true;
           this.notificacion.success('Listo', 'El escaneo ha finalizado.');
           this.crearNotificacionFinalizacion();
-
+          this.cargarDispositivos();
+        } else if (estado === 'cancelado') {
+          this.notificacion.info('Escaneo cancelado', 'El escaneo fue cancelado correctamente.');
         }
-        this.cargarDispositivos();
-        this.cdr.detectChanges();
-      });
 
-      }
+        // Ya no necesitamos 'this.ngZone.run()' ni 'this.cdr.detectChanges()'
+        this.escaneoEnProgreso = false;  // Actualizamos directamente la variable
+      }, 300); // ⏳ Breve retardo visual para mostrar 100%
     },
     error: () => {
-      this.ngZone.run(() => {
-        this.escaneoEnProgreso = false;
-        this.cdr.detectChanges();
-      });
+      this.finalizarConError('No se pudo obtener el estado final del escaneo.');
     }
   });
 }
@@ -133,70 +147,108 @@ ngOnInit(): void {
 
 
 
-
-  ngOnDestroy(): void {
-  const enProgreso = localStorage.getItem('escaneoEnProgreso');
-  if (enProgreso !== 'true') {
-    this.servicioSegundoPlano.detenerProceso('escaneoEnProgreso');
-  }
+/**
+ * ❌ Finaliza el proceso si ocurre un error crítico.
+ */
+private finalizarConError(mensaje?: string): void {
+  this.escaneoEnProgreso = false;
+  localStorage.removeItem('escaneoEnProgreso');
+  this.notificacion.error('Error en escaneo', mensaje || 'Ocurrió un error inesperado.');
+  // Ya no necesitamos 'this.ngZone.run()' ni 'this.cdr.detectChanges()'
 }
 
-  ngAfterViewInit(): void {
-    if (!this.dt) console.warn('❌ dt no está inicializado aún');
-  }
 
-  cargarDispositivos(): void {
-    this.serviciosDispositivos.listarDispositivosCompleto().subscribe({
-      next: ({ data }) => {
-        this.dispositivos = data;
-        this.dispositivosOriginales = [...data];
-      },
-      error: (err) => console.error('Error al obtener dispositivos', err)
-    });
-  }
 
-  cargarSistemasOperativos(): void {
-    this.serviciosDispositivos.listarSistemasOperativos().subscribe({
-      next: (so) => {
-        this.sistemasOperativos = so;
-      },
-      error: (err) => console.error('Error al cargar sistemas operativos', err)
-    });
-  }
-
-  filtrarDispositivos(event: Event): void {
-    const input = (event.target as HTMLInputElement).value;
-    this.dt?.filterGlobal(input, 'contains');
-  }
-
-  buscarSistemaOperativo(event: { query: string }) {
-    const termino = event.query.toLowerCase();
-    if (termino.length < 3) {
-      this.sistemasOperativosFiltrados = [];
-      return;
+/**
+ * 🔄 Obtiene el progreso actual del backend (usado por polling).
+ */
+private actualizarProgresoDesdeBackend(): void {
+  this.serviciosAnalisisVulnerabilidades.obtenerProgresoEscaneo().subscribe({
+    next: (res: any) => {
+      // Actualizamos las variables directamente sin 'ngZone.run()'
+      if (res.total > 0) {
+        this.progresoTotal = res.total;
+      }
+      if (res.procesados > 0) {
+        this.progresoActual = res.procesados;
+      }
+    },
+    error: () => {
+      this.progresoTotal = 0;
+      this.progresoActual = 0;
     }
+  });
+}
 
-    this.sistemasOperativosFiltrados = this.sistemasOperativos.filter(so =>
-      so.nombre_so.toLowerCase().includes(termino)
-    );
-  }
 
-  abrirModal(tipo: 'editar' | 'crear_so', dispositivo?: Dispositivo): void {
+/**
+ * 📥 Carga la lista completa de dispositivos detectados.
+ */
+private cargarDispositivos(): void {
+  this.serviciosDispositivos.listarDispositivosCompleto().subscribe({
+    next: ({ data }) => {
+      this.dispositivos = data;
+      this.dispositivosOriginales = [...data];
+    },
+    error: (err) => console.error('❌ Error al obtener dispositivos:', err)
+  });
+}
+
+/**
+ * 🧠 Carga los sistemas operativos disponibles desde el backend.
+ */
+private cargarSistemasOperativos(): void {
+  this.serviciosDispositivos.listarSistemasOperativos().subscribe({
+    next: (so) => {
+      this.sistemasOperativos = so;
+    },
+    error: (err) => console.error('❌ Error al cargar sistemas operativos:', err)
+  });
+}
+
+/**
+ * 🔍 Filtra los dispositivos globalmente desde el input de búsqueda.
+ */
+filtrarDispositivos(event: Event): void {
+  const valor = (event.target as HTMLInputElement).value;
+  this.dt?.filterGlobal(valor, 'contains');
+}
+
+/**
+ * 🔎 Busca coincidencias entre sistemas operativos a partir del input del autocomplete.
+ */
+buscarSistemaOperativo(event: { query: string }): void {
+  const termino = event.query.trim().toLowerCase();
+
+  this.sistemasOperativosFiltrados = termino.length >= 3
+    ? this.sistemasOperativos.filter(so =>
+        so.nombre_so.toLowerCase().includes(termino)
+      )
+    : [];
+}
+/**
+ * 🪟 Abre modal de edición o creación de sistema operativo.
+ */
+abrirModal(tipo: 'editar' | 'crear_so', dispositivo?: Dispositivo): void {
   if (tipo === 'editar' && dispositivo) {
     this.dispositivoEditando = { ...dispositivo };
-    const seleccionado = this.sistemasOperativos.find(so => so.nombre_so === dispositivo.sistema_operativo);
-    this.sistemaOperativoSeleccionado = seleccionado || null;
+    this.sistemaOperativoSeleccionado = this.sistemasOperativos.find(
+      so => so.nombre_so === dispositivo.sistema_operativo
+    ) || null;
+
     this.modalEditarVisible = true;
   }
 
   if (tipo === 'crear_so') {
-    this.nuevoSO = { nombre_so: '' };
+    this.nuevoSO.nombre_so = '';
     this.modalCrearSOVisible = true;
   }
 }
 
-
-  cerrarModal(tipo: 'editar' | 'crear_so'): void {
+/**
+ * ❌ Cierra el modal correspondiente y resetea datos.
+ */
+cerrarModal(tipo: 'editar' | 'crear_so'): void {
   if (tipo === 'editar') {
     this.modalEditarVisible = false;
     this.dispositivoEditando = null;
@@ -205,32 +257,28 @@ ngOnInit(): void {
 
   if (tipo === 'crear_so') {
     this.modalCrearSOVisible = false;
-    this.nuevoSO = { nombre_so: '' };
+    this.nuevoSO.nombre_so = '';
   }
 }
 
-
+/**
+ * 💾 Guarda los cambios en un dispositivo editado.
+ */
 guardarCambios(): void {
   if (!this.dispositivoEditando) return;
 
-  const nombre = this.dispositivoEditando.nombre_dispositivo;
+  const nombre = this.dispositivoEditando.nombre_dispositivo.trim();
 
   if (!this.validaciones.validarNombreDispositivo(nombre)) return;
-
-  if (!this.validaciones.validarSistemaOperativoSeleccionado(this.sistemaOperativoSeleccionado)) {
-    return;
-  }
+  if (!this.validaciones.validarSistemaOperativoSeleccionado(this.sistemaOperativoSeleccionado)) return;
 
   const payload = {
     nuevo_nombre: nombre,
     nuevo_sistema_operativo_id: this.sistemaOperativoSeleccionado!.sistema_operativo_id,
-    nueva_precision_so: 100.0  
+    nueva_precision_so: 100.0
   };
 
-  this.serviciosDispositivos.actualizarDispositivo(
-    this.dispositivoEditando.dispositivo_id,
-    payload
-  ).subscribe({
+  this.serviciosDispositivos.actualizarDispositivo(this.dispositivoEditando.dispositivo_id, payload).subscribe({
     next: () => {
       this.messageService.add({
         severity: 'success',
@@ -241,10 +289,8 @@ guardarCambios(): void {
       this.cargarDispositivos();
     },
     error: (error) => {
-      console.error('🧪 Error crudo recibido:', error);
-
-      let mensaje = 'No se pudo actualizar el dispositivo.';
       const detalle = error?.error?.detail;
+      let mensaje = 'No se pudo actualizar el dispositivo.';
 
       if (typeof detalle === 'string') {
         const match = detalle.match(/(?:\d{3}: )?(.*)/);
@@ -258,13 +304,16 @@ guardarCambios(): void {
         summary: 'Error',
         detail: mensaje
       });
+
+      console.error('🧪 Error crudo recibido:', error);
     }
   });
 }
 
-
-
-  guardarSistemaOperativo(): void {
+/**
+ * 🆕 Guarda un nuevo sistema operativo.
+ */
+guardarSistemaOperativo(): void {
   const nombre = this.nuevoSO.nombre_so.trim();
 
   if (!this.validaciones.validarNombreSO(nombre)) return;
@@ -276,85 +325,104 @@ guardarCambios(): void {
       this.cerrarModal('crear_so');
     },
     error: (err) => {
-      console.error('Error al guardar SO:', err);
       this.notificacion.error('Error', 'No se pudo crear el sistema operativo.');
+      console.error('Error al guardar SO:', err);
     }
   });
 }
-
-
+/**
+ * ⚡ Inicia un escaneo manual de dispositivos.
+ */
 iniciarEscaneoDispositivos(): void {
   if (this.escaneoEnProgreso) {
     this.notificacion.error('En progreso', 'Ya hay un escaneo en curso.');
     return;
   }
 
-  this.usuarioIdActual = this.sesionUsuario.obtenerUsuarioDesdeToken()?.usuario_id || null;
-
-  if (!this.usuarioIdActual) {
+  const usuario = this.sesionUsuario.obtenerUsuarioDesdeToken();
+  if (!usuario?.usuario_id) {
     this.notificacion.error('Error', 'No se pudo identificar al usuario.');
     return;
   }
 
+  this.usuarioIdActual = usuario.usuario_id;
   this.escaneoEnProgreso = true;
   localStorage.setItem('escaneoEnProgreso', 'true');
 
-  this.serviciosConfiguracion.ejecutarEscaneoManual().subscribe({
+  this.serviciosAnalisisVulnerabilidades.ejecutarEscaneoManual().subscribe({
     next: (res) => {
       this.notificacion.success('Éxito', res.mensaje || 'Escaneo iniciado.');
-      this.servicioSegundoPlano.iniciarProcesoConPolling(
-  'escaneoEnProgreso',
-  3000,
-  () => this.serviciosConfiguracion.obtenerEstadoEscaneo(),
-  () => {
-    this.ngZone.run(() => {
-      this.escaneoEnProgreso = false;
-      this.escaneoCompletado = true; // ✅ NUEVO
-      localStorage.removeItem('escaneoEnProgreso');
-      this.notificacion.success('Listo', 'El escaneo ha finalizado.');
-      this.cargarDispositivos();
-      this.crearNotificacionFinalizacion();
-      this.cdr.detectChanges();
-    });
-  },
-  (mensaje) => {
-    this.ngZone.run(() => {
-      this.escaneoEnProgreso = false;
-      localStorage.removeItem('escaneoEnProgreso');
-      this.notificacion.error('Error en escaneo', mensaje);
-      this.cdr.detectChanges();
-    });
-  }
-);
 
+      this.servicioSegundoPlano.iniciarProcesoConPolling(
+        'escaneoEnProgreso',
+        3000,
+        () => this.serviciosAnalisisVulnerabilidades.obtenerEstadoEscaneo(),
+        () => this.validarEstadoFinalDeEscaneo(),
+        (mensaje) => this.finalizarConError(mensaje),
+        () => this.actualizarProgresoDesdeBackend()
+      );
     },
     error: (err) => {
-      console.error('Error al iniciar escaneo:', err);
-      this.ngZone.run(() => {
-        this.escaneoEnProgreso = false;
-        localStorage.removeItem('escaneoEnProgreso');
-        this.notificacion.error('Error', 'No se pudo iniciar el escaneo.');
-        this.cdr.detectChanges();
-      });
+      console.error('❌ Error al iniciar escaneo:', err);
+      this.finalizarConError('No se pudo iniciar el escaneo.');
+    }
+  });
+}
+/**
+ * ❔ Muestra el cuadro de confirmación para cancelar el escaneo actual.
+ */
+mostrarConfirmacionCancelarEscaneo(): void {
+  this.confirmationService.confirm({
+    header: 'Cancelar escaneo en curso',
+    message: 'Esta acción detendrá el escaneo actual de dispositivos. ¿Desea continuar?',
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: 'Sí, cancelar',
+    rejectLabel: 'No',
+    accept: () => this.cancelarEscaneo(),
+    reject: () => {
+      this.notificacion.info('Acción cancelada', 'El escaneo continuará normalmente.');
     }
   });
 }
 
+/**
+ * ⛔ Cancela el escaneo manual en curso.
+ */
+private cancelarEscaneo(): void {
+  this.serviciosAnalisisVulnerabilidades.cancelarEscaneoManual().subscribe({
+    next: () => {
+      this.notificacion.success('Escaneo cancelado', 'El escaneo fue cancelado correctamente.');
 
+      // Actualizamos directamente el estado
+      this.escaneoEnProgreso = false;
+      this.progresoActual = 0;
+      this.progresoTotal = 0;
 
+      localStorage.removeItem('escaneoEnProgreso');
+      this.servicioSegundoPlano.detenerProceso('escaneoEnProgreso');
 
+      this.notificacionEnviada = true; // Evita notificación final por cancelación
+    },
+    error: (err) => {
+      console.error('❌ Error al cancelar escaneo:', err);
+      this.notificacion.error('Error', 'No se pudo cancelar el escaneo.');
+    }
+  });
+}
 
-
-
+/**
+ * 🔔 Envía una notificación al backend cuando el escaneo ha finalizado exitosamente.
+ */
 private crearNotificacionFinalizacion(): void {
-  if (this.notificacionEnviada) return; // ⛔ Evita duplicados
-  this.notificacionEnviada = true;
+  if (this.notificacionEnviada) return;
 
   const usuario_id = this.sesionUsuario.obtenerUsuarioDesdeToken()?.usuario_id;
   if (!usuario_id) return;
 
+  this.notificacionEnviada = true;
+
   const notificacion = {
-    mensaje_notificacion: "Escaneo manual completado correctamente.",
+    mensaje_notificacion: 'Escaneo manual completado correctamente.',
     tipo_alerta_id: 1,
     canal_alerta_id: 1,
     usuario_id,
@@ -367,53 +435,54 @@ private crearNotificacionFinalizacion(): void {
   });
 }
 
-
-  
-
-
-
-
-
-
-  ordenarDispositivosRemovible(event: SortEvent): void {
-    if (this.ordenActivo === null) {
-      this.ordenActivo = true;
-      this.ordenarLista(event);
-    } else if (this.ordenActivo === true) {
-      this.ordenActivo = false;
-      event.order = -1;
-      this.ordenarLista(event);
-    } else {
-      this.ordenActivo = null;
-      this.dispositivos = [...this.dispositivosOriginales];
-      this.dt.reset();
-    }
-  }
-
-  ordenarLista(event: SortEvent): void {
-    const campo = event.field as string;
-    const orden = event.order ?? 1;
-
-    this.dispositivos.sort((a: any, b: any) => {
-      const valor1 = a[campo];
-      const valor2 = b[campo];
-      let resultado: number;
-
-      if (valor1 == null && valor2 != null) resultado = -1;
-      else if (valor1 != null && valor2 == null) resultado = 1;
-      else if (valor1 == null && valor2 == null) resultado = 0;
-      else if (typeof valor1 === 'string' && typeof valor2 === 'string') resultado = valor1.localeCompare(valor2);
-      else resultado = valor1 < valor2 ? -1 : valor1 > valor2 ? 1 : 0;
-
-      return orden * resultado;
-    });
-  }
-  verPuertosDispositivo(dispositivo: any): void {
-    console.log("Abrienedo")
+/**
+ * 🧯 Abre el diálogo de puertos abiertos de un dispositivo específico.
+ */
+verPuertosDispositivo(dispositivo: Dispositivo): void {
   this.dispositivoSeleccionado = dispositivo;
   this.puertosDispositivo = dispositivo.puertos || [];
   this.dialogoVisible = true;
 }
 
- 
+/**
+ * ↕️ Alterna el orden de la tabla con clics sucesivos.
+ */
+ordenarDispositivosRemovible(event: SortEvent): void {
+  if (this.ordenActivo === null) {
+    this.ordenActivo = true;
+    this.ordenarLista(event);
+  } else if (this.ordenActivo === true) {
+    this.ordenActivo = false;
+    event.order = -1;
+    this.ordenarLista(event);
+  } else {
+    this.ordenActivo = null;
+    this.dispositivos = [...this.dispositivosOriginales];
+    this.dt.reset();
+  }
+}
+
+/**
+ * 🧠 Aplica ordenamiento personalizado sobre el arreglo de dispositivos.
+ */
+private ordenarLista(event: SortEvent): void {
+  const campo = event.field!;
+  const orden = event.order ?? 1;
+
+  this.dispositivos.sort((a: any, b: any) => {
+    const valA = a[campo];
+    const valB = b[campo];
+
+    if (valA == null && valB != null) return -1 * orden;
+    if (valA != null && valB == null) return 1 * orden;
+    if (valA == null && valB == null) return 0;
+
+    if (typeof valA === 'string' && typeof valB === 'string') {
+      return valA.localeCompare(valB) * orden;
+    }
+
+    return (valA < valB ? -1 : valA > valB ? 1 : 0) * orden;
+  });
+}
+
 }

@@ -91,7 +91,7 @@ import MyPreset from '../mypreset'; // Importa tu preset personalizado
 import { TooltipModule } from 'primeng/tooltip';
 import { TimelineModule } from 'primeng/timeline';
 import { ToolbarModule } from 'primeng/toolbar';
-
+import { ProgressBarModule } from 'primeng/progressbar';
 
 
 
@@ -182,6 +182,7 @@ import { ToolbarModule } from 'primeng/toolbar';
     TooltipModule,
     TimelineModule,
     ToolbarModule,
+    ProgressBarModule
     
 ],
   providers: [

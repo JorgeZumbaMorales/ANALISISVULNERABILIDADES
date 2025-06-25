@@ -158,6 +158,47 @@ obtenerResultadoUltimoAnalisis(): Observable<any> {
   return this.http.get<any>(`${this.apiUrlEscaneoAvanzado}/resultado_ultimo_analisis`)
     .pipe(catchError(this.handleError));
 }
+  /**
+   * 🚀 Inicia un escaneo manual completo (detección IPs, escaneo, limpieza y guardado por host).
+   */
+  ejecutarEscaneoManual(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEscaneoAvanzado}/manual`,
+      {}, // cuerpo vacío
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+  /**
+   * 🔄 Consulta el progreso del escaneo manual (dispositivos totales vs procesados).
+   */
+  obtenerProgresoEscaneo(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrlEscaneoAvanzado}/progreso_escaneo`,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+  /**
+   * 📊 Consulta el estado global del escaneo: no_iniciado | en_progreso | completado | error.
+   */
+  obtenerEstadoEscaneo(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrlEscaneoAvanzado}/estado_escaneo`,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+    /**
+ * 🛑 Cancela el escaneo manual en curso.
+ * @returns Observable con el mensaje de cancelación
+ */
+cancelarEscaneoManual(): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlEscaneoAvanzado}/cancelar_escaneo`,
+    {}, // cuerpo vacío
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
 
     obtenerResumenPorFecha(data: { dispositivo_id: number, fecha: string }): Observable<any> {
       console.log('📤 Llamando al endpoint resumen_por_dispositivo_y_fecha con:', data);
@@ -208,7 +249,18 @@ obtenerResultadoUltimoAnalisis(): Observable<any> {
     ).pipe(catchError(this.handleError));
   }
 
-
+  /**
+ * 📋 Consulta directamente los resúmenes y CVEs de un dispositivo desde la base de datos.
+ * @param dispositivoId ID del dispositivo
+ * @returns Observable con los datos de resumen y CVEs
+ */
+consultarResumenesYCvesPorDispositivo(dispositivoId: number): Observable<any> {
+  const url = `${this.apiUrlVulnerabilidades}/consultar_resumenes_y_cves/${dispositivoId}`;
+  return this.http.get<any>(
+    url,
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
   // ===================== MANEJO DE ERRORES =====================
   private handleError(error: any) {
     console.error('Error en la petición:', error);
