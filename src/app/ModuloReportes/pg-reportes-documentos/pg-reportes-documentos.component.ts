@@ -48,6 +48,8 @@ export class PgReportesDocumentosComponent {
   dialogoPDFVisible: boolean = false;
 urlPDF: any = null;
 Math = Math;
+generandoPDF: boolean = false;
+
 
 mostrarBotonGuardarReporte: boolean = false;
 
@@ -61,6 +63,8 @@ descripcionReporteGuardar: string = '';
   listaDispositivos: any[] = [];
 listaUsuarios: any[] = [];
 listaRoles: any[] = [];
+guardandoReporte: boolean = false;
+
 listaConfiguraciones: any[] = [];
   // Estados de filtro
   estadoFiltro: boolean | null = null;
@@ -100,13 +104,13 @@ dispositivos: any[] = [];
   filtros: any = {
     // Dispositivos
     dispositivos: [],
-incluirPuertos: false,
-incluirVulnerabilidades: false,
-incluirResumenesTecnicos: false,
-incluirExploit: false, // antes llamado soloConExploit
-incluirUrl: false,
-incluirRiesgo: false,
-incluirHistorialIps: false,
+incluirPuertos: true,
+incluirVulnerabilidades: true,
+incluirResumenesTecnicos: true,
+incluirExploit: true, // antes llamado soloConExploit
+incluirUrl: true,
+incluirRiesgo: true,
+incluirHistorialIps: true,
     
 
     // Usuarios
@@ -122,17 +126,19 @@ incluirHistorialIps: false,
     roles: [],
     incluirNombreRol: true,
     incluirDescripcionRol: true,
-    incluirSecciones: true,
+    incluirSeccionesMenu: true,
 
     // Configuraciones
     configuracion_ids: [],
     incluirNombreConfiguracion: true,
-    incluirFrecuencia: false,
-    incluirHoras: false,
-    incluirFechas: false
+    incluirFrecuencia: true,
+    incluirHoras: true,
+    incluirFechas: true,
+    formato: 'pdf',
   };
 
   ngOnInit() {
+    this.filtros.formato = 'pdf'; 
     this.obtenerUsuarios();  
       this.obtenerRoles();
       this.obtenerConfiguraciones();
@@ -409,43 +415,37 @@ this.dialogoPDFVisible = true;
   }
 
   cerrarModalCrear() {
-  // Igual aquí puedes revocar el PDF si quieres
   if (this.urlPDF) {
     URL.revokeObjectURL(this.urlPDF);
     this.urlPDF = null;
   }
 
   this.modalCrearVisible = false;
+  this.resetearFiltros(); // 👈 limpia filtros al cancelar
 }
 
-  generarReporte() {
-  const payload = this.construirPayloadReporte();
-  console.log('📄 Generando previsualización con payload:', payload);
 
+generarReporte() {
+  this.generandoPDF = true;
+
+  const payload = this.construirPayloadReporte();
   this.servicioReportes.generarPrevisualizacionReporte(payload).subscribe({
     next: (blob: Blob) => {
-      console.log('✅ Recibido blob del reporte:', blob);
-
-      // Prueba: no actualices si ya hay un URL asignado
-      if (this.urlPDF) {
-        console.warn('⚠️ Ya había un URL, no actualizo de nuevo');
-        return;
-      }
-
       const url = URL.createObjectURL(blob);
-
-      // ✅ APLICAMOS SANITIZER para evitar NG0904
       this.urlPDF = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-      this.mostrarBotonGuardarReporte = true; 
       this.dialogoPDFVisible = true;
+      this.mostrarBotonGuardarReporte = true;
       this.modalCrearVisible = false;
     },
     error: (err) => {
-      console.error('Error al generar previsualización:', err);
       this.notificacion.error('Error', 'No se pudo generar la previsualización del reporte.');
+    },
+    complete: () => {
+      this.generandoPDF = false; // ✅ reiniciar
     }
   });
 }
+
 
 
 
@@ -468,10 +468,12 @@ cambiarFiltroRoles() {
 }
 
 guardarReporte() {
-  const usuario_id = this.sesionUsuario.obtenerUsuarioDesdeToken()?.usuario_id;
+  this.guardandoReporte = true;
 
+  const usuario_id = this.sesionUsuario.obtenerUsuarioDesdeToken()?.usuario_id;
   if (!usuario_id) {
     this.notificacion.error('Error', 'No se pudo identificar al usuario.');
+    this.guardandoReporte = false;
     return;
   }
 
@@ -479,23 +481,33 @@ guardarReporte() {
     usuario_id,
     nombre_reporte_generado: this.nombreReporteGuardar,
     descripcion: this.descripcionReporteGuardar,
-    filtros: this.construirPayloadReporte()  // ✅ usar el mismo método que en generarReporte
+    filtros: this.construirPayloadReporte()
   };
 
   this.servicioReportes.generarYGuardarReporte(datosGuardar).subscribe({
     next: (res) => {
-      console.log('✅ Reporte guardado:', res);
       this.notificacion.success('Éxito', 'Reporte guardado correctamente.');
       this.modalGuardarVisible = false;
-      // Aquí si quieres podrías refrescar la lista de reportes también
-      this.obtenerReportesGenerados();  // Actualizar la lista de reportes generados
+      this.cerrarModalPrevisualizacion(false);
+      this.obtenerReportesGenerados();
+      this.resetearFiltros();
     },
     error: (err) => {
-      console.error('Error al guardar reporte:', err);
       this.notificacion.error('Error', 'No se pudo guardar el reporte.');
+    },
+    complete: () => {
+      this.guardandoReporte = false;
     }
   });
 }
+
+validarSeleccionTipoReporte() {
+  if (!this.tipoReporteSeleccionado) {
+    this.tipoReporteSeleccionado = 'dispositivos'; // o el valor por defecto que prefieras
+  }
+}
+
+
 
 
 abrirModalGuardar() {
@@ -520,14 +532,16 @@ private construirPayloadReporte(): any {
     case 'dispositivos':
   payload.agrupar_por = 'dispositivo';
   payload.dispositivo_ids = this.filtros.dispositivos;
-  payload.incluirHistorialIps = this.filtros.incluirHistorialIps;
+
   payload.incluirPuertos = this.filtros.incluirPuertos;
   payload.incluirVulnerabilidades = this.filtros.incluirVulnerabilidades;
+  payload.incluirExploit = this.filtros.incluirExploit;
+  payload.incluirUrl = this.filtros.incluirUrl;
+  payload.incluirRiesgo = this.filtros.incluirRiesgo;
+  payload.incluirHistorialIps = this.filtros.incluirHistorialIps;
   payload.incluirResumenesTecnicos = this.filtros.incluirResumenesTecnicos;
-  payload.incluirExploit = this.filtros.soloConExploit;
-  payload.incluirRiesgo = this.filtros.activarFiltroScore;
-  payload.incluirUrl = true; // si quieres controlar por toggle, usa una nueva propiedad
   break;
+
 
     case 'usuarios':
       payload.agrupar_por = 'usuario';
@@ -562,19 +576,26 @@ private construirPayloadReporte(): any {
   return payload;
 }
 
-cerrarModalPrevisualizacion() {
+cerrarModalPrevisualizacion(limpiar: boolean = true) {
   const oldUrl = this.urlPDF;
-  this.urlPDF = null;  // Primero se oculta el iframe
-
+  this.urlPDF = null;
   this.dialogoPDFVisible = false;
 
-  // Ahora, tras pequeño delay, se revoca la URL
   if (oldUrl) {
     setTimeout(() => {
       URL.revokeObjectURL(oldUrl);
-    }, 100);  // 100ms es suficiente
+    }, 100);
   }
+
+  if (limpiar) {
+    this.resetearFiltros();
+  }
+
+  this.mostrarBotonGuardarReporte = false;
 }
+
+
+
 
 obtenerReportesGenerados() {
   this.servicioReportes.listarReportesGenerados().subscribe({
@@ -647,6 +668,57 @@ eliminarReporte(reporte: ReporteGenerado) {
 }
 
 
+resetearFiltros() {
+  this.filtros = {
+    // Usuarios
+    usuario_ids: [],
+    incluirNombreUsuario: true,
+    incluirNombresCompletos: true,
+    incluirEmail: true,
+    incluirTelefono: true,
+    incluirRoles: true,
+
+    // Roles
+    roles: [],
+    incluirNombreRol: true,
+    incluirDescripcionRol: true,
+    incluirSeccionesMenu: true,
+    incluirFechaCreacionRol: false,
+
+    // Configuraciones
+    configuracion_ids: [],
+    incluirNombreConfiguracion: true,
+    incluirFrecuencia: false,
+    incluirHoras: false,
+    incluirFechas: false,
+    incluirFechaCreacionConfiguracion: false,
+
+    // Dispositivos
+    dispositivos: [],
+    incluirHistorialIps: false,
+    incluirPuertos: false,
+    incluirVulnerabilidades: false,
+    incluirResumenesTecnicos: false,
+    incluirExploit: false,
+    incluirRiesgo: false,
+    incluirUrl: false,
+
+    // Formato fijo
+    formato: 'pdf'
+  };
+
+  // Reset estado de filtros individuales también si deseas
+  this.estadoFiltro = null;
+  this.estadoUsuariosFiltro = null;
+  this.estadoRolesFiltro = null;
+  this.estadoConfiguracionesFiltro = null;
+
+  // Reset tipo de reporte
+  this.tipoReporteSeleccionado = 'dispositivos';
+  this.tipoConfiguracionSeleccionado = 'ambos';
+
+  this.actualizarTodo();
+}
 
 
 

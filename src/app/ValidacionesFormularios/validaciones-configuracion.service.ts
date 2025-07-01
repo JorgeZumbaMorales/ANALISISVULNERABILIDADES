@@ -40,12 +40,11 @@ export class ValidacionesConfiguracionEscaneoService {
     return null;
   }
 
-  validarFrecuencia(frecuencia: number | string | null, unidad: 'min' | 'hr'): string | null {
+ validarFrecuencia(frecuencia: number | string | null, unidad: 'min' | 'hr'): string | null {
   if (frecuencia === null || frecuencia === undefined || frecuencia === '') {
     return 'La frecuencia es requerida.';
   }
 
-  // Convertir a número primero
   const frecuenciaNumero = Number(frecuencia);
 
   if (isNaN(frecuenciaNumero)) {
@@ -56,18 +55,22 @@ export class ValidacionesConfiguracionEscaneoService {
     return 'La frecuencia debe ser un número entero.';
   }
 
-  if (frecuenciaNumero < 1) {
-    return 'La frecuencia mínima es 1.';
+  if (unidad === 'min' && frecuenciaNumero < 60) {
+    return 'La frecuencia mínima es 60 minutos.';
+  }
+
+  if (unidad === 'hr' && frecuenciaNumero < 1) {
+    return 'La frecuencia mínima es 1 hora.';
   }
 
   const maxFrecuencia = unidad === 'min' ? 10080 : 168;
-
   if (frecuenciaNumero > maxFrecuencia) {
     return `La frecuencia máxima en ${unidad === 'min' ? 'minutos' : 'horas'} es ${maxFrecuencia}.`;
   }
 
   return null;
 }
+
 
 
   validarUnidadFrecuencia(unidad: string): string | null {
@@ -78,20 +81,35 @@ export class ValidacionesConfiguracionEscaneoService {
   }
 
   validarHoras(horas: string[] | undefined): string | null {
-    if (!horas || horas.length === 0) {
-      return 'Debe seleccionar al menos una hora.';
-    }
-    const uniqueHoras = new Set(horas);
-    if (uniqueHoras.size !== horas.length) {
-      return 'No se permiten horas duplicadas.';
-    }
-    // Validar formato HH:mm:ss (aunque tu agregarHora ya lo hace bien)
-    const formatoHora = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
-    for (const hora of horas) {
-      if (!formatoHora.test(hora)) {
-        return `El formato de hora "${hora}" no es válido.`;
-      }
-    }
-    return null;
+  if (!horas || horas.length === 0) {
+    return 'Debe seleccionar al menos una hora.';
   }
+
+  const formatoHora = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+  const uniqueHoras = new Set(horas);
+  if (uniqueHoras.size !== horas.length) {
+    return 'No se permiten horas duplicadas.';
+  }
+
+  for (const hora of horas) {
+    if (!formatoHora.test(hora)) {
+      return `El formato de hora "${hora}" no es válido.`;
+    }
+  }
+
+  // ✅ Validar diferencia mínima de 1 hora (3600 segundos)
+  const tiemposEnSegundos = horas.map(h => {
+    const [hh, mm, ss] = h.split(':').map(Number);
+    return hh * 3600 + mm * 60 + ss;
+  }).sort((a, b) => a - b);
+
+  for (let i = 1; i < tiemposEnSegundos.length; i++) {
+    if (tiemposEnSegundos[i] - tiemposEnSegundos[i - 1] < 3600) {
+      return 'Las horas deben tener al menos 1 hora de diferencia entre cada una.';
+    }
+  }
+
+  return null;
+}
+
 }

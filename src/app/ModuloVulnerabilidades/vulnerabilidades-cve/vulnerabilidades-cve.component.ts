@@ -4,9 +4,10 @@ import { SesionUsuarioService } from '../../Seguridad/sesion-usuario.service';
 import { NgZone,ChangeDetectorRef } from '@angular/core';
 import { ServiciosAnalisisVulnerabilidades } from '../../ModuloServiciosWeb/ServiciosAnalisisVulnerabilidades.component';
 import { ServiciosDispositivos } from '../../ModuloServiciosWeb/ServiciosDispositivos.component';
-import { ServiciosSegundoPlano } from '../../ModuloServiciosWeb/ServiciosSegundoPlano.service';
+import { ServicioSegundoPlano } from '../../ModuloServiciosWeb/ServiciosSegundoPlano.service';
 import { NotificacionService } from '../../ValidacionesFormularios/notificacion.service';
 import { ServiciosAlertas } from '../../ModuloServiciosWeb/ServiciosAlertas.component'; 
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-vulnerabilidades-cve',
@@ -44,13 +45,15 @@ export class VulnerabilidadesCveComponent implements OnInit {
   constructor(
     private vulnerabilidadServicio: ServiciosAnalisisVulnerabilidades,
     private serviciosDispositivos: ServiciosDispositivos,
-    private procesoSegundoPlano: ServiciosSegundoPlano,
+    private procesoSegundoPlano: ServicioSegundoPlano,
     private notificacion: NotificacionService,
     private servicioAlertas: ServiciosAlertas,
     private messageService: MessageService,
     private sesionUsuario: SesionUsuarioService,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private confirmService: ConfirmationService,
+
   ) {}
 
  
@@ -61,40 +64,41 @@ ngOnInit(): void {
     const enProgreso = localStorage.getItem('analisisEnProgreso') === 'true';
     this.analisisEnProgreso = enProgreso;
 
-    if (enProgreso) {
-      this.cargando = true;
+    if (localStorage.getItem('analisisEnProgreso') === 'activo') {
+  this.cargando = true;
+  this.analisisEnProgreso = true;
 
-      this.procesoSegundoPlano.reanudarSiEsNecesario(
-        'analisisEnProgreso',
-        3000,
-        () => this.vulnerabilidadServicio.obtenerEstadoAnalisisAvanzado(),
-        () => {
-          this.vulnerabilidadServicio.obtenerResultadoUltimoAnalisis().subscribe({
-            next: resultado => {
-              this.ngZone.run(() => {
-                this.procesarResultadoAnalisis(resultado);
-                this.crearNotificacionFinalizacion();
-                this.cdr.detectChanges();
-              });
-            },
-            error: () => {
-              this.ngZone.run(() => {
-                this.terminarConError('Error al recuperar resultado del análisis');
-                this.cdr.detectChanges();
-              });
-            }
+  this.procesoSegundoPlano.iniciar('analisisEnProgreso', {
+    intervaloMs: 3000,
+    obtenerEstado: () => this.vulnerabilidadServicio.obtenerEstadoAnalisisAvanzado(),
+    alIterar: () => this.cdr.detectChanges(),
+    alFinalizar: () => {
+      this.vulnerabilidadServicio.obtenerResultadoUltimoAnalisis().subscribe({
+        next: resultado => {
+          this.ngZone.run(() => {
+            this.procesarResultadoAnalisis(resultado);
+            this.cdr.detectChanges();
           });
         },
-        mensajeError => {
+        error: () => {
           this.ngZone.run(() => {
-            this.terminarConError(mensajeError ?? 'Error durante el análisis');
+            this.terminarConError('Error al recuperar resultado del análisis');
             this.cdr.detectChanges();
           });
         }
-      );
-    } else {
-      this.reanudarSiEstabaFinalizado();
+      });
+    },
+    alError: (mensaje) => {
+      this.ngZone.run(() => {
+        this.terminarConError(mensaje ?? 'Error durante el análisis');
+        this.cdr.detectChanges();
+      });
     }
+  });
+} else {
+  this.reanudarSiEstabaFinalizado();
+}
+
   }
 
 
@@ -136,19 +140,7 @@ ngOnInit(): void {
 }
 
 
-  private verificarProcesoEnSegundoPlano(): void {
-    this.procesoSegundoPlano.reanudarSiEsNecesario(
-      'analisisEnProgreso',
-      3000,
-      () => this.vulnerabilidadServicio.obtenerEstadoAnalisisAvanzado(),
-      () => this.vulnerabilidadServicio.obtenerResultadoUltimoAnalisis().subscribe({
-        next: resultado => this.procesarResultadoAnalisis(resultado),
-        error: () => this.terminarConError('Error al recuperar vulnerabilidades')
-      }),
-      mensajeError => this.terminarConError(mensajeError ?? 'Error desconocido')
 
-    );
-  }
 
   escanearDispositivo(): void {
   if (!this.dispositivoSeleccionado) {
@@ -172,34 +164,35 @@ ngOnInit(): void {
       this.notificacion.success(mensaje || 'Análisis iniciado correctamente');
       localStorage.setItem('dispositivoSeleccionado', JSON.stringify(this.dispositivoSeleccionado));
 
-      this.procesoSegundoPlano.iniciarProcesoConPolling(
-        'analisisEnProgreso',
-        3000,
-        () => this.vulnerabilidadServicio.obtenerEstadoAnalisisAvanzado(),
-        () => {
-          this.vulnerabilidadServicio.obtenerResultadoUltimoAnalisis().subscribe({
-            next: resultado => {
-              this.ngZone.run(() => {
-                this.procesarResultadoAnalisis(resultado);
-                this.crearNotificacionFinalizacion();
-                this.cdr.detectChanges(); // 💥 Forzar redibujado
-              });
-            },
-            error: () => {
-              this.ngZone.run(() => {
-                this.terminarConError('Error al obtener resultado del análisis');
-                this.cdr.detectChanges();
-              });
-            }
-          });
-        },
-        mensajeError => {
-          this.ngZone.run(() => {
-            this.terminarConError(mensajeError ?? 'Error durante el análisis');
-            this.cdr.detectChanges();
-          });
-        }
-      );
+      this.procesoSegundoPlano.iniciar('analisisEnProgreso', {
+  intervaloMs: 3000,
+  obtenerEstado: () => this.vulnerabilidadServicio.obtenerEstadoAnalisisAvanzado(),
+  alIterar: () => this.cdr.detectChanges(),
+  alFinalizar: () => {
+    this.vulnerabilidadServicio.obtenerResultadoUltimoAnalisis().subscribe({
+      next: resultado => {
+        this.ngZone.run(() => {
+          this.procesarResultadoAnalisis(resultado);
+ 
+          this.cdr.detectChanges();
+        });
+      },
+      error: () => {
+        this.ngZone.run(() => {
+          this.terminarConError('Error al obtener resultado del análisis');
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  },
+  alError: (mensaje) => {
+    this.ngZone.run(() => {
+      this.terminarConError(mensaje ?? 'Error durante el análisis');
+      this.cdr.detectChanges();
+    });
+  }
+});
+
     },
     error: () => this.terminarConError('No se pudo iniciar el análisis')
   });
@@ -217,42 +210,78 @@ ngOnInit(): void {
 }
 
 
-
 private procesarResultadoAnalisis(resultado: any): void {
-  this.vulnerabilidadesDetalle = resultado.vulnerabilidades || [];
-  this.resumenTecnico = resultado.resumenes_por_puerto || [];
+  console.log('🧪 Resultado recibido del backend:', resultado);
 
-  if (!resultado.dispositivo_activo) {
-    this.mensajeErrorAnalisis = resultado.mensaje || 'El dispositivo ya no está activo en la red.';
+  const dispositivoActivo = resultado?.dispositivo_activo === true;
+  const resumenes = resultado?.resumenes_por_puerto || [];
+  const vulnerabilidades = resultado?.vulnerabilidades || [];
+  const mensajeError = resultado?.mensaje ?? null;
 
-    // 🔴 Eliminar el dispositivo desactivado de la lista y limpiar selección
-    const idInactivo = this.dispositivoSeleccionado?.dispositivo_id;
-    if (idInactivo) {
-      this.dispositivos = this.dispositivos.filter(d => d.dispositivo_id !== idInactivo);
-      this.dispositivoSeleccionado = null;
-      localStorage.removeItem('dispositivoSeleccionado');
-    }
+  const hayResultados = Array.isArray(resumenes) && resumenes.length > 0;
+  const esExito = dispositivoActivo && hayResultados;
 
-    this.notificacion.warning('Advertencia', this.mensajeErrorAnalisis ?? 'Mensaje no disponible');
+  if (!esExito) {
+    this.vulnerabilidadesDetalle = [];
+    this.resumenTecnico = [];
+    this.resultadoPersistente = false;
+    this.analisisFinalizado = true;
+    this.analisisEnProgreso = false;
+    this.cargando = false;
+    this.mensajeErrorAnalisis = mensajeError;
 
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Advertencia',
+      detail: mensajeError || 'Ocurrió un error durante el análisis',
+      life: 6000
+    });
+
+    this.dispositivoSeleccionado = null;
+    localStorage.removeItem('dispositivoSeleccionado');
+    localStorage.removeItem('vulnerabilidadesDetalle');
+    localStorage.removeItem('resumenesPorPuerto');
+    localStorage.removeItem('analisisEnProgreso');
+    return;
   }
 
+  // ✅ Caso exitoso
+  this.vulnerabilidadesDetalle = vulnerabilidades;
+  this.resumenTecnico = resumenes;
   this.resultadoPersistente = true;
   this.analisisFinalizado = true;
   this.analisisEnProgreso = false;
   this.cargando = false;
 
-  localStorage.setItem('vulnerabilidadesDetalle', JSON.stringify(this.vulnerabilidadesDetalle));
-  localStorage.setItem('resumenesPorPuerto', JSON.stringify(this.resumenTecnico));
+  localStorage.setItem('vulnerabilidadesDetalle', JSON.stringify(vulnerabilidades));
+  localStorage.setItem('resumenesPorPuerto', JSON.stringify(resumenes));
   localStorage.removeItem('analisisEnProgreso');
 
-  // ✅ Seleccionar automáticamente el primer puerto si no hay uno ya activo
-  if (this.resumenTecnico.length > 0 && !this.puertoSeleccionado) {
-    this.puertoSeleccionado = this.resumenTecnico[0];
-    this.puertoSeleccionadoChip = this.resumenTecnico[0];
-    this.actualizarFiltrosPorPuerto();
+  if (!this.puertoSeleccionado && resumenes.length > 0) {
+    this.puertoSeleccionado = resumenes[0];
+    this.puertoSeleccionadoChip = resumenes[0];
   }
+
+  this.actualizarFiltrosPorPuerto();
+
+  this.messageService.add({
+    severity: 'success',
+    summary: 'Análisis Finalizado',
+    detail: 'El análisis de vulnerabilidades se completó con éxito.',
+    life: 6000
+  });
+
+  // ✅ Crear notificación SOLO si fue exitoso
+  this.crearNotificacionFinalizacion();
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -328,7 +357,7 @@ private limpiarSoloResultado(): void {
   this.vulnerabilidadServicio.consultarResumenesYCvesPorDispositivo(id).subscribe({
     next: ({ data }) => {
       if (!data || data.length === 0) {
-        this.notificacion.warning('No se encontraron resultados de un análisis.');
+        this.notificacion.warning('No se encontraron resultados de un análisis anterior.');
         this.cargando = false;
         return;
       }
@@ -419,10 +448,15 @@ private crearNotificacionFinalizacion(): void {
   };
 
   this.servicioAlertas.crearNotificacion(notificacion).subscribe({
-    next: () => console.log('🔔 Notificación de análisis enviada.'),
+    next: () => {
+      console.log('🔔 Notificación de análisis enviada.');
+      // Ya no se muestra el toast aquí
+    },
     error: (err) => console.warn('⚠️ Error al crear notificación:', err)
   });
 }
+
+
  private reanudarSiEstabaFinalizado(): void {
     const data = localStorage.getItem('vulnerabilidadesDetalle');
     const resumen = localStorage.getItem('resumenesPorPuerto');
@@ -452,50 +486,100 @@ private crearNotificacionFinalizacion(): void {
 obtenerBloque(tipo: 'estado' | 'analisis' | 'riesgos'): string {
   const resumen = this.puertoSeleccionado?.resumen || '';
   const patrones = {
-    estado: 'Estado general del puerto y su servicio:',
-    analisis: 'Análisis técnico del resultado del escaneo:',
-    riesgos: 'Riesgos identificados o potenciales:',
+    estado: '• Estado general del puerto y su servicio:',
+    analisis: '• Análisis técnico del resultado del escaneo:',
+    riesgos: '• Riesgos identificados o potenciales:',
+    recomendaciones: '• Recomendaciones específicas:'
   };
 
-  const inicio = resumen.indexOf(`• ${patrones[tipo]}`);
+  const actual = patrones[tipo];
+  const inicio = resumen.toLowerCase().indexOf(actual.toLowerCase());
   if (inicio === -1) return '';
 
-  const siguientes = Object.values(patrones)
-    .filter(t => t !== patrones[tipo])
-    .map(t => resumen.indexOf(`• ${t}`))
-    .filter(i => i > inicio);
+  const posicionesSiguientes = Object.values(patrones)
+    .filter(p => p !== actual)
+    .map(p => resumen.toLowerCase().indexOf(p.toLowerCase()))
+    .filter(pos => pos > inicio);
 
-  const finBloque = siguientes.length > 0 ? Math.min(...siguientes) : resumen.length;
+  const fin = posicionesSiguientes.length > 0 ? Math.min(...posicionesSiguientes) : resumen.length;
 
-  const bloqueExtraido = resumen.slice(inicio + patrones[tipo].length + 2, finBloque).trim();
+  let bloque = resumen.slice(inicio + actual.length, fin).trim();
+  bloque = bloque.replace(/^[:：]+/, '').trim();
 
-  if (tipo === 'riesgos') {
-    const corte = bloqueExtraido.indexOf('• Recomendaciones específicas:');
-    return corte !== -1 ? bloqueExtraido.slice(0, corte).trim() : bloqueExtraido;
-  }
-
-  return bloqueExtraido;
+  return bloque;
 }
+
+
+
+
+
 
 
 obtenerRecomendaciones(resumen: string): string[] {
-  const inicio = resumen.indexOf('• Recomendaciones específicas:');
+  const marcador = '• Recomendaciones específicas:';
+  const inicio = resumen.toLowerCase().indexOf(marcador.toLowerCase());
   if (inicio === -1) return [];
 
-  const bloque = resumen.slice(inicio + '• Recomendaciones específicas:'.length).trim();
+  const bloque = resumen.slice(inicio + marcador.length).trim();
 
-  const recomendacionNumerada = bloque.split(/\d+\.\s+/).slice(1).map(line => line.trim()).filter(line => line.length > 0);
-  if (recomendacionNumerada.length > 0) {
-    return recomendacionNumerada;
-  }
+  const limpio = bloque
+    .replace(/^[:：#\s]*/gm, '') // encabezados residuales
+    .replace(/\n{2,}/g, '\n')
+    .trim();
 
-  // Si no hay numeración, pero hay contenido plano
-  if (bloque.length > 0) {
-    return [bloque];
-  }
+  const numeradas = limpio.split(/\n?\d+\.\s+/).slice(1).map(r => r.trim()).filter(Boolean);
+  if (numeradas.length > 0) return numeradas;
 
-  return [];
+  const viñetas = limpio.split(/•\s+/).map(r => r.trim()).filter(Boolean);
+  if (viñetas.length > 1) return viñetas;
+
+  return limpio ? [limpio] : [];
 }
+
+
+
+
+
+formatearBloqueMultilinea(texto: string): string {
+  return texto
+    .replace(/^#+/, '') // eliminar hashes (####)
+    .replace(/•\s*/g, '• ') // normalizar viñetas
+    .replace(/^[-•\s]*?(estado general del puerto y su servicio|an[aá]lisis t[eé]cnico del resultado del escaneo|riesgos identificados o potenciales)[:：]*/i, '')
+    .replace(/\s*-\s+/g, '\n- ') // guiones como listas
+    .replace(/\n{2,}/g, '\n') // múltiples saltos → uno solo
+    .trim();
+}
+
+
+cancelarAnalisisAvanzado(): void {
+  this.notificacion.info('Cancelando análisis...');
+  this.vulnerabilidadServicio.cancelarAnalisisAvanzado().subscribe({
+    next: ({ mensaje }) => {
+      this.notificacion.success(mensaje || 'Análisis cancelado correctamente');
+      this.analisisEnProgreso = false;
+      this.cargando = false;
+      localStorage.removeItem('analisisEnProgreso');
+    },
+    error: () => {
+      this.notificacion.error('Ocurrió un error al intentar cancelar el análisis');
+    }
+  });
+}
+
+
+confirmarCancelacionAnalisis(): void {
+  this.confirmService.confirm({
+    message: '¿Estás seguro de cancelar el análisis avanzado?',
+    header: 'Cancelar análisis',
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: 'Sí, cancelar',
+    rejectLabel: 'Cancelar',
+    accept: () => {
+      this.cancelarAnalisisAvanzado(); // ✅ Llamada directa
+    }
+  });
+}
+
 
 
 

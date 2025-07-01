@@ -1,12 +1,22 @@
 <p-toast></p-toast>
 <main class="flex min-h-screen w-full">
     <div class="w-1/2 flex flex-col justify-center items-center text-center p-10 bg-baseAzulOscuro text-white">
-        <h1 class="text-3xl font-bold mb-6">¡Bienvenido a RedSegura!</h1>
-        <p class="text-lg mb-8 max-w-md">
-            Inicia sesión para gestionar dispositivos, ejecutar escaneos y revisar vulnerabilidades en tu red local.
-        </p>
-        
-    </div>
+  <img 
+  src="logo_completo_.png" 
+  alt="RedSegura Logo"
+  class="w-auto h-32 mb-4"
+/>
+
+  
+  <h1 class="text-3xl font-bold mb-4">
+    ¡Bienvenido!
+  </h1>
+
+  <p class="text-base leading-relaxed max-w-md">
+    Inicia sesión para gestionar dispositivos, ejecutar escaneos y revisar vulnerabilidades en tu red local.
+  </p>
+</div>
+
     <div class="w-1/2 flex flex-col justify-center items-center bg-white p-12">
         <h2 class="text-2xl font-semibold text-center mb-6 text-baseAzulOscuro">Iniciar Sesión</h2>
         <form class=" max-w-md space-y-6" (submit)="iniciarSesion()">
@@ -84,17 +94,17 @@
         <div class="relative w-full">
             <div class="flex justify-center space-x-3 mb-2" [class.opacity-50]="cargandoRecuperacion">
                 <p-button 
-                    label="Enviar Código" 
-                    icon="pi pi-send" 
+                    label="Recuperar" 
+
                     class="p-button-primary"
                     (click)="enviarCodigoRecuperacion()"
                     [disabled]="cargandoRecuperacion">
                 </p-button>
                 <p-button 
-                label="Cancelar" 
-                icon="pi pi-times" 
-                class="p-button-text"
-                (click)="cerrarModal('recuperacion')">
+                    label="Cancelar" 
+                    severity="secondary"
+                    class="p-button-text"
+                    (click)="cerrarModal('recuperacion')">
                 </p-button>
             </div>
         </div>
@@ -104,33 +114,35 @@
     <ng-template pTemplate="header">
         <h2 class="text-2xl font-semibold text-textoPrincipal text-center w-full">Código de Verificación</h2>
     </ng-template>
-    <div class="p-6 flex flex-col items-center space-y-6 w-full">
-        <div class="w-full flex justify-center">
-            <p-inputotp 
-                name="codigoRecuperacion" 
-                [(ngModel)]="codigoRecuperacion" 
-                [length]="6" 
-                [integerOnly]="true" 
-                class="max-w-md text-center"
-            />
-        </div>
-    </div>
+    <div class="w-full flex flex-col items-center space-y-2">
+  <div class="flex items-center bg-orange-200 text-black text-sm px-4 py-2 rounded-lg shadow-sm mb-4">
+  <i class="pi pi-envelope mr-2"></i>
+  <span>Código enviado a: <strong>{{ enmascararCorreo(correoRecuperacion) }}</strong></span>
+</div>
+
+  <p-inputotp 
+      name="codigoRecuperacion" 
+      [(ngModel)]="codigoRecuperacion" 
+      [length]="6" 
+      [integerOnly]="true" 
+      class="max-w-md text-center"
+  />
+</div>
+
     <ng-template pTemplate="footer">
-        <div class="flex justify-center gap-6 w-full px-6">
+  
             <p-button 
-                label="Validar Código" 
-                icon="pi pi-check" 
-                class="p-button-primary w-64 text-lg py-3 font-medium flex items-center justify-center gap-2 whitespace-nowrap"
+                label="Validar"
                 (click)="verificarCodigo()"
                 [disabled]="codigoRecuperacion.length !== 6">
             </p-button>
             <p-button 
                 label="Cancelar" 
-                icon="pi pi-times" 
-                class="w-64 text-lg py-3 font-medium flex items-center justify-center gap-2"
+                severity="secondary"
+                class=""
                 (click)="cerrarModal('codigo')">
             </p-button>
-        </div>
+        
     </ng-template>
 </p-dialog>
 <p-dialog [(visible)]="modalActualizarContrasena" [modal]="true" [closable]="false" [style]="{ width: '35vw' }">
@@ -160,19 +172,19 @@
         </p-iftalabel>
     </div>
     <ng-template pTemplate="footer">
-        <div class="flex justify-center gap-5 w-full px-6">
+        
             <p-button 
-                label="Actualizar Contraseña" 
-                icon="pi pi-check" 
-                class="p-button-primary w-56 text-lg py-3 font-medium flex items-center justify-center gap-2 whitespace-nowrap"
+                label="Actualizar" 
+      
+                
                 (click)="actualizarContrasena()">
             </p-button>
             <p-button 
                 label="Cancelar" 
-                icon="pi pi-times" 
-                class="w-56 text-lg py-3 font-medium flex items-center justify-center gap-2 whitespace-nowrap"
+                severity="secondary"    
+                
                 (click)="cerrarModal('actualizarContrasena')">
             </p-button>
-        </div>
+        
     </ng-template>    
 </p-dialog>

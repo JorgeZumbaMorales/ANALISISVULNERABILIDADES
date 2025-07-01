@@ -103,6 +103,28 @@ obtenerResultadoUltimoRiesgo(): Observable<any> {
     { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
   ).pipe(catchError(this.handleError));
 }
+  /**
+ * 🛑 Cancela la evaluación de riesgo en curso.
+ * @returns Observable con el mensaje de cancelación
+ */
+cancelarEvaluacionRiesgo(): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlEvaluacionRiesgo}/cancelar_evaluacion`,
+    {}, // cuerpo vacío
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+/**
+ * 🧹 Limpia el resultado de la última evaluación de riesgo (borra en Redis).
+ * @returns Observable con el mensaje de confirmación
+ */
+limpiarResultadoEvaluacionRiesgo(): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlEvaluacionRiesgo}/limpiar_resultado_ultimo_riesgo`,
+    {}, // cuerpo vacío
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
 
     // ===================== VULNERABILIDADES =====================
 
@@ -261,6 +283,18 @@ consultarResumenesYCvesPorDispositivo(dispositivoId: number): Observable<any> {
     { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
   ).pipe(catchError(this.handleError));
 }
+/**
+ * 🛑 Cancela el análisis avanzado en curso.
+ * @returns Observable con el mensaje de cancelación
+ */
+cancelarAnalisisAvanzado(): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlEscaneoAvanzado}/cancelar_analisis_avanzado`,
+    {}, // cuerpo vacío
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+
   // ===================== MANEJO DE ERRORES =====================
   private handleError(error: any) {
     console.error('Error en la petición:', error);

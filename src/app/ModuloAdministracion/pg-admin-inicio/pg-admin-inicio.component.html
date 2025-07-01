@@ -1,35 +1,31 @@
-<section class="w-full  text-textoPrincipal py-3">
-  <div class="max-w-screen-xl mx-auto px-4 flex flex-col items-center gap-4">
-
-    <!-- Logo -->
-    <div class="flex justify-center mt-2">
-      <img
-  src="logo_completo.png"
-  alt="Logo RedSegura"
-  class="h-16 sm:h-20 md:h-24 lg:h-28 xl:h-28 2xl:h-32 w-auto"
-/>
-
-
-    </div>
+<section class="w-full bg-white text-textoPrincipal py-5 px-4">
+  <div class="max-w-screen-xl mx-auto flex flex-col items-center gap-6">
 
     <!-- Bienvenida -->
-    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-baseAzulOscuro text-center">
-      ¡Bienvenido, {{ nombreUsuario }}!
-    </h1>
-
-    <!-- Subtítulo -->
-    <p class="text-center text-sm sm:text-base max-w-2xl leading-relaxed">
-      Administra tu red, dispositivos, configuraciones y vulnerabilidades desde un solo lugar.
-    </p>
-
-    <!-- Rol -->
-    <div class="bg-white shadow rounded-full px-3 py-1 text-xs sm:text-sm flex items-center gap-1 text-gray-700">
-      <i class="pi pi-user-shield text-baseNaranja"></i>
-      <span><strong>Rol actual:</strong> {{ rolActivo }}</span>
+    <div class="bg-[#0A2342] text-white rounded-xl shadow-lg px-6 py-6 w-full text-center">
+      <div class="mb-4">
+        <img src="logo_completo_.png" alt="Logo RedSegura" class="h-40 mx-auto" />
+      </div>
+      <h1 class="text-3xl font-bold">¡Bienvenido, {{ nombreUsuario }}!</h1>
+      <p class="text-sm text-white/90 mt-1 mb-3">
+        Administra tu red, dispositivos, configuraciones y vulnerabilidades.
+      </p>
+      <div class="inline-flex items-center gap-2 bg-white text-[#0A2342] rounded-full px-4 py-1 text-sm mx-auto">
+        <i class="pi pi-user-shield text-baseNaranja"></i>
+        <span><strong>Rol actual:</strong> {{ rolActivo }}</span>
+      </div>
     </div>
 
-    <!-- Carrusel -->
-    <div class="w-full pt-2">
+    <!-- Carrusel limpio -->
+    <div class="w-full">
+      <div class="flex items-center justify-center mb-4">
+        <div class="bg-baseNaranja w-1.5 h-6 rounded-sm mr-2"></div>
+        <i class="pi pi-clone text-baseNaranja text-xl mr-2"></i>
+        <h2 class="text-xl sm:text-2xl font-semibold text-[#0A2342] text-center">
+          Tienes acceso a las siguientes secciones
+        </h2>
+      </div>
+
       <p-carousel
         [value]="seccionesTarjetas"
         [numVisible]="3"
@@ -37,16 +33,24 @@
         [circular]="false"
         [showIndicators]="true"
         [showNavigators]="true"
-        [responsiveOptions]="responsiveOptions"
-        contentClass="gap-0"
+        [responsiveOptions]="[
+          { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+          { breakpoint: '768px', numVisible: 1, numScroll: 1 }
+        ]"
+        contentClass="gap-4 justify-center"
       >
         <ng-template let-item pTemplate="item">
-          <div class="flex flex-col items-center justify-center gap-2 text-textoPrincipal text-center px-2 py-3">
-            <i class="{{ item.icono }} text-3xl"></i>
-            <span class="text-sm font-semibold mt-1">{{ item.nombre_seccion }}</span>
+          <div
+            class="bg-white rounded-xl border border-[#0A2342]/10 shadow-lg
+                   hover:shadow-xl hover:border-baseNaranja
+                   px-4 py-5 mx-2 w-full min-w-[220px] max-w-[260px]
+                   flex flex-col items-center text-center transition-all duration-300"
+          >
+            <i class="{{ item.icono }} text-3xl text-[#0A2342] mb-2"></i>
+            <span class="text-sm font-semibold text-[#0A2342] mb-3">{{ item.nombre_seccion }}</span>
             <button
               (click)="navegarASeccion(item)"
-              class="mt-1 bg-baseNaranja text-white text-xs px-4 py-1 rounded hover:bg-orange-500 transition duration-200"
+              class="bg-baseNaranja text-white text-xs px-4 py-1 rounded hover:bg-orange-500 transition"
             >
               Ir a sección
             </button>

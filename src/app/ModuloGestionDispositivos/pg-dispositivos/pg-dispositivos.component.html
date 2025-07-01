@@ -1,5 +1,5 @@
 <p-toast></p-toast>
-<p-confirmdialog #cdCancelarEscaneo>
+<p-confirmdialog #cd>
   <ng-template let-message let-onAccept="onAccept" let-onReject="onReject" pTemplate="headless">
     <div class="w-full max-w-lg mx-auto flex flex-col items-center py-4 px-6 bg-white rounded-md shadow-lg relative">
       <div class="rounded-full bg-red-600 text-white inline-flex justify-center items-center h-16 w-16 -mt-10 shadow-md">
@@ -8,12 +8,15 @@
       <span class="font-bold text-xl mt-3 text-center">{{ message.header }}</span>
       <p class="text-center mt-2 text-sm leading-snug">{{ message.message }}</p>
       <div class="flex justify-end gap-3 mt-5">
-        <button pButton type="button" (click)="onReject()" label="No" class="p-button-outlined w-28"></button>
+        <button pButton type="button" (click)="onReject()" label="Cancelar" severity="secondary" class=""></button>
         <button pButton type="button" (click)="onAccept()" label="Sí, cancelar" class=""></button>
       </div>
     </div>
   </ng-template>
 </p-confirmdialog>
+
+
+
 <!-- 🟦 Encabezado -->
 <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 sm:py-4 mb-3">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -21,63 +24,58 @@
       <h2 class="text-xl sm:text-2xl font-semibold">Gestión de Dispositivos Activos</h2>
       <p class="text-sm text-textoSecundario mt-1">Administra los dispositivos detectados en la red y realiza escaneos manuales si lo necesitas.</p>
     </div>
-    <div class="mt-4 flex justify-end">
+    <div class="mt-4 flex justify-end items-center gap-3">
   <p-button 
-    [disabled]="escaneoEnProgreso"
-    (click)="iniciarEscaneoDispositivos()">
-
-    <ng-container *ngIf="!escaneoEnProgreso">
-      <i class="pi pi-bolt"></i>
-      <span class="">Escanear Dispositivos</span>
-    </ng-container>
-
-    <ng-container *ngIf="escaneoEnProgreso">
-      <p-progress-spinner 
-        strokeWidth="8" 
-        
-        fill="transparent" 
-        animationDuration=".5s"
-        [style]="{ width: '20px', height: '20px' }"
-      ></p-progress-spinner>
-      <span class="ml-2">Escaneando...</span>
-    </ng-container>
-
+    label="Escanear Dispositivos"
+    icon="pi pi-bolt"
+    [disabled]="escaneando"
+    (click)="iniciarEscaneoManual()"
+    *ngIf="!escaneando">
   </p-button>
-  
 
+  <div class="flex items-center gap-2" *ngIf="escaneando">
+    <p-progressSpinner 
+      strokeWidth="6" 
+      animationDuration=".5s"
+      [style]="{ width: '24px', height: '24px' }"
+      fill="transparent">
+    </p-progressSpinner>
+    <span class="text-sm text-white">Escaneando...</span>
+
+    <!-- 🟥 Botón Cancelar -->
+    <p-button 
+ 
+      label="Cancelar"
+     severity="danger"
+      (click)="abrirDialogoCancelarEscaneo()">
+    </p-button>
+  </div>
 </div>
 
 
-  </div>
-</section>
-<section *ngIf="escaneoEnProgreso && progresoTotal > 0" class="mt-2 w-full">
-  <div class="flex items-center justify-between gap-4 w-full">
-    
-    <!-- Contenedor barra de progreso con 75% -->
-    <div class="w-3/4">
-      <p-progressBar 
-        [value]="(progresoActual / progresoTotal) * 100"
-        [showValue]="true"
-        [style]="{ height: '20px' }"
-      ></p-progressBar>
-
-      <div class="text-xs text-center mt-1 text-gray-600">
-        Procesados {{ progresoActual }} de {{ progresoTotal }} dispositivos
-      </div>
-    </div>
-
-    <!-- Botón cancelar con 25% -->
-    <div class="w-1/4 flex justify-end">
-      <p-button 
-        label="Cancelar escaneo" 
-        severity="danger" 
-        (click)="mostrarConfirmacionCancelarEscaneo()"
-        class="p-button-sm"
-      ></p-button>
-    </div>
 
   </div>
 </section>
+<section 
+  *ngIf="escaneando"
+  class="bg-white border border-gray-200 rounded-xl shadow-md px-5 py-4 my-3"
+>
+  <p-progressBar 
+    [value]="Math.floor((progresoActual / progresoTotal) * 100)" 
+    [showValue]="true"
+    [style]="{ height: '18px', borderRadius: '8px' }">
+  </p-progressBar>
+
+  <div class="text-sm text-center text-gray-600 mt-2">
+    Procesados {{ progresoActual }} de {{ progresoTotal }} dispositivos
+  </div>
+</section>
+
+
+
+
+
+
 
 
 

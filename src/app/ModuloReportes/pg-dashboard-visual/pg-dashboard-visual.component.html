@@ -56,153 +56,180 @@
 <section class="w-full bg-white rounded-2xl px-4 py-2 mt-2 mb-4">
   <div class="max-w-7xl mx-auto flex flex-col items-center gap-4">
 
-    <p class="text-sm text-gray-700 font-medium mb-2 self-start sm:self-center">
-      Seleccione el gráfico a visualizar:
-    </p>
-
-    <p-tabView [(activeIndex)]="indiceActivo"  class="w-full sm:max-w-5xl rounded-lg shadow-sm">
-
-
-      <!-- Escaneos -->
-      <p-tabPanel header="Escaneos">
-        <div class="flex justify-end mb-2">
-          <p-dropdown
-            [options]="opcionesFiltrosTiempo"
-            [(ngModel)]="filtroEscaneos"
-            (onChange)="cargarEscaneosPorFecha()"
-            placeholder="Seleccione el periodo"
-            class="w-60">
-          </p-dropdown>
-        </div>
-        <p-chart type="line"
-         [data]="datosEscaneos"
-         [options]="opcionesGraficoLineas"
-         style="height: 860px;">
-</p-chart>
-
-<!-- Paginación -->
-<div class="flex justify-center mt-2 gap-2">
-  <p-button icon="pi pi-angle-left"
-            (click)="paginaAnteriorEscaneos()"
-            [disabled]="indicePaginaEscaneos === 0"
-            styleClass="p-button-rounded p-button-outlined p-button-secondary">
-  </p-button>
-
-  <span class="text-sm px-2 flex items-center">
-    Página {{indicePaginaEscaneos + 1}} de {{totalPaginasEscaneos}}
-  </span>
-
-  <p-button icon="pi pi-angle-right"
-            (click)="paginaSiguienteEscaneos()"
-            [disabled]="indicePaginaEscaneos >= totalPaginasEscaneos - 1"
-            styleClass="p-button-rounded p-button-outlined p-button-secondary">
-  </p-button>
+    <div class="flex items-center gap-2 bg-gray-100 text-gray-800 px-4 py-2 rounded-md shadow-sm border border-gray-200 mb-2 self-start sm:self-center">
+  <i class="pi pi-chart-bar text-baseNaranja text-lg"></i>
+  <span class="text-sm sm:text-base font-semibold">Seleccione el gráfico a visualizar:</span>
 </div>
 
-      </p-tabPanel>
 
-      <!-- Estado de Dispositivos -->
-      <p-tabPanel header="Estado de Dispositivos">
-        <p-chart type="doughnut"
-                 [data]="datosEstadoDispositivos"
-                 [options]="opcionesGraficoDona"
-                 style="height: 400px;">
-        </p-chart>
-      </p-tabPanel>
+<p-tabView [(activeIndex)]="indiceActivo" class="w-full sm:max-w-5xl rounded-lg shadow-sm">
 
-      <!-- Puertos Abiertos -->
-      <p-tabPanel header="Puertos Abiertos">
-        <div class="flex flex-wrap justify-end mb-2 gap-2">
-          <p-dropdown
-            [options]="opcionesFiltrosTiempo"
-            [(ngModel)]="filtroPuertos"
-            (onChange)="cargarPuertosMasComunes()"
-            placeholder="Seleccione el periodo"
-            class="w-60">
-          </p-dropdown>
-          <p-dropdown
-            [options]="opcionesLimite"
-            [(ngModel)]="limitePuertos"
-            (onChange)="cargarPuertosMasComunes()"
-            placeholder="Seleccione el límite"
-            class="w-40">
-          </p-dropdown>
-        </div>
-        <p-chart type="bar"
- [data]="datosPuertos"
- [options]="opcionesGraficoBarrasPuertos"
- class="h-[30rem]">
-</p-chart>
+  <!-- Escaneos -->
+  <p-tabPanel header="Escaneos">
+    <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
+      <h3 class="text-lg font-semibold">Tendencia de Escaneos</h3>
+      <p class="text-sm mt-1">Visualiza cuántos escaneos se han realizado en el periodo seleccionado.</p>
+    </section>
+    <div class="flex justify-end mb-2">
+      <p-dropdown
+        [options]="opcionesFiltrosTiempo"
+        [(ngModel)]="filtroEscaneos"
+        (onChange)="cargarEscaneosPorFecha()"
+        placeholder="Seleccione el periodo"
+        class="w-60">
+      </p-dropdown>
+    </div>
+    <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
+      <p-chart type="line"
+               [data]="datosEscaneos"
+               [options]="opcionesGraficoLineas"
+               style="height: 860px;">
+      </p-chart>
+    </div>
+    <div class="flex justify-center mt-2 gap-2">
+      <p-button icon="pi pi-angle-left"
+                (click)="paginaAnteriorEscaneos()"
+                [disabled]="indicePaginaEscaneos === 0"
+                styleClass="p-button-rounded p-button-outlined p-button-secondary">
+      </p-button>
+      <span class="text-sm px-2 flex items-center">
+        Página {{indicePaginaEscaneos + 1}} de {{totalPaginasEscaneos}}
+      </span>
+      <p-button icon="pi pi-angle-right"
+                (click)="paginaSiguienteEscaneos()"
+                [disabled]="indicePaginaEscaneos >= totalPaginasEscaneos - 1"
+                styleClass="p-button-rounded p-button-outlined p-button-secondary">
+      </p-button>
+    </div>
+  </p-tabPanel>
+
+  <!-- Estado de Dispositivos -->
+  <p-tabPanel header="Estado de Dispositivos">
+    <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
+      <h3 class="text-lg font-semibold">Estado Actual de los Dispositivos</h3>
+      <p class="text-sm mt-1">Distribución de dispositivos activos e inactivos en la red.</p>
+    </section>
+    <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
+      <p-chart type="doughnut"
+               [data]="datosEstadoDispositivos"
+               [options]="opcionesGraficoDona"
+               style="height: 400px;">
+      </p-chart>
+    </div>
+  </p-tabPanel>
+
+  <!-- Puertos Abiertos -->
+  <p-tabPanel header="Puertos Abiertos">
+    <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
+      <h3 class="text-lg font-semibold">Puertos Abiertos Más Comunes</h3>
+      <p class="text-sm mt-1">Identifica los puertos más abiertos en los dispositivos analizados.</p>
+    </section>
+    <div class="flex flex-wrap justify-end mb-2 gap-2">
+      <p-dropdown
+        [options]="opcionesFiltrosTiempo"
+        [(ngModel)]="filtroPuertos"
+        (onChange)="cargarPuertosMasComunes()"
+        placeholder="Seleccione el periodo"
+        class="w-60">
+      </p-dropdown>
+      <p-dropdown
+        [options]="opcionesLimite"
+        [(ngModel)]="limitePuertos"
+        (onChange)="cargarPuertosMasComunes()"
+        placeholder="Seleccione el límite"
+        class="w-40">
+      </p-dropdown>
+    </div>
+    <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
+      <p-chart type="bar"
+               [data]="datosPuertos"
+               [options]="opcionesGraficoBarrasPuertos"
+               class="h-[30rem]">
+      </p-chart>
+    </div>
+  </p-tabPanel>
+
+  <!-- Vulnerabilidades -->
+  <p-tabPanel header="Vulnerabilidades">
+    <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
+      <h3 class="text-lg font-semibold">Vulnerabilidades Más Frecuentes</h3>
+      <p class="text-sm mt-1">Muestra las vulnerabilidades detectadas con mayor recurrencia.</p>
+    </section>
+    <div class="flex flex-wrap justify-end mb-2 gap-2">
+      <p-dropdown
+        [options]="opcionesFiltrosTiempo"
+        [(ngModel)]="filtroVulnerabilidades"
+        (onChange)="cargarVulnerabilidadesMasFrecuentes()"
+        placeholder="Seleccione el periodo"
+        class="w-60">
+      </p-dropdown>
+      <p-dropdown
+        [options]="opcionesLimite"
+        [(ngModel)]="limiteVulnerabilidades"
+        (onChange)="cargarVulnerabilidadesMasFrecuentes()"
+        placeholder="Seleccione el límite"
+        class="w-40">
+      </p-dropdown>
+    </div>
+    <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
+      <p-chart type="bar"
+               [data]="datosVulnerabilidades"
+               [options]="opcionesGraficoBarrasVulnerabilidades"
+               class="h-[30rem]">
+      </p-chart>
+    </div>
+  </p-tabPanel>
+
+  <!-- Dispositivos con CVE -->
+  <p-tabPanel header="Dispositivos con CVE">
+    <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
+      <h3 class="text-lg font-semibold">Dispositivos con Mayor Número de CVEs (Vulnerabilidades y exposiciones comunes)</h3>
+      <p class="text-sm mt-1">Ranking de dispositivos que presentan más vulnerabilidades conocidas.</p>
+    </section>
+    <div class="flex flex-wrap justify-end mb-2 gap-2">
+      <p-dropdown
+        [options]="opcionesFiltrosTiempo"
+        [(ngModel)]="filtroDispositivosCVEs"
+        (onChange)="cargarDispositivosConMasCVEs()"
+        placeholder="Seleccione el periodo"
+        class="w-60">
+      </p-dropdown>
+      <p-dropdown
+        [options]="opcionesLimite"
+        [(ngModel)]="limiteDispositivosCVEs"
+        (onChange)="cargarDispositivosConMasCVEs()"
+        placeholder="Seleccione el límite"
+        class="w-40">
+      </p-dropdown>
+    </div>
+    <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
+      <p-chart type="bar"
+               [data]="datosDispositivosConCVE"
+               [options]="opcionesGraficoBarras"
+               style="height: 400px;">
+      </p-chart>
+    </div>
+  </p-tabPanel>
+
+  <!-- Nivel de Riesgo -->
+  <p-tabPanel header="Nivel de Riesgo">
+    <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
+      <h3 class="text-lg font-semibold">Distribución del Nivel de Riesgo</h3>
+      <p class="text-sm mt-1">Clasificación de los dispositivos según su nivel de riesgo estimado.</p>
+    </section>
+    <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
+      <p-chart type="doughnut"
+               [data]="datosNivelRiesgo"
+               [options]="opcionesGraficoDona"
+               style="height: 400px;">
+      </p-chart>
+    </div>
+  </p-tabPanel>
+
+</p-tabView>
 
 
 
-
-      </p-tabPanel>
-
-      <!-- Vulnerabilidades -->
-      <p-tabPanel header="Vulnerabilidades">
-        <div class="flex flex-wrap justify-end mb-2 gap-2">
-          <p-dropdown
-            [options]="opcionesFiltrosTiempo"
-            [(ngModel)]="filtroVulnerabilidades"
-            (onChange)="cargarVulnerabilidadesMasFrecuentes()"
-            placeholder="Seleccione el periodo"
-            class="w-60">
-          </p-dropdown>
-          <p-dropdown
-            [options]="opcionesLimite"
-            [(ngModel)]="limiteVulnerabilidades"
-            (onChange)="cargarVulnerabilidadesMasFrecuentes()"
-            placeholder="Seleccione el límite"
-            class="w-40">
-          </p-dropdown>
-        </div>
-        <p-chart type="bar"
- [data]="datosVulnerabilidades"
- [options]="opcionesGraficoBarrasVulnerabilidades"
- class="h-[30rem]">
-</p-chart>
-
-
-
-
-      </p-tabPanel>
-
-      <!-- Dispositivos con CVE -->
-      <p-tabPanel header="Dispositivos con CVE">
-        <div class="flex flex-wrap justify-end mb-2 gap-2">
-          <p-dropdown
-            [options]="opcionesFiltrosTiempo"
-            [(ngModel)]="filtroDispositivosCVEs"
-            (onChange)="cargarDispositivosConMasCVEs()"
-            placeholder="Seleccione el periodo"
-            class="w-60">
-          </p-dropdown>
-          <p-dropdown
-            [options]="opcionesLimite"
-            [(ngModel)]="limiteDispositivosCVEs"
-            (onChange)="cargarDispositivosConMasCVEs()"
-            placeholder="Seleccione el límite"
-            class="w-40">
-          </p-dropdown>
-        </div>
-        <p-chart type="bar"
-                 [data]="datosDispositivosConCVE"
-                 [options]="opcionesGraficoBarras"
-                 style="height: 400px;">
-        </p-chart>
-      </p-tabPanel>
-
-      <!-- Nivel de Riesgo -->
-      <p-tabPanel header="Nivel de Riesgo">
-        <p-chart type="doughnut"
-                 [data]="datosNivelRiesgo"
-                 [options]="opcionesGraficoDona"
-                 style="height: 400px;">
-        </p-chart>
-      </p-tabPanel>
-
-    </p-tabView>
 
   </div>
 </section>

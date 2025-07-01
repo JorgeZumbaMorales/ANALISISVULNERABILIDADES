@@ -82,14 +82,18 @@
 
 <!-- 🔘 Selector visual -->
 <section class="w-full flex justify-center mb-4">
-  <p-selectButton 
-    [options]="opcionesVisualizacion" 
-    [(ngModel)]="vistaSeleccionada" 
-    optionLabel="label" 
-    optionValue="value"
-    aria-labelledby="toggle-vista"
-    class="shadow-sm"
-  />
+ <p-selectButton 
+  [options]="opcionesVisualizacion" 
+  [(ngModel)]="vistaSeleccionada" 
+  optionLabel="label" 
+  optionValue="value"
+ 
+  (onChange)="validarSeleccionVista()"
+  aria-labelledby="toggle-vista"
+  class="shadow-sm"
+/>
+
+
 </section>
 
 

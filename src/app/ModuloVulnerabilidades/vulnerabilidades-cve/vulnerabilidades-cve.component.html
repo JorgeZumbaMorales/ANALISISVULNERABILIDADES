@@ -1,5 +1,21 @@
 <p-toast></p-toast>
 
+<p-confirmdialog #cd>
+  <ng-template let-message let-onAccept="onAccept" let-onReject="onReject" pTemplate="headless">
+    <div class="w-full max-w-lg mx-auto flex flex-col items-center py-4 px-6 bg-white rounded-md shadow-lg relative">
+      <div class="rounded-full bg-red-600 text-white inline-flex justify-center items-center h-16 w-16 -mt-10 shadow-md">
+        <i class="pi pi-exclamation-triangle text-2xl"></i>
+      </div>
+      <span class="font-bold text-xl mt-3 text-center">{{ message.header }}</span>
+      <p class="text-center mt-2 text-sm leading-snug">{{ message.message }}</p>
+      <div class="flex justify-end gap-3 mt-5">
+        <button pButton type="button" (click)="onReject()" label="Cancelar" severity="secondary"></button>
+        <button pButton type="button" (click)="onAccept()" label="Sí, cancelar"></button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>
+
 
 <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 sm:py-4 mb-3">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -13,7 +29,7 @@
 </section>
 
 
-<section class="w-full mt-3 mb-6">
+<section class="w-full mt-3 mb-3">
   
 
   <!-- 🔸 Subtítulo y acciones -->
@@ -92,7 +108,36 @@
   </div>
 </section>
 <section
-  *ngIf="resultadoPersistente && !cargando && !analisisEnProgreso && analisisFinalizado && resumenTecnico.length === 0 && mensajeErrorAnalisis"
+  *ngIf="analisisEnProgreso"
+  class="w-full border border-gray-200 rounded-2xl shadow-sm bg-white px-4 py-4 my-4"
+>
+  <!-- 🔄 Barra de progreso -->
+  <p-progressBar 
+    mode="indeterminate"
+    [style]="{ height: '14px' }"
+  ></p-progressBar>
+
+  <!-- ℹ️ Texto centrado -->
+  <p class="text-xs text-center text-gray-600 mt-2">
+    Analizando dispositivo... esto puede tardar unos minutos.
+  </p>
+
+  <!-- ❌ Botón centrado debajo -->
+  <div class="flex justify-center mt-2">
+    <p-button
+      label="Cancelar análisis"
+      severity="danger"
+      class="px-3 py-1 text-sm"
+      (click)="confirmarCancelacionAnalisis()"
+    ></p-button>
+  </div>
+</section>
+
+
+
+<section
+  *ngIf="!cargando && !analisisEnProgreso && analisisFinalizado && mensajeErrorAnalisis"
+
   class="w-full bg-red-100 border border-red-300 rounded-xl p-5 text-red-900 shadow-inner"
 >
   <div class="flex flex-col sm:flex-row items-center justify-center text-center gap-2">
@@ -106,7 +151,7 @@
   *ngIf="resumenTecnico.length > 0"
   class="w-full mt-6 px-6 py-6 rounded-xl shadow-md border border-gray-200 bg-white space-y-6"
 >
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
     <h3 class="text-xl font-semibold text-baseAzulOscuro">
       Resumen Técnico de Vulnerabilidades por Puerto
     </h3>
@@ -131,7 +176,7 @@
   </div>
 
   <div *ngIf="puertoSeleccionado" class="overflow-hidden rounded-lg border border-gray-100">
-    <div class="bg-baseAzulOscuro text-white px-6 py-4">
+    <div class="bg-baseAzulOscuro text-white px-3 py-4">
       <h4 class="text-lg font-bold">
         Puerto {{ puertoSeleccionado.puerto }} — Servicio: {{ puertoSeleccionado.servicio }}
       </h4>
@@ -140,23 +185,32 @@
       </p>
     </div>
 
-    <div class="px-6 py-5 space-y-6 bg-white">
+    <div class="px-6 py-6 space-y-6 bg-white">
       <ng-container *ngFor="let bloque of bloquesResumen">
-        <div>
-          <h5 class="text-base font-semibold text-textoPrincipal border-b pb-1 mb-2">
+        <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+          <h5 class="text-base font-semibold text-textoPrincipal mb-2 flex items-center gap-2">
+            <i
+              class="pi"
+              [ngClass]="{
+                'pi-info-circle text-blue-500': bloque.clave === 'estado',
+                'pi-search text-green-600': bloque.clave === 'analisis',
+                'pi-exclamation-triangle text-yellow-500': bloque.clave === 'riesgos'
+              }"
+            ></i>
             {{ bloque.titulo }}
           </h5>
-          <p class="text-sm text-gray-700 text-justify leading-relaxed">
-            {{ obtenerBloque(bloque.clave) }}
+          <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+            {{ formatearBloqueMultilinea(obtenerBloque(bloque.clave)) }}
           </p>
         </div>
       </ng-container>
 
-      <div class="bg-gray-50 p-4 rounded-md border">
-        <h5 class="text-base font-semibold text-textoPrincipal mb-2">
+      <div class="bg-slate-50 p-4 rounded-md border border-gray-200">
+        <h5 class="text-base font-semibold text-green-700 mb-2 flex items-center gap-2">
+          <i class="pi pi-check-circle"></i>
           Recomendaciones
         </h5>
-        <ul class="list-decimal list-inside text-sm text-gray-700 space-y-1 pl-2">
+        <ul class="list-decimal list-inside text-sm text-gray-700 space-y-2 pl-2">
           <li *ngFor="let rec of obtenerRecomendaciones(puertoSeleccionado.resumen)">
             {{ rec }}
           </li>
@@ -175,6 +229,8 @@
     </div>
   </div>
 </section>
+
+
 
 
 
@@ -253,7 +309,6 @@
     </p-table>
   </section>
 </p-dialog>
-
 
 
 

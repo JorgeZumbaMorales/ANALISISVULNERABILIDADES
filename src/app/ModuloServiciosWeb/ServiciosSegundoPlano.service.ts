@@ -1,104 +1,74 @@
 import { Injectable } from '@angular/core';
 import { interval, Subscription } from 'rxjs';
 
+interface ProcesoConfig {
+  intervaloMs: number;
+  obtenerEstado: () => any; // Idealmente Observable<{ estado: string }>
+  alFinalizar: () => void;
+  alError?: (mensaje?: string) => void;
+  alIterar?: () => void;
+}
+
 @Injectable({ providedIn: 'root' })
-export class ServiciosSegundoPlano {
-  private intervalosActivos = new Map<string, Subscription>();
+export class ServicioSegundoPlano {
+  private procesos: Record<string, Subscription> = {};
 
-  constructor() {}
+  iniciar(clave: string, config: ProcesoConfig): void {
+  const yaActivo = this.procesos[clave];
 
-  /**
-   * 🔁 Inicia un proceso de polling asociado a una clave de localStorage.
-   */
-  iniciarProcesoConPolling(
-    claveStorage: string,
-    intervaloMs: number,
-    verificarEstado: () => any,
-    alFinalizar: () => void,
-    alError: (mensaje?: string) => void,
-    actualizarProgreso?: () => void
-  ): void {
-    localStorage.setItem(claveStorage, 'true');
-
-    const intervalo = interval(intervaloMs).subscribe(() => {
-      actualizarProgreso?.();
-
-      verificarEstado().subscribe({
-        next: (res: any) => {
-          const estado = res?.estado;
-
-          if (estado === 'completado') {
-            this.finalizarProceso(claveStorage, alFinalizar, actualizarProgreso);
-          } else if (estado === 'cancelado' || estado?.startsWith('error')) {
-            this.terminarConError(claveStorage, alError, estado);
-          }
-        },
-        error: () => this.terminarConError(claveStorage, alError, 'Error de red o backend')
-      });
-    });
-
-    this.intervalosActivos.set(claveStorage, intervalo);
+  if (yaActivo) {
+    console.log(`[ServicioSegundoPlano] Ya existe proceso para ${clave}, actualizando callbacks`);
+    this.reconfigurar(clave, config);
+    return;
   }
 
-  /**
-   * ♻️ Reanuda un polling si la clave está activa en localStorage.
-   */
-  reanudarSiEsNecesario(
-    claveStorage: string,
-    intervaloMs: number,
-    verificarEstado: () => any,
-    alFinalizar: () => void,
-    alError: (mensaje?: string) => void,
-    actualizarProgreso?: () => void
-  ): void {
-    if (localStorage.getItem(claveStorage) !== 'true') return;
+  // ⚠️ Si localStorage dice que está activo pero no hay suscripción viva → reiniciar
+  const enLocal = localStorage.getItem(clave);
+  if (enLocal === 'activo') {
+    console.warn(`[ServicioSegundoPlano] Estado inconsistente: ${clave} estaba en localStorage pero sin proceso activo. Reiniciando.`);
+  }
 
-    console.log(`♻️ Reanudando proceso ${claveStorage}...`);
+  // Registrar proceso
+  localStorage.setItem(clave, 'activo');
 
-    verificarEstado().subscribe({
-      next: (res: any) => {
-        const estado = res?.estado;
-
-        if (estado === 'completado' || estado === 'cancelado') {
-          this.detenerProceso(claveStorage);
-          alFinalizar();
-        } else if (!this.intervalosActivos.has(claveStorage)) {
-          this.iniciarProcesoConPolling(claveStorage, intervaloMs, verificarEstado, alFinalizar, alError, actualizarProgreso);
+  this.procesos[clave] = interval(config.intervaloMs).subscribe(() => {
+    config.obtenerEstado().subscribe({
+      next: ({ estado }: any) => {
+        console.log('[Polling] Estado actual:', estado);
+        if (['completado', 'cancelado'].includes(estado)) {
+          this.detener(clave);
+          config.alFinalizar();
         } else {
-          actualizarProgreso?.();
+          config.alIterar?.();
         }
       },
       error: (err: any) => {
-        this.terminarConError(claveStorage, alError, err?.error?.detail || 'Error al consultar el estado del proceso.');
+        this.detener(clave);
+        config.alError?.('Error al consultar estado');
+        console.error(`[Polling ${clave}]`, err);
       }
     });
-  }
+  });
+}
 
-  /**
-   * ⛔ Detiene un proceso de polling y limpia la clave en localStorage.
-   */
-  detenerProceso(claveStorage: string): void {
-    this.intervalosActivos.get(claveStorage)?.unsubscribe();
-    this.intervalosActivos.delete(claveStorage);
-    localStorage.removeItem(claveStorage);
-  }
 
-  // 🔒 Métodos internos para limpieza
-  private finalizarProceso(clave: string, callback: () => void, actualizarProgreso?: () => void): void {
-    try {
-      actualizarProgreso?.();
-    } catch (e) {
-      console.warn(`⚠️ Error en progreso final de ${clave}:`, e);
+// ➕ NUEVO: Permite actualizar callbacks aunque ya esté activo
+private reconfigurar(clave: string, nuevoConfig: ProcesoConfig): void {
+  const estado = localStorage.getItem(clave);
+  if (estado !== 'activo') return;
+
+  // Simular un "alIterar" inmediato para actualizar interfaz
+  nuevoConfig.obtenerEstado().subscribe({
+    next: ({ estado }: any) => {
+      if (!['completado', 'cancelado'].includes(estado)) {
+        nuevoConfig.alIterar?.();
+      }
     }
+  });
+}
 
-    setTimeout(() => {
-      this.detenerProceso(clave);
-      callback();
-    }, 500);
-  }
-
-  private terminarConError(clave: string, callback: (msg?: string) => void, mensaje: string): void {
-    this.detenerProceso(clave);
-    callback(mensaje);
+  detener(clave: string): void {
+    this.procesos[clave]?.unsubscribe();
+    delete this.procesos[clave];
   }
 }

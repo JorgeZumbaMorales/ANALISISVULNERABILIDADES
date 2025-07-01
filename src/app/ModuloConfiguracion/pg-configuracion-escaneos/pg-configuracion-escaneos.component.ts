@@ -72,6 +72,9 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
   ) {}
 
   ngOnInit() {
+    if (!this.vistaSeleccionada) {
+    this.vistaSeleccionada = 'frecuencia';
+  }
     this.cargarDatos();
   }
 
@@ -537,6 +540,11 @@ aplicarOrden(evento: any, datos: ConfiguracionEscaneo[], ascendente: boolean): v
   });
 }
 
+validarSeleccionVista(): void {
+  if (!this.vistaSeleccionada) {
+    this.vistaSeleccionada = 'frecuencia'; // valor por defecto
+  }
+}
 
 private formatearFechaTexto(fecha: string | undefined): string {
   if (!fecha) return '';

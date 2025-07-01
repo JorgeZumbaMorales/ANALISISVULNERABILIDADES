@@ -138,7 +138,8 @@ export class PgLoginComponent {
               next: () => {
                   this.modalRecuperacion = false;
                   this.modalCodigo = true;
-                  this.mostrarMensaje('success', 'Código Enviado', `El código fue enviado a ${data.correo || "su usuario"}`);
+                  this.mostrarMensaje('success', 'Código Enviado', `Se envió un código de verificación al correo registrado.`);
+
               },
               error: (error) => {
                   console.error("❌ Error al enviar código:", error);

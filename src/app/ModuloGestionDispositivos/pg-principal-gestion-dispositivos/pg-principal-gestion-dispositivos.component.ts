@@ -5,7 +5,7 @@ import { filter } from 'rxjs/operators';
 @Component({
   selector: 'app-pg-principal-gestion-dispositivos',
   templateUrl: './pg-principal-gestion-dispositivos.component.html',
-  styleUrl: './pg-principal-gestion-dispositivos.component.css'
+  styleUrls: ['./pg-principal-gestion-dispositivos.component.css']
 })
 export class PgPrincipalGestionDispositivosComponent implements OnInit {
   tabs = [
@@ -14,20 +14,25 @@ export class PgPrincipalGestionDispositivosComponent implements OnInit {
   ];
 
   activeTab: string = '';
+  mostrarContenido: boolean = true; // ✅ Clave para forzar destrucción del hijo
 
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    this.establecerTabActivo(this.router.url); // ← importante al refrescar
+    this.establecerTabActivo(this.router.url);
 
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.establecerTabActivo(event.urlAfterRedirects);
+
+        // 👇 Forzar recarga del router-outlet
+        this.mostrarContenido = false;
+        setTimeout(() => this.mostrarContenido = true, 0);
       });
   }
 
-  establecerTabActivo(ruta: string) {
+  establecerTabActivo(ruta: string): void {
     this.activeTab =
       this.tabs.find(tab => ruta === tab.route)?.route ||
       this.tabs.find(tab => ruta.startsWith(tab.route + '/'))?.route || 

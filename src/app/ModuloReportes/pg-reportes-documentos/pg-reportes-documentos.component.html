@@ -7,7 +7,7 @@
     <div class="flex-auto">
       <h2 class="text-xl sm:text-2xl font-semibold">Generador de Reportes</h2>
       <p class="text-sm text-textoSecundario mt-1">
-        Crea reportes personalizados en formato PDF o Excel. Visualiza y administra el historial de reportes generados.
+        Crea reportes personalizados en formato PDF. Visualiza y administra el historial de reportes generados.
       </p>
     </div>
 
@@ -158,12 +158,13 @@
     <section>
       <h3 class="text-lg font-semibold text-gray-800 my-2 ">Tipo de Reporte</h3>
       <p-selectButton 
-        [options]="opcionesTipoReporte" 
-        [(ngModel)]="tipoReporteSeleccionado"
-        optionLabel="label"
-        optionValue="value"
-        class="w-full"
-        name="tipoReporteSeleccionado">
+  [options]="opcionesTipoReporte" 
+  [(ngModel)]="tipoReporteSeleccionado"
+  optionLabel="label"
+  optionValue="value"
+  (onChange)="validarSeleccionTipoReporte()"
+  class="w-full"
+  name="tipoReporteSeleccionado">
         <ng-template #item let-item>
           <span class="flex items-center gap-2">
             <i [class]="item.icon"></i> {{ item.label }}
@@ -378,9 +379,7 @@
     <section *ngIf="tipoReporteSeleccionado === 'roles'">
   <h3 class="text-lg font-semibold text-gray-800 mb-2">Roles</h3>
 
-  <!-- MultiSelect Roles -->
-  <!-- Filtros de Roles -->
-  <!-- Filtros de Roles -->
+
 <div class="flex items-center gap-4 mb-3">
   <div class="flex items-center gap-2">
     <p-radioButton name="estadoRol" [value]="true" [(ngModel)]="estadoRolesFiltro" inputId="radio-roles-activos" (onClick)="cambiarFiltroRoles()" />
@@ -397,7 +396,6 @@
 </div>
 
 
-  <!-- MultiSelect Roles -->
   <p-multiSelect 
     display="chip"
     [options]="rolesFiltrados" 
@@ -441,13 +439,8 @@
   </div>
 </section>
 
-
-    <!-- SECTION: Configuraciones -->
-  <!-- SECTION: Configuraciones -->
 <section *ngIf="tipoReporteSeleccionado === 'configuraciones'">
 
-  <!-- Select tipo de configuración -->
-  <!-- Select tipo de configuración -->
 <div class="mb-4">
   <h4 class="text-lg font-semibold text-gray-800 mb-2">
     Tipo de Configuración
@@ -554,31 +547,26 @@
 
 
 
-
-    <!-- SECTION: Formato de Exportación -->
-    <section>
-  <h3 class="text-lg font-semibold text-gray-800 mb-2">Formato de Exportación</h3>
-  <div class="space-y-2">
-    <div class="flex items-center">
-      <p-radiobutton name="formato" value="pdf" [(ngModel)]="filtros.formato" inputId="formatoPdf" />
-      <label for="formatoPdf" class="ml-2 text-sm text-gray-700 flex items-center gap-2">
-        <i class="pi pi-file-pdf text-red-600"></i> PDF
-      </label>
-    </div>
   
-  </div>
-</section>
-
-
-    <!-- Footer botones -->
-    
- 
   </form>
   <!-- Footer siempre visible -->
   <ng-template pTemplate="footer">
     <div class="flex justify-end gap-3 border-t pt-4">
       <p-button label="Cancelar" severity="secondary" (click)="cerrarModalCrear()"></p-button>
-      <p-button label="Generar" (click)="generarReporte()"></p-button>
+      <p-button 
+  [label]="generandoPDF ? 'Generando...' : 'Generar Reporte'"
+  icon="pi pi-spinner"
+  [loading]="generandoPDF"
+  [disabled]="generandoPDF"
+  (click)="generarReporte()">
+</p-button>
+
+
+
+
+
+
+
     </div>
   </ng-template>
 </p-dialog>
@@ -637,25 +625,51 @@
 
     <!-- Descripción del documento -->
     <p-iftalabel>
-      <textarea 
-        pTextarea 
-        id="inputDescripcionReporte" 
-        [(ngModel)]="descripcionReporteGuardar" 
-        rows="3" 
-        cols="30"
-        style="resize: none;" 
-        class="w-full"></textarea>
-      <label for="inputDescripcionReporte">Descripción del documento</label>
-    </p-iftalabel>
+  <textarea 
+    pTextarea 
+    id="descripcionReporte" 
+    [(ngModel)]="descripcionReporteGuardar" 
+    rows="5" 
+    cols="30"
+    class="w-full pl-3 pt-4 pb-2 resize-none"
+  ></textarea>
+  <label for="descripcionReporte">Descripción del documento</label>
+</p-iftalabel>
+
 
   </div>
 
   <ng-template pTemplate="footer">
     <div class="flex justify-end gap-3">
-      <p-button label="Cancelar" (click)="modalGuardarVisible = false"></p-button>
-      <p-button label="Guardar" 
-        (click)="guardarReporte()" 
-        [disabled]="!nombreReporteGuardar"></p-button>
+      <p-button label="Cancelar" severity="secondary" (click)="modalGuardarVisible = false"></p-button>
+      <p-button 
+  [disabled]="guardandoReporte || !nombreReporteGuardar"
+  (click)="guardarReporte()"
+  class=""
+>
+  <ng-container *ngIf="!guardandoReporte">
+
+    <span class="ml-2">Guardar</span>
+  </ng-container>
+  <ng-container *ngIf="guardandoReporte">
+    <p-progressSpinner 
+      strokeWidth="6" 
+      fill="transparent" 
+      animationDuration=".5s"
+      [style]="{ width: '18px', height: '18px' }">
+    </p-progressSpinner>
+    <span class="ml-2">Guardando..</span>
+  </ng-container>
+</p-button>
+
+
+
+
+
+
+
+
+
     </div>
   </ng-template>
 
