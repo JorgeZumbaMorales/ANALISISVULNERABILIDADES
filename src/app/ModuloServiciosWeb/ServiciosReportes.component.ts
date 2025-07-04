@@ -61,6 +61,15 @@ obtenerMetricasDashboard(): Observable<any> {
   ).pipe(catchError(this.handleError));
 }
 
+// ---- Listar todos los CVEs ----
+listarVulnerabilidadesCVE(): Observable<any> {
+  console.log('Consultando lista completa de vulnerabilidades CVE');
+  return this.http.get<any>(
+    `${this.apiUrlDashboard}/lista_cves`,
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+
 // ---- Estado de Dispositivos ----
 obtenerEstadoDispositivos(): Observable<any> {
   console.log('Consultando estado de dispositivos del dashboard');

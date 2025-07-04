@@ -9,7 +9,7 @@
       <p class="text-center mt-2 text-sm leading-snug">{{ message.message }}</p>
       <div class="flex justify-end gap-3 mt-5">
         <button pButton type="button" (click)="onReject()" label="Cancelar" class="p-button-outlined w-28"></button>
-        <button pButton type="button" (click)="onAccept()" label="Sí, cancelar" class="w-28"></button>
+        <button pButton type="button" (click)="onAccept()" label="Sí, eliminar" class="w-28"></button>
       </div>
     </div>
   </ng-template>
@@ -36,6 +36,7 @@
   [customSort]="true"
     [paginator]="true"
     [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20]"
     [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip', 'estado', 'precision_so']"
     responsiveLayout="scroll"
     class="w-full"

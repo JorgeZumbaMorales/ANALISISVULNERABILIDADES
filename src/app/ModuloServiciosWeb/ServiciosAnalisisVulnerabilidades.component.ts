@@ -125,6 +125,38 @@ limpiarResultadoEvaluacionRiesgo(): Observable<any> {
     { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
   ).pipe(catchError(this.handleError));
 }
+/**
+ * ⚡ Ejecuta un escaneo rápido de dispositivos activos (sin análisis de puertos).
+ * @returns Observable con el resumen del escaneo rápido
+ */
+ejecutarEscaneoRapido(): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlEscaneoAvanzado}/escaneo_rapido`,
+    {}, // cuerpo vacío
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+/**
+ * 🛑 Cancela el escaneo rápido en curso.
+ * @returns Observable con el mensaje de cancelación
+ */
+cancelarEscaneoRapido(): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlEscaneoAvanzado}/cancelar_escaneo_rapido`,
+    {}, // cuerpo vacío
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+/**
+ * 🔄 Consulta el estado del escaneo rápido desde Redis.
+ * @returns Observable con estado: 'no_iniciado', 'en_progreso', 'completado', 'cancelado'
+ */
+obtenerEstadoEscaneoRapido(): Observable<any> {
+  return this.http.get<any>(
+    `${this.apiUrlEscaneoAvanzado}/estado_escaneo_rapido`,
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
 
     // ===================== VULNERABILIDADES =====================
 
@@ -291,6 +323,63 @@ cancelarAnalisisAvanzado(): Observable<any> {
   return this.http.post<any>(
     `${this.apiUrlEscaneoAvanzado}/cancelar_analisis_avanzado`,
     {}, // cuerpo vacío
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+
+
+// ===================== EVALUACIÓN INDIVIDUAL DE RIESGO =====================
+
+/**
+ * 🚀 Inicia la evaluación de riesgo para un dispositivo específico (por IP y MAC).
+ * @param datos Objeto con { ip: string, mac: string }
+ */
+evaluarRiesgoDispositivoIndividual(datos: { ip: string, mac: string }): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlEvaluacionRiesgo}/evaluar_dispositivo`,
+    datos,
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+
+/**
+ * 🔄 Consulta el estado de la evaluación individual: no_iniciado | en_proceso | completado | cancelado | error.
+ */
+obtenerEstadoEvaluacionIndividual(): Observable<any> {
+  return this.http.get<any>(
+    `${this.apiUrlEvaluacionRiesgo}/estado_individual`,
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+
+/**
+ * 📋 Obtiene el resultado de la evaluación individual desde Redis.
+ */
+obtenerResultadoEvaluacionIndividual(): Observable<any> {
+  return this.http.get<any>(
+    `${this.apiUrlEvaluacionRiesgo}/resultado_individual`,
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+
+/**
+ * 🛑 Cancela la evaluación de riesgo individual en curso.
+ */
+cancelarEvaluacionIndividual(): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlEvaluacionRiesgo}/cancelar_individual`,
+    {},
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  ).pipe(catchError(this.handleError));
+}
+
+/**
+ * 🧹 Limpia el resultado de la evaluación individual.
+ */
+limpiarResultadoEvaluacionIndividual(): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrlEvaluacionRiesgo}/limpiar_individual`,
+    {},
     { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
   ).pipe(catchError(this.handleError));
 }

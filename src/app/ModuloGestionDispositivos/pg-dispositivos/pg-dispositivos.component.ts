@@ -76,75 +76,12 @@ export class PgDispositivosComponent implements OnInit, AfterViewInit {
 ngOnInit(): void {
   this.cargarDispositivos();
   this.cargarSistemasOperativos();
-
-this.analisisVulnerabilidades.obtenerEstadoEscaneo().subscribe({
-  next: ({ estado }) => {
-    console.log('🔍 Estado desde backend:', estado);
-
-    // 👉 Si no hay escaneo válido, detenemos seguimiento y salimos
-    if (estado === 'no_encontrado' || !estado) {
-      this.segundoPlano.detener('escaneo_dispositivos');
-      localStorage.removeItem('escaneo_dispositivos');
-      this.escaneando = false;
-      return;
-    }
-
-    const escaneoActivo = estado === 'en_progreso' || estado?.startsWith('procesando');
-
-    if (escaneoActivo) {
-  this.escaneando = true; // 👈 primero forzamos el estado
-
-  this.actualizarProgresoDesdeBackend(); // 🟢 actualizar visual inmediato al entrar
-
-  this.segundoPlano.iniciar('escaneo_dispositivos', {
-    intervaloMs: 2000,
-    obtenerEstado: () => this.analisisVulnerabilidades.obtenerEstadoEscaneo(),
-    alIterar: () => {
-      this.actualizarProgresoDesdeBackend();
-    },
-    alFinalizar: () => {
-      this.escaneando = false;
-      this.notificacion.success('Escaneo finalizado', 'El escaneo ha terminado correctamente.');
-      this.crearNotificacionFinalizacion();
-      this.cargarDispositivos();
-    },
-    alError: (mensaje) => {
-      this.escaneando = false;
-      this.notificacion.error('Error', mensaje ?? 'Fallo al seguir el escaneo.');
-    }
-  });
-}
- else {
-      this.segundoPlano.detener('escaneo_dispositivos');
-      localStorage.removeItem('escaneo_dispositivos');
-      this.escaneando = false;
-    }
-  },
-  error: () => {
-    console.warn('❌ No se pudo verificar el estado del escaneo.');
-  }
-});
+  this.reanudarEscaneoSiEstabaActivo(); // nuevo
 
 }
 
 
-private iniciarSeguimiento(): void {
-  this.segundoPlano.iniciar('escaneo_dispositivos', {
-    intervaloMs: 2000,
-    obtenerEstado: () => this.analisisVulnerabilidades.obtenerEstadoEscaneo(),
-    alIterar: () => this.actualizarProgresoDesdeBackend(),
-    alFinalizar: () => {
-      this.escaneando = false;
-      this.notificacion.success('Escaneo finalizado', 'El escaneo ha terminado correctamente.');
-      this.crearNotificacionFinalizacion();
-      this.cargarDispositivos();
-    },
-    alError: (mensaje?: string) => {
-      this.escaneando = false;
-      this.notificacion.error('Error', mensaje ?? 'Error en el seguimiento del escaneo.');
-    }
-  });
-}
+
 
 
 
@@ -324,57 +261,36 @@ private iniciarSeguimiento(): void {
     });
   }
 
-  iniciarEscaneoManual(): void {
-  this.escaneando = true;
-
-  this.analisisVulnerabilidades.ejecutarEscaneoManual().subscribe({
-    next: () => {
-      this.notificacion.success('Escaneo', 'Escaneo iniciado correctamente.');
-      this.iniciarSeguimiento();  // 👈
-    },
-    error: () => {
-      this.escaneando = false;
-      this.notificacion.error('Error', 'No se pudo iniciar el escaneo manual.');
-    }
-  });
-}
 
 
-actualizarProgresoDesdeBackend(): void {
-  this.analisisVulnerabilidades.obtenerProgresoEscaneo().subscribe({
-    next: (data: { total: number; procesados: number }) => {
-      this.progresoTotal = data.total;
-      this.progresoActual = data.procesados;
-    },
-    error: () => {
-      this.progresoTotal = 0;
-      this.progresoActual = 0;
-    }
-  });
-}
+
 abrirDialogoCancelarEscaneo(): void {
   this.confirmationService.confirm({
-    message: '¿Estás seguro de cancelar el escaneo en curso?',
+    message: '¿Estás seguro de cancelar el escaneo rápido?',
     header: 'Cancelar escaneo',
     icon: 'pi pi-exclamation-triangle',
     acceptLabel: 'Sí, cancelar',
     rejectLabel: 'No',
     accept: () => {
-      this.analisisVulnerabilidades.cancelarEscaneoManual().subscribe({
+      this.analisisVulnerabilidades.cancelarEscaneoRapido().subscribe({
         next: () => {
-          this.segundoPlano.detener('escaneo_dispositivos');
+          // ❌ Eliminar este toast porque ya se mostrará al final del seguimiento
+          // this.notificacion.warning('Escaneo cancelado', 'El escaneo rápido ha sido cancelado.');
+          
           this.escaneando = false;
           this.progresoActual = 0;
           this.progresoTotal = 0;
-          this.notificacion.success('Escaneo cancelado', 'El escaneo se ha cancelado correctamente.');
         },
-        error: () => {
-          this.notificacion.error('Error', 'No se pudo cancelar el escaneo.');
+        error: (err) => {
+          console.error('❌ Error al cancelar escaneo:', err);
         }
       });
     }
   });
 }
+
+
+
 private crearNotificacionFinalizacion(): void {
   const usuario_id = this.sesionUsuario.obtenerUsuarioDesdeToken()?.usuario_id;
   if (!usuario_id) return;
@@ -392,5 +308,88 @@ private crearNotificacionFinalizacion(): void {
     error: (err) => console.warn('⚠️ Error al crear notificación:', err)
   });
 }
+
+private reanudarEscaneoSiEstabaActivo(): void {
+  this.analisisVulnerabilidades.obtenerEstadoEscaneoRapido().subscribe({
+    next: ({ estado }) => {
+      if (estado === 'en_progreso') {
+        this.iniciarSeguimientoEscaneo();
+      } else {
+        this.escaneando = false;
+      }
+    },
+    error: () => {
+      this.escaneando = false;
+    }
+  });
+}
+
+ejecutarEscaneoRapido(): void {
+  this.escaneando = true;
+
+  this.analisisVulnerabilidades.ejecutarEscaneoRapido().subscribe({
+    next: () => {
+      this.iniciarSeguimientoEscaneo(); // 🔁 Seguimiento en segundo plano
+    },
+    error: (err) => {
+      this.notificacion.error('Error', 'No se pudo iniciar el escaneo rápido.');
+      this.escaneando = false;
+    }
+  });
+}
+private iniciarSeguimientoEscaneo(): void {
+  this.segundoPlano.iniciar('escaneo_rapido', {
+    intervaloMs: 3000,
+    obtenerEstado: () => this.analisisVulnerabilidades.obtenerEstadoEscaneoRapido(),
+    alFinalizar: () => {
+  this.analisisVulnerabilidades.obtenerEstadoEscaneoRapido().subscribe({
+    next: ({ estado }) => {
+      console.log('🧪 Estado final del escaneo:', estado); // 👈 VERIFICAR
+
+      this.escaneando = false;
+      this.cargarDispositivos();
+
+      if (estado === 'completado') {
+        this.crearNotificacionFinalizacion();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Escaneo finalizado',
+          detail: 'El escaneo rápido ha terminado exitosamente.'
+        });
+      } else if (estado === 'cancelado') {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Escaneo cancelado',
+          detail: 'El escaneo fue cancelado.'
+        });
+      } else {
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Estado desconocido',
+          detail: `El estado final fue: ${estado}`
+        });
+      }
+    },
+    error: () => {
+      this.escaneando = false;
+      this.notificacion.error('Error', 'Error al verificar estado final del escaneo.');
+    }
+  });
+}
+,
+    alError: () => {
+      this.escaneando = false;
+      this.notificacion.error('Error', 'Error al obtener estado de escaneo rápido.');
+    },
+    alIterar: () => {
+      this.escaneando = true;
+    }
+  });
+}
+
+
+
+
+
 
 }

@@ -34,7 +34,8 @@ export class ServicioSegundoPlano {
   this.procesos[clave] = interval(config.intervaloMs).subscribe(() => {
     config.obtenerEstado().subscribe({
       next: ({ estado }: any) => {
-        console.log('[Polling] Estado actual:', estado);
+        console.log('[Polling] Estado actual:', JSON.stringify(estado));
+
         if (['completado', 'cancelado'].includes(estado)) {
           this.detener(clave);
           config.alFinalizar();

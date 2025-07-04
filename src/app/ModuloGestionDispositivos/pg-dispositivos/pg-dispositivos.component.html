@@ -29,7 +29,7 @@
     label="Escanear Dispositivos"
     icon="pi pi-bolt"
     [disabled]="escaneando"
-    (click)="iniciarEscaneoManual()"
+    (click)="ejecutarEscaneoRapido()"
     *ngIf="!escaneando">
   </p-button>
 
@@ -61,14 +61,14 @@
   class="bg-white border border-gray-200 rounded-xl shadow-md px-5 py-4 my-3"
 >
   <p-progressBar 
-    [value]="Math.floor((progresoActual / progresoTotal) * 100)" 
-    [showValue]="true"
-    [style]="{ height: '18px', borderRadius: '8px' }">
-  </p-progressBar>
+  mode="indeterminate" 
+  [style]="{ height: '18px', borderRadius: '8px' }">
+</p-progressBar>
 
-  <div class="text-sm text-center text-gray-600 mt-2">
-    Procesados {{ progresoActual }} de {{ progresoTotal }} dispositivos
-  </div>
+<div class="text-sm text-center text-gray-600 mt-2">
+  Detectando dispositivos activos...
+</div>
+
 </section>
 
 
@@ -90,6 +90,7 @@
   dataKey="dispositivo_id"
   [paginator]="true"
   [rows]="5"
+  [rowsPerPageOptions]="[5, 10, 20]"
   [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip', 'precision_so']"
   responsiveLayout="scroll"
   class="w-full"
@@ -121,8 +122,7 @@
       <tr>
         <th pSortableColumn="nombre_dispositivo">Nombre <p-sortIcon field="nombre_dispositivo" /></th>
         <th pSortableColumn="mac_address">MAC Address <p-sortIcon field="mac_address" /></th>
-        <th pSortableColumn="sistema_operativo">Sistema Operativo <p-sortIcon field="sistema_operativo" /></th>
-        <th pSortableColumn="precision_so">Precisión Sistema Operativo <p-sortIcon field="precision_so" /></th>
+     
         <th pSortableColumn="ultima_ip">IP Actual <p-sortIcon field="ultima_ip" /></th>
         <th class="text-center">Estado</th>
         <th class="text-center w-[150px]">Acciones</th>
@@ -134,8 +134,7 @@
       <tr>
         <td>{{ dispositivo.nombre_dispositivo }}</td>
         <td>{{ dispositivo.mac_address }}</td>
-        <td>{{ dispositivo.sistema_operativo || 'Desconocido' }}</td>
-        <td>{{ dispositivo.precision_so | number: '1.0-1' }}%</td>
+
         <td>{{ dispositivo.ultima_ip || 'No asignada' }}</td>
         <td class="text-center">
           <p-tag
@@ -152,6 +151,7 @@
               (click)="abrirModal('editar', dispositivo)"
               class="">
             </p-button>
+            <!--
             <p-button 
   icon="pi pi-eye"
   pTooltip="Ver puertos"
@@ -159,6 +159,7 @@
   (click)="verPuertosDispositivo(dispositivo)"
   class="p-button-text p-button-info">
 </p-button>
+-->
 
           </div>
         </td>
@@ -196,7 +197,7 @@
       <label for="nombre">Nombre del dispositivo</label>
     </p-iftalabel>
 
-    <!-- Sistema operativo -->
+    <!-- Sistema operativo 
     <p-iftalabel class="block">
       <p-autoComplete
   inputId="so"
@@ -222,7 +223,7 @@
 
       <label for="so">Sistema Operativo</label>
     </p-iftalabel>
-
+    -->
     <!-- Botones -->
     <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-3 gap-2 pt-2">
       <p-button

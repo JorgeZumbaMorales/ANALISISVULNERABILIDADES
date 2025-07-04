@@ -29,7 +29,7 @@
     label="Evaluar Riesgo"
     icon="pi pi-bolt"
     [disabled]="evaluacionEnProgreso"
-    (click)="iniciarEvaluacionRiesgo()"
+   (click)="evaluarDispositivoSeleccionado()"
 
     *ngIf="!evaluacionEnProgreso">
   </p-button>
@@ -53,6 +53,44 @@
 
   </div>
 </section>
+<section class="flex justify-center items-start pt-4 pb-2 px-4 md:px-8">
+  <div class="w-full max-w-xl">
+    <p-iftalabel>
+      <label for="dd-dispositivo" class="block mb-2 text-lg font-semibold text-gray-700">Dispositivo</label>
+
+      <p-select
+        [(ngModel)]="dispositivoSeleccionado"
+        [options]="dispositivos"
+        optionLabel="etiquetaBusqueda"
+        [filter]="true"
+        appendTo="body"
+        placeholder="Selecciona un dispositivo"
+        class="w-full"
+      >
+        <!-- Elemento seleccionado -->
+        <ng-template let-disp pTemplate="selectedItem">
+          <div class="flex flex-col">
+            <span class="font-semibold">{{ disp.nombre_dispositivo }}</span>
+            <span class="text-sm text-gray-500">IP: {{ disp.ultima_ip }} | MAC: {{ disp.mac_address }}</span>
+          </div>
+        </ng-template>
+
+        <!-- Opciones en la lista -->
+        <ng-template let-disp pTemplate="item">
+          <div class="flex flex-col">
+            <span class="font-semibold">{{ disp.nombre_dispositivo }}</span>
+            <span class="text-sm text-gray-500">IP: {{ disp.ultima_ip }} | MAC: {{ disp.mac_address }}</span>
+          </div>
+        </ng-template>
+      </p-select>
+      <label for="dd-dispositivo">Dispositivo</label>
+    </p-iftalabel>
+  </div>
+</section>
+
+
+
+
 <section 
   *ngIf="evaluacionEnProgreso"
   class="w-full border border-gray-200 rounded-2xl shadow-sm bg-white px-4 py-4 my-4"
@@ -62,168 +100,214 @@
     [style]="{ height: '14px' }"
   ></p-progressBar>
   <p class="text-xs text-center text-gray-600 mt-2">
-    Evaluando dispositivos... esto puede tardar unos minutos.
+    Evaluando dispositivo... esto puede tardar unos minutos.
   </p>
 </section>
 
-<section class="w-full px-1 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 my-3 ">
-  <p-message 
-    *ngIf="!evaluacionCompletada" 
-    severity="contrast" 
-    text="Presiona el botón 'Evaluar Riesgo' para comenzar la clasificación de los dispositivos activos.">
-  </p-message>
-</section>
-
 <section 
-  *ngIf="evaluacionCompletada"
-  class="w-full flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-4 px-4 my-4"
->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full sm:w-auto">
-    <p-card 
-      *ngFor="let item of tarjetasRiesgo"
-      class="border-l-4 shadow-sm"
-      [ngClass]="item.borde"
-      styleClass="bg-white rounded-xl px-4 py-3 text-center">
-      <div class="flex flex-col items-center justify-center gap-2">
-        <i [class]="item.icono + ' text-2xl ' + item.color"></i>
-        <p class="font-semibold text-sm text-gray-700">{{ item.titulo }}</p>
-        <p class="text-xl font-bold text-gray-900">
-          {{ obtenerCantidadPorRiesgo(item.valor) }}
-        </p>
-      </div>
-    </p-card>
-  </div>
-</section>
+  *ngIf="evaluacionCompletada" 
+  class="w-full rounded-xl bg-[#f7f9fc] border border-gray-300 overflow-hidden my-4">
 
-<div class="flex justify-center my-3 px-4" *ngIf="evaluacionCompletada">
+
+  <!-- Encabezado unificado al section -->
+  <!-- Encabezado limpio -->
+<div class="bg-[#0A2342] text-white px-4 sm:px-6 py-3 flex items-center justify-between rounded-t-md">
+  <h2 class="text-lg sm:text-xl font-bold">Resultado de la Evaluación</h2>
   <p-button 
-    label="Limpiar Evaluación"
+    label="Limpiar Datos"
     icon="pi pi-trash"
-    styleClass="p-button-sm p-button-outlined text-gray-700 border-gray-300"
-    (click)="limpiarEstadoEvaluacion()"
-    tooltip="Borrar resultados actuales y permitir una nueva evaluación">
+    (click)="limpiarEvaluacion()"
+    styleClass="p-button-danger"
+    tooltip="Borrar resultados actuales">
   </p-button>
 </div>
 
-<section class="w-full  border border-gray-200 rounded-2xl shadow-md px-4">
-  <p-accordion [activeIndex]="evaluacionCompletada ? null : -1" [multiple]="true">
-    
-    <ng-container *ngFor="let riesgo of ['Alto', 'Medio', 'Bajo', 'Sin Riesgo']">
-      <p-accordionTab 
-        [header]="riesgo === 'Sin Riesgo' ? 'Dispositivos Sin Riesgo' : 'Dispositivos con Riesgo ' + riesgo"
-        [disabled]="!evaluacionCompletada"
-        pTooltip="Ver resultados"
-        tooltipPosition="top"
-        [attr.id]="'acordeon-' + riesgo"
-      >
-        <ng-container *ngIf="evaluacionCompletada">
-          <ng-container *ngIf="obtenerDispositivos(riesgo).length > 0; else sinDispositivos">
-            <ng-container *ngFor="let dispositivo of obtenerDispositivos(riesgo)">
-<div class="bg-gray-50 border border-gray-200 rounded-lg">
 
-  <!-- Header: Nombre, etiqueta y MAC -->
-  <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-4">
-    <div class="flex items-center gap-2">
-      <i class="pi pi-server text-lg"></i>
-      <span class="font-semibold">{{ dispositivo.nombreDispositivo }}</span>
-      <p-tag [value]="dispositivo.riesgo" [severity]="obtenerColorEtiqueta(dispositivo.riesgo)"></p-tag>
-    </div>
-    <span class="text-sm text-gray-500">({{ dispositivo.macAddress }})</span>
+  <!-- Contenido del section -->
+  <div class="p-4">
+ <!-- Contenedor de datos del dispositivo -->
+<div class="w-full flex justify-center mt-2">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 text-sm">
+
+    <p-panel [toggleable]="false"
+      styleClass="!rounded-md border border-gray-200 bg-white shadow-sm text-center h-full overflow-hidden">
+      <div class="bg-[#f0f2f5] text-[#0A2342] text-xs font-semibold uppercase py-1 px-2 border-b border-gray-200">
+        Nombre
+      </div>
+      <div class="py-2 px-2 text-sm text-gray-800 font-medium">
+        {{ nombreDispositivoEvaluado }}
+      </div>
+    </p-panel>
+
+    <p-panel [toggleable]="false"
+      styleClass="!rounded-md border border-gray-200 bg-white shadow-sm text-center h-full overflow-hidden">
+      <div class="bg-[#f0f2f5] text-[#0A2342] text-xs font-semibold uppercase py-1 px-2 border-b border-gray-200">
+        IP
+      </div>
+      <div class="py-2 px-2 text-sm text-gray-800 font-medium">
+        {{ ipEvaluada }}
+      </div>
+    </p-panel>
+
+    <p-panel [toggleable]="false"
+      styleClass="!rounded-md border border-gray-200 bg-white shadow-sm text-center h-full overflow-hidden">
+      <div class="bg-[#f0f2f5] text-[#0A2342] text-xs font-semibold uppercase py-1 px-2 border-b border-gray-200">
+        MAC
+      </div>
+      <div class="py-2 px-2 text-sm text-gray-800 font-medium">
+        {{ macEvaluada }}
+      </div>
+    </p-panel>
+
+    <p-panel [toggleable]="false"
+      styleClass="!rounded-md border border-gray-200 bg-white shadow-sm text-center h-full overflow-hidden">
+      <div class="bg-[#f0f2f5] text-[#0A2342] text-xs font-semibold uppercase py-1 px-2 border-b border-gray-200">
+        Sistema Operativo
+      </div>
+      <div class="py-2 px-2 text-sm text-gray-800 font-medium break-words">
+        {{ sistemaOperativo }}
+      </div>
+    </p-panel>
+
+    <p-panel [toggleable]="false"
+      styleClass="!rounded-md border border-gray-200 bg-white shadow-sm text-center h-full overflow-hidden">
+      <div class="bg-[#f0f2f5] text-[#0A2342] text-xs font-semibold uppercase py-1 px-2 border-b border-gray-200">
+        Precisión del S.O.
+      </div>
+      <div class="py-2 px-2 text-sm text-gray-800 font-medium">
+        {{ precisionSO }}%
+      </div>
+    </p-panel>
+
   </div>
-
-  <p-divider class="m-0" />
-
-  <!-- Sección de justificación -->
-  <ng-container *ngIf="dispositivo.riesgo !== 'Sin Riesgo'; else soloResumenSinRiesgo">
-    <div class="p-4">
-      <h3 class="font-bold">Justificación:</h3>
-      <div class="mt-2" *ngIf="dispositivo.descripcion">
-        <p class="text-sm ">
-          <i class="pi pi-info-circle text-red-700 mr-1"></i>
-          {{ dispositivo.descripcion }}
-        </p>
-      </div>
-    </div>
-
-    <p-divider class="m-0" />
-
-    <!-- Puertos abiertos -->
-    <div class="p-4">
-      <p class="text-sm font-semibold mb-2">Puertos Abiertos:</p>
-      <div class="flex flex-wrap gap-2">
-        <p-chip 
-          *ngFor="let puerto of dispositivo.puertosAbiertos"
-          [label]="puerto.numero + ' - ' + (puerto.servicio || 'Desconocido')"
-          styleClass="bg-gray-100 text-gray-800 text-sm font-medium rounded-lg border border-gray-200 px-3 py-1 shadow-none">
-        </p-chip>
-      </div>
-    </div>
-
-    <p-divider class="m-0" />
-
-    <!-- Selector de puertos -->
-    <div class="p-4">
-      <p-multiSelect 
-  [options]="dispositivo.puertosAbiertos"
-  optionLabel="label"  
-  [(ngModel)]="dispositivo.puertosSeleccionados"
-  placeholder="Selecciona puertos para recomendación"
-  appendTo="body"
-  class="w-full text-sm">
-</p-multiSelect>
-
-    </div>
-
-    <!-- Botón de recomendaciones -->
-    <div class="p-4 pt-0" *ngIf="dispositivo.puertosSeleccionados.length">
-      <div class="flex justify-end">
-        <p-button 
-          [disabled]="dispositivo.cargandoRecomendaciones"
-          (click)="mostrarRecomendaciones(dispositivo)">
-          <ng-container *ngIf="!dispositivo.cargandoRecomendaciones">
-            <i class="pi pi-shield"></i>
-            <span class="ml-2">Ver Recomendaciones</span>
-          </ng-container>
-          <ng-container *ngIf="dispositivo.cargandoRecomendaciones">
-            <p-progress-spinner 
-              strokeWidth="8" 
-              fill="transparent" 
-              animationDuration=".5s"
-              [style]="{ width: '20px', height: '20px' }">
-            </p-progress-spinner>
-            <span class="ml-2">Generando...</span>
-          </ng-container>
-        </p-button>
-      </div>
-    </div>
-  </ng-container>
-
-  <!-- Caso sin riesgo -->
-  <ng-template #soloResumenSinRiesgo>
-    <div class="p-4">
-      <p class="text-sm text-gray-500">Este dispositivo no presenta puertos abiertos.</p>
-    </div>
-  </ng-template>
-
 </div>
 
 
 
 
-            </ng-container>
-          </ng-container>
-          <ng-template #sinDispositivos>
-            <p class="text-sm text-gray-500 px-4 py-2">No hay dispositivos asociados a este nivel de riesgo.</p>
-          </ng-template>
-        </ng-container>
 
-        <ng-container *ngIf="!evaluacionCompletada">
-          <p class="text-sm text-gray-500">Evaluación pendiente. No hay datos disponibles aún.</p>
-        </ng-container>
-      </p-accordionTab>
-    </ng-container>
-  </p-accordion>
+
+
+
+
+
+
+
+<div class="w-full flex justify-center mt-4">
+  <p-card class="w-full max-w-4xl text-center bg-[#fcfcfc] border border-gray-200 rounded-xl shadow-sm">
+
+
+    <!-- Encabezado: Nivel de Riesgo -->
+    <div class="mb-4">
+      <p class="text-lg font-semibold text-gray-800">Nivel de Riesgo</p>
+      <p-tag 
+        [value]="riesgoEvaluado"
+        [severity]="riesgoEvaluado === 'Alto' ? 'danger' : (riesgoEvaluado === 'Medio' ? 'warn' : 'success')" 
+        rounded class="mt-2">
+      </p-tag>
+    </div>
+
+    <!-- Separador -->
+    <p-divider type="solid" class="my-4" />
+
+    <!-- Bloque Justificación con estilo de párrafo limpio -->
+    <div>
+      <p class="text-lg font-semibold text-gray-800 mb-2">Justificación Técnica</p>
+      <div class="px-3 text-sm text-gray-700 leading-relaxed">
+        {{ justificacionEvaluada }}
+      </div>
+    </div>
+
+  </p-card>
+</div>
+
+
+
+
+
+
+
+
+    <!-- Puertos detectados -->
+   <!-- Puertos Detectados -->
+<section class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 py-2 mt-4">
+  <p-table
+    [value]="puertosDetectados"
+    [(selection)]="puertosSeleccionados"
+    dataKey="puerto_id"
+    selectionMode="multiple"
+    [paginator]="true"
+    [rows]="10"
+    responsiveLayout="scroll"
+    class="w-full"
+    appendTo="body"
+    
+  >
+    <!-- 🧭 Título y botón -->
+    <ng-template pTemplate="caption">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800">Puertos Detectados</h3>
+        <p-button 
+          *ngIf="puertosSeleccionados.length > 0"
+          [label]="cargandoRecomendaciones ? 'Generando...' : 'Generar Recomendaciones'"
+          [icon]="cargandoRecomendaciones ? 'pi pi-spin pi-spinner' : 'pi pi-lightbulb'"
+          [disabled]="cargandoRecomendaciones"
+          iconPos="left"
+          (click)="generarRecomendaciones()"
+          class="mt-2 sm:mt-0"
+        ></p-button>
+      </div>
+    </ng-template>
+
+    <!-- 🔠 Encabezado -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
+        <th pSortableColumn="numero">Número <p-sortIcon field="numero" /></th>
+        <th pSortableColumn="protocolo">Protocolo <p-sortIcon field="protocolo" /></th>
+        <th pSortableColumn="servicio">Servicio <p-sortIcon field="servicio" /></th>
+        <th pSortableColumn="version">Versión <p-sortIcon field="version" /></th>
+      </tr>
+    </ng-template>
+
+    <!-- 📄 Cuerpo -->
+    <ng-template pTemplate="body" let-puerto>
+      <tr [pSelectableRow]="puerto">
+        <td><p-tableCheckbox [value]="puerto"></p-tableCheckbox></td>
+        <td>{{ puerto.numero || 'No hay número' }}</td>
+        <td>{{ puerto.protocolo }}</td>
+        <td>{{ puerto.servicio || 'Desconocido' }}</td>
+        <td>{{ puerto.version || 'No especificada' }}</td>
+      </tr>
+    </ng-template>
+
+    <!-- ❌ Mensaje vacío -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="text-center text-gray-500">No se han detectado puertos.</td>
+      </tr>
+    </ng-template>
+  </p-table>
 </section>
+
+
+
+
+
+
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
 
 
 <p-dialog 

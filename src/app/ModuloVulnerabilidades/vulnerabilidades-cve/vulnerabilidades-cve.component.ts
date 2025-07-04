@@ -30,6 +30,9 @@ export class VulnerabilidadesCveComponent implements OnInit {
   analisisFinalizado = false;
   resultadoPersistente = false;
   mensajeErrorAnalisis: string | null = null;
+  nombreDispositivoAnalizado: string = '';
+ipOriginalAnalizada: string = '';
+macAnalizada: string = '';
 
   riesgosDisponiblesFiltrados: number[] = [];
   opcionesExploitFiltradas: boolean[] = [];
@@ -117,9 +120,11 @@ ngOnInit(): void {
     });
   }
 
-  private recuperarDatosLocales(): void {
+private recuperarDatosLocales(): void {
   const datos = localStorage.getItem('vulnerabilidadesDetalle');
   const resumen = localStorage.getItem('resumenesPorPuerto');
+  const ipGuardada = localStorage.getItem('ipOriginalAnalizada');
+  const macGuardada = localStorage.getItem('macAnalizada');
 
   if (datos) {
     this.vulnerabilidadesDetalle = JSON.parse(datos);
@@ -130,6 +135,9 @@ ngOnInit(): void {
   if (resumen) {
     this.resumenTecnico = JSON.parse(resumen);
   }
+
+  if (ipGuardada) this.ipOriginalAnalizada = ipGuardada;
+  if (macGuardada) this.macAnalizada = macGuardada;
 
   // ✅ Seleccionar primer puerto si está disponible y no hay uno ya seleccionado
   if (!this.puertoSeleccionado && this.resumenTecnico.length > 0) {
@@ -242,6 +250,8 @@ private procesarResultadoAnalisis(resultado: any): void {
     localStorage.removeItem('vulnerabilidadesDetalle');
     localStorage.removeItem('resumenesPorPuerto');
     localStorage.removeItem('analisisEnProgreso');
+    localStorage.removeItem('ipOriginalAnalizada');
+    localStorage.removeItem('macAnalizada');
     return;
   }
 
@@ -253,8 +263,14 @@ private procesarResultadoAnalisis(resultado: any): void {
   this.analisisEnProgreso = false;
   this.cargando = false;
 
+  // ✅ Asignar datos del dispositivo para visualización
+  this.ipOriginalAnalizada = resultado?.ip_escaneada || '';
+  this.macAnalizada = resultado?.mac_analizada || '';
+
   localStorage.setItem('vulnerabilidadesDetalle', JSON.stringify(vulnerabilidades));
   localStorage.setItem('resumenesPorPuerto', JSON.stringify(resumenes));
+  localStorage.setItem('ipOriginalAnalizada', this.ipOriginalAnalizada);
+  localStorage.setItem('macAnalizada', this.macAnalizada);
   localStorage.removeItem('analisisEnProgreso');
 
   if (!this.puertoSeleccionado && resumenes.length > 0) {
@@ -271,7 +287,6 @@ private procesarResultadoAnalisis(resultado: any): void {
     life: 6000
   });
 
-  // ✅ Crear notificación SOLO si fue exitoso
   this.crearNotificacionFinalizacion();
 }
 
@@ -345,7 +360,7 @@ private limpiarSoloResultado(): void {
 }
 
 
-  consultarResultadoAnterior(): void {
+consultarResultadoAnterior(): void {
   if (!this.dispositivoSeleccionado) {
     this.notificacion.error('Selecciona un dispositivo para consultar vulnerabilidades.');
     return;
@@ -374,8 +389,19 @@ private limpiarSoloResultado(): void {
       };
 
       this.ngZone.run(() => {
+        // ✅ Procesamos resultado como si fuera nuevo análisis
         this.procesarResultadoAnalisis(resultado);
+
+        // ✅ Datos del dispositivo para mostrar y persistir
+        this.nombreDispositivoAnalizado = this.dispositivoSeleccionado?.nombre || '';
+        this.ipOriginalAnalizada = this.dispositivoSeleccionado?.ip || this.dispositivoSeleccionado?.ultima_ip || '';
+        this.macAnalizada = this.dispositivoSeleccionado?.mac || this.dispositivoSeleccionado?.mac_address || '';
+
         localStorage.setItem('dispositivoSeleccionado', JSON.stringify(this.dispositivoSeleccionado));
+        localStorage.setItem('ipOriginalAnalizada', this.ipOriginalAnalizada);
+        localStorage.setItem('macAnalizada', this.macAnalizada);
+        localStorage.setItem('nombreDispositivoAnalizado', this.nombreDispositivoAnalizado);
+
         this.cdr.detectChanges();
       });
     },
@@ -385,6 +411,7 @@ private limpiarSoloResultado(): void {
     }
   });
 }
+
 
   actualizarFiltrosPorPuerto(): void {
   const vuls: any[] = this.puertoSeleccionado?.vulnerabilidades ?? [];
@@ -485,28 +512,25 @@ private crearNotificacionFinalizacion(): void {
 
 obtenerBloque(tipo: 'estado' | 'analisis' | 'riesgos'): string {
   const resumen = this.puertoSeleccionado?.resumen || '';
-  const patrones = {
-    estado: '• Estado general del puerto y su servicio:',
-    analisis: '• Análisis técnico del resultado del escaneo:',
-    riesgos: '• Riesgos identificados o potenciales:',
-    recomendaciones: '• Recomendaciones específicas:'
+  const claves = {
+    estado: '1. Estado general del puerto y su servicio:',
+    analisis: '2. Análisis técnico del resultado del escaneo:',
+    riesgos: '3. Riesgos identificados o potenciales:',
+    recomendaciones: '4. Recomendaciones específicas:'
   };
 
-  const actual = patrones[tipo];
-  const inicio = resumen.toLowerCase().indexOf(actual.toLowerCase());
+  const actual = claves[tipo];
+  const inicio = resumen.indexOf(actual);
   if (inicio === -1) return '';
 
-  const posicionesSiguientes = Object.values(patrones)
-    .filter(p => p !== actual)
-    .map(p => resumen.toLowerCase().indexOf(p.toLowerCase()))
-    .filter(pos => pos > inicio);
+  const posicionesSiguientes = Object.values(claves)
+    .filter((clave) => clave !== actual)
+    .map((clave) => resumen.indexOf(clave))
+    .filter((pos) => pos > inicio);
 
   const fin = posicionesSiguientes.length > 0 ? Math.min(...posicionesSiguientes) : resumen.length;
 
-  let bloque = resumen.slice(inicio + actual.length, fin).trim();
-  bloque = bloque.replace(/^[:：]+/, '').trim();
-
-  return bloque;
+  return resumen.slice(inicio + actual.length, fin).trim();
 }
 
 
@@ -516,25 +540,21 @@ obtenerBloque(tipo: 'estado' | 'analisis' | 'riesgos'): string {
 
 
 obtenerRecomendaciones(resumen: string): string[] {
-  const marcador = '• Recomendaciones específicas:';
-  const inicio = resumen.toLowerCase().indexOf(marcador.toLowerCase());
+  const marcador = '4. Recomendaciones específicas:';
+  const inicio = resumen.indexOf(marcador);
   if (inicio === -1) return [];
 
   const bloque = resumen.slice(inicio + marcador.length).trim();
 
-  const limpio = bloque
-    .replace(/^[:：#\s]*/gm, '') // encabezados residuales
-    .replace(/\n{2,}/g, '\n')
-    .trim();
-
-  const numeradas = limpio.split(/\n?\d+\.\s+/).slice(1).map(r => r.trim()).filter(Boolean);
+  const numeradas = bloque.split(/\n?\d+\.\s+/).slice(1).map(r => r.trim()).filter(Boolean);
   if (numeradas.length > 0) return numeradas;
 
-  const viñetas = limpio.split(/•\s+/).map(r => r.trim()).filter(Boolean);
+  const viñetas = bloque.split(/•\s+/).map(r => r.trim()).filter(Boolean);
   if (viñetas.length > 1) return viñetas;
 
-  return limpio ? [limpio] : [];
+  return bloque ? [bloque] : [];
 }
+
 
 
 
@@ -542,13 +562,13 @@ obtenerRecomendaciones(resumen: string): string[] {
 
 formatearBloqueMultilinea(texto: string): string {
   return texto
-    .replace(/^#+/, '') // eliminar hashes (####)
-    .replace(/•\s*/g, '• ') // normalizar viñetas
-    .replace(/^[-•\s]*?(estado general del puerto y su servicio|an[aá]lisis t[eé]cnico del resultado del escaneo|riesgos identificados o potenciales)[:：]*/i, '')
-    .replace(/\s*-\s+/g, '\n- ') // guiones como listas
-    .replace(/\n{2,}/g, '\n') // múltiples saltos → uno solo
+    .replace(/^#+/, '') // hashes
+    .replace(/•\s*/g, '• ')
+    .replace(/\s*-\s+/g, '\n- ')
+    .replace(/\n{2,}/g, '\n') // múltiples saltos → uno
     .trim();
 }
+
 
 
 cancelarAnalisisAvanzado(): void {

@@ -53,6 +53,11 @@ totalPaginasEscaneos: number = 0;
   limitePuertos: number = 5;
   limiteVulnerabilidades: number = 5;
   limiteDispositivosCVEs: number = 5;
+// Modal CVEs
+modalCVEsVisible: boolean = false;
+listaCves: any[] = [];
+cargandoCVEs: boolean = false;
+@ViewChild('tablaCVEs') tablaCVEs?: any;
 
 
 opcionesGraficoBarrasPuertos: any;  
@@ -88,7 +93,24 @@ opcionesGraficoBarrasVulnerabilidades: any;
      this.opcionesGraficoBarrasVulnerabilidades = this.obtenerOpcionesGraficoBarras(false, true);
 
   }
+abrirModalCVEs() {
+  this.modalCVEsVisible = true;
+  this.cargarListaCVEs();
+}
 
+cargarListaCVEs() {
+  this.cargandoCVEs = true;
+  this.serviciosDashboard.listarVulnerabilidadesCVE().subscribe({
+    next: (res) => {
+      this.listaCves = res;
+      this.cargandoCVEs = false;
+    },
+    error: (err) => {
+      console.error("Error al cargar CVEs:", err);
+      this.cargandoCVEs = false;
+    }
+  });
+}
   // Carga de métricas totales
   cargarMetricas() {
     this.serviciosDashboard.obtenerMetricasDashboard().subscribe(res => {
@@ -199,6 +221,11 @@ cargarPuertosMasComunes() {
       };
     });
   }
+filtrarTablaCVEs(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const valor = input?.value || '';
+  this.tablaCVEs?.filterGlobal(valor, 'contains');
+}
 
   // Opciones reutilizables para los gráficos
 obtenerOpcionesGraficoBarras(esPuertos: boolean = false, esVulnerabilidades: boolean = false): any {
