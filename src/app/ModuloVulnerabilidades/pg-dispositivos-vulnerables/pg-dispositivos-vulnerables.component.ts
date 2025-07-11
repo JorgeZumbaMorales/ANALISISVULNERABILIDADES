@@ -35,7 +35,8 @@ interface Dispositivo {
   styleUrls: ['./pg-dispositivos-vulnerables.component.css']
 })
 export class PgDispositivosVulnerablesComponent {
-  
+  dispositivoInactivo: boolean = false;
+
   dispositivoSeleccionado: any = null;
   riesgoEvaluado: string = '';
 justificacionEvaluada: string = '';
@@ -55,24 +56,89 @@ cargandoRecomendaciones: boolean = false;
   evaluacionEnProgreso: boolean = false;
 
   ngOnInit(): void {
-    
-  this.cargarDispositivos();
+  this.servicioDispositivos.listarDispositivosCompleto().subscribe({
+    next: ({ data }) => {
+      this.dispositivos = data.map((d: any) => ({
+        ...d,
+        ip: d.ultima_ip,                          // ✅ mapeo correcto
+        macAddress: d.mac_address,                // ✅ mapeo correcto
+        etiquetaBusqueda: `${d.nombre_dispositivo} ${d.mac_address} ${d.ultima_ip}`
+      }));
 
-  // Recuperar resultados de evaluación desde localStorage
-  const datosGuardados = localStorage.getItem('evaluacionDispositivo');
-  if (datosGuardados) {
-    const data = JSON.parse(datosGuardados);
-    this.nombreDispositivoEvaluado = data.nombreDispositivoEvaluado;
-    this.ipEvaluada = data.ipEvaluada;
-    this.macEvaluada = data.macEvaluada;
-    this.sistemaOperativo = data.sistemaOperativo;
-    this.precisionSO = data.precisionSO;
-    this.riesgoEvaluado = data.riesgoEvaluado;
-    this.justificacionEvaluada = data.justificacionEvaluada;
-    this.puertosDetectados = data.puertosDetectados || [];
-    this.evaluacionCompletada = true;
-  }
+      // ✅ Ahora que los dispositivos están cargados, se puede reanudar
+      this.reanudarSiEstabaFinalizado();
+    },
+    error: (err) => {
+      console.error('❌ Error al cargar dispositivos:', err);
+      this.notificacion.error('Error', 'No se pudieron cargar los dispositivos.');
+    }
+  });
 }
+
+private reanudarSiEstabaFinalizado(): void {
+  const datosGuardados = localStorage.getItem('evaluacionDispositivo');
+  if (!datosGuardados) return;
+
+  const data = JSON.parse(datosGuardados);
+  this.evaluacionEnProgreso = true;
+
+  this.servicioAnalisis.obtenerResultadoEvaluacionIndividual().subscribe({
+    next: (respuesta) => {
+      const resultado = respuesta?.data;
+      if (
+        resultado?.ip === data.ipEvaluada &&
+        resultado?.mac_address === data.macEvaluada
+      ) {
+        this.procesarResultadoAnalisis(respuesta);
+
+        // ✅ Comparación robusta con logs de depuración
+        const macNormalizada = (resultado.mac_address || '').toLowerCase();
+        const ipEvaluada = resultado.ip;
+
+        console.log('🧪 Comparando con IP:', ipEvaluada, 'y MAC:', macNormalizada);
+        console.log('📦 Lista de dispositivos:', this.dispositivos);
+
+        const dispositivoEncontrado = this.dispositivos.find((d) => {
+          const macD = (d.macAddress || '').toLowerCase();
+          const ipD = d.ip || '';
+          const coincideMac = macD === macNormalizada;
+          const coincideIp = ipD === ipEvaluada;
+
+          console.log(`🔍 MAC ${macD} === ${macNormalizada} ? → ${coincideMac}`);
+          console.log(`🔍 IP ${ipD} === ${ipEvaluada} ? → ${coincideIp}`);
+
+          return coincideMac || coincideIp;
+        });
+
+        this.dispositivoInactivo = !dispositivoEncontrado;
+
+        console.log('📌 Resultado final → dispositivoInactivo =', this.dispositivoInactivo);
+        this.cdr.detectChanges();
+      } else {
+        this.notificacion.warning(
+          'Evaluación caducada',
+          'El dispositivo ya no está disponible o ha cambiado.'
+        );
+        this.resetearEstadoLocalEvaluacion();
+        localStorage.removeItem('evaluacionDispositivo');
+        this.evaluacionEnProgreso = false;
+      }
+    },
+    error: () => {
+      this.evaluacionEnProgreso = false;
+      this.notificacion.warning(
+        'No se pudo recuperar resultados anteriores',
+        'Podrías iniciar una nueva evaluación.'
+      );
+    }
+  });
+}
+
+
+
+
+
+
 
 
   constructor(
@@ -83,7 +149,7 @@ cargandoRecomendaciones: boolean = false;
     private notificacion: NotificacionService,
     private servicioSegundoPlano: ServicioSegundoPlano,
     private confirmationService: ConfirmationService,
-
+    private cdr: ChangeDetectorRef
 
   ) {}
 
@@ -118,6 +184,7 @@ evaluarDispositivoSeleccionado(): void {
 
   this.servicioAnalisis.evaluarRiesgoDispositivoIndividual(datos).subscribe({
     next: () => {
+      // Iniciar seguimiento en segundo plano
       this.servicioSegundoPlano.iniciar('evaluacion_riesgo', {
         intervaloMs: 3000,
         obtenerEstado: () => this.servicioAnalisis.obtenerEstadoEvaluacionIndividual(),
@@ -125,40 +192,8 @@ evaluarDispositivoSeleccionado(): void {
           this.servicioAnalisis.obtenerResultadoEvaluacionIndividual().subscribe({
             next: (respuesta) => {
               console.log('✅ Resultado completo recibido:', respuesta);
-  const data = respuesta.data;
-  this.nombreDispositivoEvaluado = data.nombre_dispositivo;
-this.macEvaluada = data.mac_address;
-this.ipEvaluada = data.ip;
-this.sistemaOperativo = data.sistema_operativo?.nombre || 'Desconocido';
-this.precisionSO = data.sistema_operativo?.precision || 0;
-
-  this.riesgoEvaluado = data.riesgo;
-  this.justificacionEvaluada = data.descripcion;
-  this.puertosDetectados = (data.puertos_abiertos || []).map((p: any) => ({
-    puerto_id: p.puerto_id,
-  numero: p.numero,
-  servicio: p.servicio,
-  protocolo: p.protocolo,
-  version: p.version
-}));
-  // Guardar en localStorage
-localStorage.setItem('evaluacionDispositivo', JSON.stringify({
-  nombreDispositivoEvaluado: this.nombreDispositivoEvaluado,
-  ipEvaluada: this.ipEvaluada,
-  macEvaluada: this.macEvaluada,
-  sistemaOperativo: this.sistemaOperativo,
-  precisionSO: this.precisionSO,
-  riesgoEvaluado: this.riesgoEvaluado,
-  justificacionEvaluada: this.justificacionEvaluada,
-  puertosDetectados: this.puertosDetectados
-}));
-
-  this.evaluacionCompletada = true;
-  this.evaluacionEnProgreso = false;
-  this.crearNotificacionFinalizacionEvaluacion();
-
-}
-,
+              this.procesarResultadoAnalisis(respuesta);
+            },
             error: () => {
               this.evaluacionEnProgreso = false;
               this.notificacion.error('Error', 'No se pudo obtener el resultado.');
@@ -180,6 +215,65 @@ localStorage.setItem('evaluacionDispositivo', JSON.stringify({
     }
   });
 }
+private procesarResultadoAnalisis(respuesta: any): void {
+  const data = respuesta?.data;
+
+  this.nombreDispositivoEvaluado = data?.nombre_dispositivo || 'Desconocido';
+  this.macEvaluada = data?.mac_address || 'N/A';
+  this.ipEvaluada = data?.ip || 'N/A';
+
+  if (!data?.riesgo || !Array.isArray(data?.puertos_abiertos)) {
+    this.evaluacionEnProgreso = false;
+    this.evaluacionCompletada = false;
+    this.dispositivoInactivo = true;
+
+    this.notificacion.error(
+      'Dispositivo inactivo',
+      data?.mensaje || 'No se pudo encontrar el dispositivo en la red.'
+    );
+    this.cargarDispositivos();
+    return;
+  }
+
+  // ✅ Dispositivo activo, no evaluamos si sigue en red
+  this.dispositivoInactivo = false;
+
+  this.sistemaOperativo = data?.sistema_operativo?.nombre || 'Desconocido';
+  this.precisionSO = data?.sistema_operativo?.precision || 0;
+  this.riesgoEvaluado = data?.riesgo;
+  this.justificacionEvaluada = data?.descripcion;
+
+  this.puertosDetectados = (data?.puertos_abiertos || []).map((p: any) => ({
+    puerto_id: p.puerto_id,
+    numero: p.numero,
+    servicio: p.servicio,
+    protocolo: p.protocolo,
+    version: p.version
+  }));
+
+  localStorage.setItem('evaluacionDispositivo', JSON.stringify({
+    nombreDispositivoEvaluado: this.nombreDispositivoEvaluado,
+    ipEvaluada: this.ipEvaluada,
+    macEvaluada: this.macEvaluada,
+    sistemaOperativo: this.sistemaOperativo,
+    precisionSO: this.precisionSO,
+    riesgoEvaluado: this.riesgoEvaluado,
+    justificacionEvaluada: this.justificacionEvaluada,
+    puertosDetectados: this.puertosDetectados
+    // 🔁 Ya no se guarda dispositivoInactivo, se evaluará solo en reanudación
+  }));
+
+  this.evaluacionCompletada = true;
+  this.evaluacionEnProgreso = false;
+
+  this.crearNotificacionFinalizacionEvaluacion();
+}
+
+
+
+
+
+
 
 limpiarEvaluacion(): void {
   this.servicioAnalisis.limpiarResultadoEvaluacionIndividual().subscribe({
@@ -211,7 +305,9 @@ private resetearEstadoLocalEvaluacion(): void {
   this.justificacionEvaluada = '';
   this.puertosDetectados = [];
   this.puertosSeleccionados = [];
+  this.dispositivoInactivo = false; // ← limpiar el estado del mensaje
 }
+
 
 
 

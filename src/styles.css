@@ -7,6 +7,22 @@
     
 }
 
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* 👈 Mantenemos esto solo si el scroll está en main */
+}
+
+body.p-overflow-hidden {
+  overflow: hidden !important;
+}
+
+body > app-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 
 /* 
 :root {

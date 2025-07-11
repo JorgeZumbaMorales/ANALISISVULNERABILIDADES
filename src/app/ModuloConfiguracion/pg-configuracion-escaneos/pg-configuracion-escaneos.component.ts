@@ -12,6 +12,8 @@ interface ConfiguracionEscaneo {
   fecha_fin?: string;
   horas?: string[];
   tipo: string; // ← agrega esto
+   unidad_frecuencia?: 'min' | 'hr';
+    frecuencia_texto?: string;
 }
 
 
@@ -51,6 +53,7 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
     nombre_configuracion_escaneo: '',
     tipo_escaneo_id: 1,
     frecuencia_minutos: null,
+    unidad_frecuencia: 'min',
     fecha_inicio: null,
     fecha_fin: null,
     estado: true,
@@ -59,7 +62,11 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
 
   configuracionesFrecuencia: ConfiguracionEscaneo[] = [];
   configuracionesHoras: ConfiguracionEscaneo[] = [];
-  
+  unidadesFrecuencia = [
+  { label: 'Minutos', value: 'minutos' },
+  { label: 'Horas', value: 'horas' }
+];
+
 
   @ViewChild('dtFrecuencia') dtFrecuencia!: Table;
   @ViewChild('dtHoras') dtHoras!: Table;
@@ -90,16 +97,25 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
 
     servicio.subscribe({
       next: (response) => {
-        const mapped = response.data.map((config: any) => ({
-          id: config.id,
-          nombre: config.nombre,
-          estado: config.estado,
-          frecuencia_minutos: config.frecuencia_minutos,
-          fecha_inicio: config.fecha_inicio,
-          fecha_fin: config.fecha_fin,
-          horas: config.horas || [],
-          tipo: tipo === 'frecuencia' ? 'Frecuencia' : 'Hora'
-        }));
+        console.log(`📦 Respuesta del backend (${tipo}):`, response.data); // 👈
+        const mapped = response.data.map((config: any) => {
+  const unidadTexto = config.unidad_frecuencia === 'hr' ? 'horas' : 'minutos';
+  const frecuenciaTexto = config.frecuencia_minutos ? `${config.frecuencia_minutos} ${unidadTexto}` : '';
+
+  return {
+    id: config.id,
+    nombre: config.nombre,
+    estado: config.estado,
+    frecuencia_minutos: config.frecuencia_minutos,
+    fecha_inicio: config.fecha_inicio,
+    fecha_fin: config.fecha_fin,
+    horas: config.horas || [],
+    tipo: tipo === 'frecuencia' ? 'Frecuencia' : 'Hora',
+    unidad_frecuencia: config.unidad_frecuencia,
+    frecuencia_texto: frecuenciaTexto // ← nuevo campo
+  };
+});
+
 
         if (tipo === 'frecuencia') {
   this.configuracionesFrecuencia = mapped;
@@ -165,7 +181,7 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
     return date.toLocaleTimeString('en-GB', { hour12: false });
   }
 
- guardarConfiguracion(): void {
+guardarConfiguracion(): void {
   // Validar Nombre
   const errorNombre = this.validacionesConfiguracion.validarNombre(this.formulario.nombre_configuracion_escaneo);
   if (errorNombre) {
@@ -173,23 +189,21 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
     return;
   }
 
-  // Validar Fecha Inicio
+  // Validar Fechas
   const errorFechaInicio = this.validacionesConfiguracion.validarFechaInicio(this.formulario.fecha_inicio, this.formulario.fecha_fin);
   if (errorFechaInicio) {
     this.messageService.add({ severity: 'error', summary: 'Error', detail: errorFechaInicio });
     return;
   }
 
-  // Validar Fecha Fin
   const errorFechaFin = this.validacionesConfiguracion.validarFechaFin(this.formulario.fecha_fin, this.formulario.fecha_inicio);
   if (errorFechaFin) {
     this.messageService.add({ severity: 'error', summary: 'Error', detail: errorFechaFin });
     return;
   }
 
-  // Validar Frecuencia o Horas según tab seleccionado
+  // Validar según el tipo de configuración
   if (this.tabSeleccionada === 0) {
-    // Frecuencia
     const errorUnidad = this.validacionesConfiguracion.validarUnidadFrecuencia(this.unidadFrecuencia);
     if (errorUnidad) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: errorUnidad });
@@ -202,7 +216,6 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
       return;
     }
   } else {
-    // Horas
     const errorHoras = this.validacionesConfiguracion.validarHoras(this.formulario.horas);
     if (errorHoras) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: errorHoras });
@@ -210,51 +223,43 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
     }
   }
 
-  // Si todas las validaciones pasan → preparar payload y guardar
-  const payload = { ...this.formulario };
-  this.normalizarFrecuencia(payload);
+  // Preparar payload con unidad_frecuencia directa
+  const payload = {
+    ...this.formulario,
+    unidad_frecuencia: this.unidadFrecuencia
+  };
 
-  // 👉 Si estamos en edición, actualizar; si no, crear
-  if (this.modoEdicion && this.formulario.id) {
-    this.servicioConfiguracion.actualizarConfiguracion(this.formulario.id, payload).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Configuración actualizada' });
-        this.modalVisible = false;
-        this.modoEdicion = false;
-        this.cargarDatos();
-      },
-      error: (error) => {
-        console.error('❌ Error al actualizar:', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar la configuración' });
-      }
-    });
-  } else {
-    this.servicioConfiguracion.crearConfiguracion(payload).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Configuración guardada' });
-        this.modalVisible = false;
-        this.cargarDatos();
-      },
-      error: (error) => {
-        console.error('❌ Error al guardar:', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar la configuración' });
-      }
-    });
-  }
-}
+  // Crear o actualizar
+  const request$ = this.modoEdicion && this.formulario.id
+    ? this.servicioConfiguracion.actualizarConfiguracion(this.formulario.id, payload)
+    : this.servicioConfiguracion.crearConfiguracion(payload);
 
-
-
-  private normalizarFrecuencia(payload: any): void {
-  if (this.tabSeleccionada === 0 && payload.frecuencia_minutos !== null && payload.frecuencia_minutos !== undefined) {
-    // Asegurar que sea int
-    payload.frecuencia_minutos = parseInt(payload.frecuencia_minutos, 10);
-
-    if (this.unidadFrecuencia === 'hr') {
-      payload.frecuencia_minutos *= 60;
+  request$.subscribe({
+    next: () => {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Éxito',
+        detail: this.modoEdicion ? 'Configuración actualizada' : 'Configuración guardada'
+      });
+      this.modalVisible = false;
+      this.modoEdicion = false;
+      this.cargarDatos();
+    },
+    error: (error) => {
+      console.error('❌ Error al guardar/actualizar:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo guardar la configuración'
+      });
     }
-  }
+  });
 }
+
+
+
+
+ 
 
 
 
@@ -286,12 +291,14 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
     return (
       config.nombre.toLowerCase().includes(texto) ||
       (config.frecuencia_minutos?.toString().includes(texto)) ||
+      (config.frecuencia_texto?.toLowerCase().includes(texto)) || // ✅ nuevo filtro
       fechaInicioFormateada.includes(texto) ||
       fechaFinFormateada.includes(texto) ||
       (config.estado ? 'activo' : 'inactivo').includes(texto)
     );
   });
 }
+
 
 
   filtrarHoras(event: Event): void {
@@ -319,32 +326,34 @@ maxDate: Date = new Date(2030, 11, 31); // diciembre es mes 11 en JS
   get estadoTexto(): string {
     return this.formulario.estado ? 'Activado' : 'Desactivado';
   }
-  editarConfiguracion(config: ConfiguracionEscaneo): void {
+ editarConfiguracion(config: ConfiguracionEscaneo): void {
+  console.log('📝 Editar configuración:', config); // 👈
   this.formulario = {
     ...config,
-        id: config.id,   // ← esto te falta
+    id: config.id,
     nombre_configuracion_escaneo: config.nombre,
     tipo_escaneo_id: config.tipo === 'Frecuencia' ? 1 : 2,
     frecuencia_minutos: config.frecuencia_minutos || null,
+    unidad_frecuencia: config.unidad_frecuencia, // ✅ Esta es la corrección
     fecha_inicio: config.fecha_inicio ? new Date(config.fecha_inicio) : null,
     fecha_fin: config.fecha_fin ? new Date(config.fecha_fin) : null,
     horas: config.horas || [],
     estado: config.estado
   };
 
-  // Seteo de tab
+  // ✅ Asignar explícitamente al dropdown
+  this.unidadFrecuencia = config.unidad_frecuencia || 'min';
+  console.log('⚙️ Unidad frecuencia en edición:', this.unidadFrecuencia); // 👈
+// ← muy importante
+
   this.tabSeleccionada = this.formulario.tipo_escaneo_id === 1 ? 0 : 1;
-
-  // Seteo de camposHabilitados según el estado actual
   this.camposHabilitados = this.formulario.estado;
-
-  // Ajuste de minDate → importante hacerlo al final
   this.ajustarMinDateParaFechas(this.formulario.fecha_inicio, this.formulario.fecha_fin);
-
-  // Mostrar el modal
   this.modoEdicion = true;
   this.modalVisible = true;
 }
+
+
 
 onToggleEstado(): void {
   // Si estamos en modo edición → sí bloqueamos según el estado

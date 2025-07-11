@@ -40,7 +40,7 @@ export class ValidacionesConfiguracionEscaneoService {
     return null;
   }
 
- validarFrecuencia(frecuencia: number | string | null, unidad: 'min' | 'hr'): string | null {
+validarFrecuencia(frecuencia: number | string | null, unidad: 'min' | 'hr'): string | null {
   if (frecuencia === null || frecuencia === undefined || frecuencia === '') {
     return 'La frecuencia es requerida.';
   }
@@ -55,15 +55,15 @@ export class ValidacionesConfiguracionEscaneoService {
     return 'La frecuencia debe ser un número entero.';
   }
 
-  if (unidad === 'min' && frecuenciaNumero < 60) {
-    return 'La frecuencia mínima es 60 minutos.';
+  if (unidad === 'min' && frecuenciaNumero < 5) {
+    return 'La frecuencia mínima es 5 minutos.';
   }
 
   if (unidad === 'hr' && frecuenciaNumero < 1) {
     return 'La frecuencia mínima es 1 hora.';
   }
 
-  const maxFrecuencia = unidad === 'min' ? 10080 : 168;
+  const maxFrecuencia = unidad === 'min' ? 10080 : 168; // 7 días
   if (frecuenciaNumero > maxFrecuencia) {
     return `La frecuencia máxima en ${unidad === 'min' ? 'minutos' : 'horas'} es ${maxFrecuencia}.`;
   }

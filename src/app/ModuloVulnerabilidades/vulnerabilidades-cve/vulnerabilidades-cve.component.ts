@@ -16,6 +16,8 @@ import { ConfirmationService } from 'primeng/api';
   providers: [MessageService]
 })
 export class VulnerabilidadesCveComponent implements OnInit {
+  firstCve: number = 0;     // índice del primer elemento
+  rowsCve: number  = 5;     // filas por página (valor inicial)
   dispositivos: any[] = [];
   dispositivoSeleccionado: any = null;
   vulnerabilidadesDetalle: any[] = [];
@@ -33,7 +35,9 @@ export class VulnerabilidadesCveComponent implements OnInit {
   nombreDispositivoAnalizado: string = '';
 ipOriginalAnalizada: string = '';
 macAnalizada: string = '';
-
+resumenAgrupadoDisponible = false;
+// --- Paginación externa ---
+  
   riesgosDisponiblesFiltrados: number[] = [];
   opcionesExploitFiltradas: boolean[] = [];
   tiposDisponiblesFiltrados: string[] = [];
@@ -105,6 +109,10 @@ ngOnInit(): void {
   }
 
 
+onPageChangeCve(event: { first?: number; rows?: number }): void {
+    this.firstCve = event.first ?? 0;        // si viene undefined, usamos 0
+    this.rowsCve  = event.rows  ?? this.rowsCve; // si viene undefined, mantenemos rowsCve
+  }
 
   private cargarDispositivos(): void {
     this.serviciosDispositivos.listarDispositivosCompleto().subscribe({
@@ -224,70 +232,112 @@ private procesarResultadoAnalisis(resultado: any): void {
   const dispositivoActivo = resultado?.dispositivo_activo === true;
   const resumenes = resultado?.resumenes_por_puerto || [];
   const vulnerabilidades = resultado?.vulnerabilidades || [];
+  const resumenAgrupado = resultado?.resumen_tecnico || '';
   const mensajeError = resultado?.mensaje ?? null;
 
   const hayResultados = Array.isArray(resumenes) && resumenes.length > 0;
   const esExito = dispositivoActivo && hayResultados;
 
-  if (!esExito) {
-    this.vulnerabilidadesDetalle = [];
-    this.resumenTecnico = [];
-    this.resultadoPersistente = false;
+  // ✅ CASO 1: Éxito con puertos abiertos
+  if (esExito) {
+    this.vulnerabilidadesDetalle = vulnerabilidades;
+    this.resumenTecnico = resumenes;
+    this.resultadoPersistente = true;
     this.analisisFinalizado = true;
     this.analisisEnProgreso = false;
     this.cargando = false;
-    this.mensajeErrorAnalisis = mensajeError;
+    this.mensajeErrorAnalisis = null;
+    this.resumenAgrupadoDisponible = false;
+
+    this.ipOriginalAnalizada = resultado?.ip_escaneada || '';
+    this.macAnalizada = resultado?.mac_analizada || '';
+
+    localStorage.setItem('vulnerabilidadesDetalle', JSON.stringify(vulnerabilidades));
+    localStorage.setItem('resumenesPorPuerto', JSON.stringify(resumenes));
+    localStorage.setItem('ipOriginalAnalizada', this.ipOriginalAnalizada);
+    localStorage.setItem('macAnalizada', this.macAnalizada);
+    localStorage.removeItem('analisisEnProgreso');
+    localStorage.removeItem('resumen_tecnico_agrupado');
+
+    if (!this.puertoSeleccionado && resumenes.length > 0) {
+      this.puertoSeleccionado = resumenes[0];
+      this.puertoSeleccionadoChip = resumenes[0];
+    }
+
+    this.actualizarFiltrosPorPuerto();
 
     this.messageService.add({
-      severity: 'warn',
-      summary: 'Advertencia',
-      detail: mensajeError || 'Ocurrió un error durante el análisis',
+      severity: 'success',
+      summary: 'Análisis Finalizado',
+      detail: 'El análisis de vulnerabilidades se completó con éxito.',
       life: 6000
     });
 
-    this.dispositivoSeleccionado = null;
-    localStorage.removeItem('dispositivoSeleccionado');
-    localStorage.removeItem('vulnerabilidadesDetalle');
-    localStorage.removeItem('resumenesPorPuerto');
-    localStorage.removeItem('analisisEnProgreso');
-    localStorage.removeItem('ipOriginalAnalizada');
-    localStorage.removeItem('macAnalizada');
+    this.crearNotificacionFinalizacion();
+    this.cdr.detectChanges();
     return;
   }
 
-  // ✅ Caso exitoso
-  this.vulnerabilidadesDetalle = vulnerabilidades;
-  this.resumenTecnico = resumenes;
-  this.resultadoPersistente = true;
+  // ⚠️ CASO 2: No hay puertos abiertos pero sí resumen agrupado
+  if (!esExito && resumenAgrupado) {
+    this.vulnerabilidadesDetalle = [];
+    this.resumenTecnico = [];
+    this.resultadoPersistente = true;
+    this.analisisFinalizado = true;
+    this.analisisEnProgreso = false;
+    this.cargando = false;
+    this.mensajeErrorAnalisis = null;
+    this.resumenAgrupadoDisponible = true;
+
+    this.ipOriginalAnalizada = resultado?.ip_escaneada || '';
+    this.macAnalizada = resultado?.mac_analizada || '';
+
+    localStorage.setItem('resumen_tecnico_agrupado', resumenAgrupado);
+    localStorage.setItem('ipOriginalAnalizada', this.ipOriginalAnalizada);
+    localStorage.setItem('macAnalizada', this.macAnalizada);
+    localStorage.removeItem('analisisEnProgreso');
+    localStorage.removeItem('vulnerabilidadesDetalle');
+    localStorage.removeItem('resumenesPorPuerto');
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Análisis sin puertos abiertos',
+      detail: 'No se encontraron puertos abiertos, pero se generó un resumen técnico.',
+      life: 6000
+    });
+
+    this.crearNotificacionFinalizacion();
+    this.cdr.detectChanges();
+    return;
+  }
+
+  // ❌ CASO 3: Error o resultado inválido
+  this.vulnerabilidadesDetalle = [];
+  this.resumenTecnico = [];
+  this.resultadoPersistente = false;
   this.analisisFinalizado = true;
   this.analisisEnProgreso = false;
   this.cargando = false;
-
-  // ✅ Asignar datos del dispositivo para visualización
-  this.ipOriginalAnalizada = resultado?.ip_escaneada || '';
-  this.macAnalizada = resultado?.mac_analizada || '';
-
-  localStorage.setItem('vulnerabilidadesDetalle', JSON.stringify(vulnerabilidades));
-  localStorage.setItem('resumenesPorPuerto', JSON.stringify(resumenes));
-  localStorage.setItem('ipOriginalAnalizada', this.ipOriginalAnalizada);
-  localStorage.setItem('macAnalizada', this.macAnalizada);
-  localStorage.removeItem('analisisEnProgreso');
-
-  if (!this.puertoSeleccionado && resumenes.length > 0) {
-    this.puertoSeleccionado = resumenes[0];
-    this.puertoSeleccionadoChip = resumenes[0];
-  }
-
-  this.actualizarFiltrosPorPuerto();
+  this.resumenAgrupadoDisponible = false;
+  this.mensajeErrorAnalisis = mensajeError;
 
   this.messageService.add({
-    severity: 'success',
-    summary: 'Análisis Finalizado',
-    detail: 'El análisis de vulnerabilidades se completó con éxito.',
+    severity: 'warn',
+    summary: 'Advertencia',
+    detail: mensajeError || 'Ocurrió un error durante el análisis',
     life: 6000
   });
 
-  this.crearNotificacionFinalizacion();
+  this.dispositivoSeleccionado = null;
+  localStorage.removeItem('dispositivoSeleccionado');
+  localStorage.removeItem('vulnerabilidadesDetalle');
+  localStorage.removeItem('resumenesPorPuerto');
+  localStorage.removeItem('analisisEnProgreso');
+  localStorage.removeItem('ipOriginalAnalizada');
+  localStorage.removeItem('macAnalizada');
+  localStorage.removeItem('resumen_tecnico_agrupado');
+
+  this.cdr.detectChanges();
 }
 
 
@@ -296,6 +346,24 @@ private procesarResultadoAnalisis(resultado: any): void {
 
 
 
+
+
+obtenerBloquesResumenAgrupado() {
+  const resumen = this.getResumenAgrupado();
+  const bloques = resumen.split(/\n(?=\d+\.\s)/); // Divide por números 1., 2., 3.
+
+  const estructura = [
+    { clave: 'estado', titulo: '1. Estado general del puerto y su servicio:' },
+    { clave: 'analisis', titulo: '2. Análisis técnico del resultado del escaneo:' },
+    { clave: 'riesgos', titulo: '3. Riesgos identificados o potenciales:' },
+    { clave: 'recomendaciones', titulo: '4. Recomendaciones específicas:' }
+  ];
+
+  return estructura.map((bloque, i) => ({
+    ...bloque,
+    contenido: bloques[i]?.replace(`${i + 1}.`, '').trim() || 'No disponible'
+  }));
+}
 
 
 
@@ -311,7 +379,7 @@ private procesarResultadoAnalisis(resultado: any): void {
   this.resultadoPersistente = false;
   this.analisisFinalizado = false;
   this.analisisEnProgreso = false;
-
+  localStorage.removeItem('resumen_tecnico_agrupado');
   localStorage.removeItem('vulnerabilidadesDetalle');
   localStorage.removeItem('resumenesPorPuerto');
   localStorage.removeItem('analisisEnProgreso');
@@ -324,7 +392,7 @@ private limpiarSoloResultado(): void {
   this.mensajeErrorAnalisis = null;
   this.resultadoPersistente = false;
   this.analisisFinalizado = false;
-
+localStorage.removeItem('resumen_tecnico_agrupado');
   localStorage.removeItem('vulnerabilidadesDetalle');
   localStorage.removeItem('resumenesPorPuerto');
 }
@@ -484,31 +552,51 @@ private crearNotificacionFinalizacion(): void {
 }
 
 
- private reanudarSiEstabaFinalizado(): void {
-    const data = localStorage.getItem('vulnerabilidadesDetalle');
-    const resumen = localStorage.getItem('resumenesPorPuerto');
+private reanudarSiEstabaFinalizado(): void {
+  const datos = localStorage.getItem('vulnerabilidadesDetalle');
+  const resumen = localStorage.getItem('resumenesPorPuerto');
+  const resumenAgrupado = localStorage.getItem('resumen_tecnico_agrupado');
+  const ipGuardada = localStorage.getItem('ipOriginalAnalizada');
+  const macGuardada = localStorage.getItem('macAnalizada');
 
-    if (data) {
-      this.ngZone.run(() => {
-        this.vulnerabilidadesDetalle = JSON.parse(data);
-        this.resultadoPersistente = true;
-        this.analisisFinalizado = true;
-        this.analisisEnProgreso = false;
-        this.cargando = false;
-
-        if (this.vulnerabilidadesDetalle.length > 0) {
-          this.puertoSeleccionado = this.vulnerabilidadesDetalle[0];
-          this.actualizarFiltrosPorPuerto();
-        }
-
-        if (resumen) {
-          this.resumenTecnico = JSON.parse(resumen);
-        }
-
-        this.cdr.detectChanges();
-      });
+  this.ngZone.run(() => {
+    if (datos) {
+      this.vulnerabilidadesDetalle = JSON.parse(datos);
     }
-  }
+
+    if (resumen) {
+      this.resumenTecnico = JSON.parse(resumen);
+    }
+
+    if (ipGuardada) this.ipOriginalAnalizada = ipGuardada;
+    if (macGuardada) this.macAnalizada = macGuardada;
+
+    const hayResumenes = this.resumenTecnico.length > 0;
+    const hayAgrupado = !!resumenAgrupado;
+
+    this.resumenAgrupadoDisponible = hayAgrupado; // ✅ <- Aquí se expone para usar en el HTML
+
+    if (hayResumenes || hayAgrupado) {
+      this.resultadoPersistente = true;
+      this.analisisFinalizado = true;
+      this.analisisEnProgreso = false;
+      this.cargando = false;
+
+      if (!this.puertoSeleccionado && this.resumenTecnico.length > 0) {
+        this.puertoSeleccionado = this.resumenTecnico[0];
+        this.puertoSeleccionadoChip = this.resumenTecnico[0];
+        this.actualizarFiltrosPorPuerto();
+      }
+
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+
+getResumenAgrupado(): string {
+  return localStorage.getItem('resumen_tecnico_agrupado') || '';
+}
 
 obtenerBloque(tipo: 'estado' | 'analisis' | 'riesgos'): string {
   const resumen = this.puertoSeleccionado?.resumen || '';

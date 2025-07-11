@@ -222,14 +222,6 @@
 </div>
 
 
-
-
-
-
-
-
-    <!-- Puertos detectados -->
-   <!-- Puertos Detectados -->
 <section class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 py-2 mt-4">
   <p-table
     [value]="puertosDetectados"
@@ -297,6 +289,31 @@
 
   </div>
 </section>
+
+
+
+
+<div *ngIf="dispositivoInactivo" class="w-full flex justify-center mt-4">
+  <div class="flex items-start bg-yellow-100 border-l-4 border-yellow-500 text-yellow-900 p-4 rounded-xl shadow-md max-w-xl w-full gap-3">
+    <i class="pi pi-exclamation-triangle text-2xl text-yellow-600 mt-1"></i>
+    <div class="flex flex-col text-sm leading-relaxed">
+      <span class="font-semibold text-yellow-800 text-base mb-1">
+        Dispositivo fuera de línea
+      </span>
+      <span>
+        El dispositivo <span class="font-semibold">{{ nombreDispositivoEvaluado }}</span>
+        con IP <span class="font-mono text-sm">{{ ipEvaluada }}</span>
+        y MAC <span class="font-mono text-sm">{{ macEvaluada }}</span>
+        ya no está activo en la red.
+      </span>
+      <span class="mt-1 text-xs text-yellow-700">
+        Verifica la conexión del dispositivo o realiza un nuevo escaneo.
+      </span>
+    </div>
+  </div>
+</div>
+
+
 
 
 

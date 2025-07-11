@@ -92,9 +92,11 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TimelineModule } from 'primeng/timeline';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ProgressBarModule } from 'primeng/progressbar';
-
-
-
+import { SkeletonModule } from 'primeng/skeleton';
+import { SidebarModule } from 'primeng/sidebar';
+import { DrawerModule } from 'primeng/drawer';
+import { PaginatorModule } from 'primeng/paginator';
+import { PopoverModule } from 'primeng/popover';
 @NgModule({
   declarations: [
     AppComponent,
@@ -182,7 +184,12 @@ import { ProgressBarModule } from 'primeng/progressbar';
     TooltipModule,
     TimelineModule,
     ToolbarModule,
-    ProgressBarModule
+    ProgressBarModule,
+    SkeletonModule,
+    SidebarModule,
+    DrawerModule,
+    PaginatorModule,
+    PopoverModule
     
 ],
   providers: [

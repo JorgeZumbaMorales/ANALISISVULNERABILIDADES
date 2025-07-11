@@ -48,6 +48,8 @@ export class PgDispositivosComponent implements OnInit, AfterViewInit {
 
   modalEditarVisible = false;
   modalCrearSOVisible = false;
+first: number = 0;
+rows: number = 10;
 
   dialogoVisible = false;
   puertosDispositivo: any[] = [];
@@ -102,7 +104,13 @@ ngOnInit(): void {
       error: (err) => console.error('❌ Error al obtener dispositivos:', err)
     });
   }
-
+  get dispositivosPaginados() {
+  return this.dispositivos.slice(this.first, this.first + this.rows);
+}
+onPageChange(event: any) {
+  this.first = event.first;
+  this.rows = event.rows;
+}
   private cargarSistemasOperativos(): void {
     this.serviciosDispositivos.listarSistemasOperativos().subscribe({
       next: (so) => {

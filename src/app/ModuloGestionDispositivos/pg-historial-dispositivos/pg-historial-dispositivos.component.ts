@@ -40,7 +40,8 @@ nuevoSO = { nombre_so: '' };
   accionesVisibles: { [dispositivo_id: number]: number } = {};
   modalHistorialVisible: boolean = false;
 historialIps: { ip_asignacion_id: number; ip: string; fecha: string }[] = [];
-
+first: number = 0;
+rows: number = 10;
   @ViewChild('dt') dt!: Table;
   dispositivoSeleccionado: any = null;
 puertosDispositivo: any[] = [];
@@ -62,7 +63,10 @@ ipSeleccionada: { ip_asignacion_id: number, ip: string, fecha: string } | null =
   ngAfterViewInit() {
     if (!this.dt) console.warn('❌ dt no está inicializado aún');
   }
-
+onPageChange(event: any) {
+  this.first = event.first;
+  this.rows = event.rows;
+}
   obtenerTodosLosDispositivos() {
   this.servicioDispositivos.listarTodosLosDispositivosCompleto().subscribe({
     next: ({ data }) => {

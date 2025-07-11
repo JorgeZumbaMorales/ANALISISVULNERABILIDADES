@@ -250,6 +250,56 @@
     </div>
   </div>
 </section>
+<section
+  *ngIf="!resumenTecnico.length && analisisFinalizado && !analisisEnProgreso && resumenAgrupadoDisponible"
+  class="w-full mt-6 px-6 py-6 rounded-xl shadow border border-gray-200 bg-white space-y-6"
+>
+  <!-- Encabezado -->
+<div class="flex items-center justify-between bg-baseAzulOscuro text-white px-5 py-4 rounded-md shadow-sm">
+  <div class="flex items-center gap-3">
+    <i class="pi pi-shield text-white text-2xl"></i>
+    <div class="flex flex-col leading-tight">
+      <h4 class="text-lg sm:text-xl font-semibold">
+        Resumen Técnico del Dispositivo
+      </h4>
+      <span class="text-sm font-normal text-gray-200">
+        No contiene puertos abiertos
+      </span>
+    </div>
+  </div>
+  <p-button
+    label="Limpiar Resultado"
+    icon="pi pi-trash"
+    severity="danger"
+    class="p-button-sm"
+    (click)="limpiarResultado()"
+  ></p-button>
+</div>
+
+
+
+  <!-- Cuerpo -->
+  <div class="space-y-6">
+    <ng-container *ngFor="let bloque of obtenerBloquesResumenAgrupado()">
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <h5 class="text-base font-semibold text-baseAzulOscuro mb-2 flex items-center gap-2">
+          <i class="pi text-lg"
+            [ngClass]="{
+              'pi-info-circle text-blue-500': bloque.clave === 'estado',
+              'pi-search text-green-600': bloque.clave === 'analisis',
+              'pi-exclamation-triangle text-yellow-500': bloque.clave === 'riesgos',
+              'pi-check-circle text-green-700': bloque.clave === 'recomendaciones'
+            }"
+          ></i>
+          {{ bloque.titulo }}
+        </h5>
+        <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+          {{ formatearBloqueMultilinea(bloque.contenido) }}
+        </p>
+      </div>
+    </ng-container>
+  </div>
+</section>
 
 
 
@@ -286,18 +336,18 @@
 
     <!-- 📋 Tabla -->
     <p-table
-      #tablaCves
-      [value]="cvesSeleccionados"
-      [paginator]="true"
-      [rows]="5"
-      [rowsPerPageOptions]="[5, 10, 20]"
-      [responsiveLayout]="'scroll'"
-      [globalFilterFields]="['id', 'score', 'url']"
-      sortField="score"
-      [sortOrder]="-1"
-      dataKey="id"
-      class="w-full"
-    >
+    #tablaCves
+    [value]="cvesSeleccionados.slice(firstCve, firstCve + rowsCve)"
+    [paginator]="false"
+    [rows]="rowsCve"
+    [first]="firstCve"
+    [responsiveLayout]="'scroll'"
+    [globalFilterFields]="['id','score','url']"
+    sortField="score"
+    [sortOrder]="-1"
+    dataKey="id"
+    class="w-full"
+  >
       <ng-template pTemplate="header">
         <tr>
           <th pSortableColumn="id">ID CVE <p-sortIcon field="id" /></th>
@@ -329,6 +379,15 @@
       </ng-template>
     </p-table>
   </section>
+  <p-paginator
+    class="mt-2"
+    [first]="firstCve"
+    [rows]="rowsCve"
+    [totalRecords]="cvesSeleccionados.length"
+    [rowsPerPageOptions]="[5, 10, 15]"
+    [dropdownAppendTo]="'body'"
+    (onPageChange)="onPageChangeCve($event)"
+  ></p-paginator>
 </p-dialog>
 
 

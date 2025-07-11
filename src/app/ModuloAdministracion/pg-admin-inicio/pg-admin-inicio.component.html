@@ -40,22 +40,47 @@
         contentClass="gap-4 justify-center"
       >
         <ng-template let-item pTemplate="item">
-          <div
-            class="bg-white rounded-xl border border-[#0A2342]/10 shadow-lg
-                   hover:shadow-xl hover:border-baseNaranja
-                   px-4 py-5 mx-2 w-full min-w-[220px] max-w-[260px]
-                   flex flex-col items-center text-center transition-all duration-300"
-          >
-            <i class="{{ item.icono }} text-3xl text-[#0A2342] mb-2"></i>
-            <span class="text-sm font-semibold text-[#0A2342] mb-3">{{ item.nombre_seccion }}</span>
-            <button
-              (click)="navegarASeccion(item)"
-              class="bg-baseNaranja text-white text-xs px-4 py-1 rounded hover:bg-orange-500 transition"
-            >
-              Ir a sección
-            </button>
-          </div>
-        </ng-template>
+  <div
+    class="bg-white rounded-xl border border-[#0A2342]/10 shadow-lg
+           hover:shadow-xl hover:border-baseNaranja
+           px-4 py-5 mx-2 w-full min-w-[220px] max-w-[260px]
+           flex flex-col items-center text-center transition-all duration-300"
+  >
+    <!-- Icono y título -->
+    <i class="{{ item.icono }} text-3xl text-[#0A2342] mb-2"></i>
+    <span class="text-sm font-semibold text-[#0A2342] mb-3">
+      {{ item.nombre_seccion }}
+    </span>
+
+    <!-- Más info (p-button) -->
+    <p-button
+  icon="pi pi-info-circle"
+  label="Más info"
+  
+  (click)="info.toggle($event)"
+></p-button>
+
+<!-- Popover asociado -->
+<p-popover #info  [appendTo]="'body'">
+  
+  <div class="p-4 w-[20rem]">
+    <h3 class="font-semibold mb-2">{{ item.nombre_seccion }}</h3>
+    <p >
+      {{ item.descripcionExtendida }}
+    </p>
+  </div>
+</p-popover>
+
+    <!-- Ir a sección (p-button) -->
+    <p-button
+      icon="pi pi-arrow-right"
+      label="Ir a sección"
+      class="mt-2"
+      (click)="navegarASeccion(item)"
+    ></p-button>
+  </div>
+</ng-template>
+
       </p-carousel>
     </div>
 

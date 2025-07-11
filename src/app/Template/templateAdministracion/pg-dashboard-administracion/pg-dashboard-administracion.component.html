@@ -1,17 +1,20 @@
-<div class="h-screen flex flex-col">
-  <!-- ✅ Header fijo arriba -->
-  <app-pg-header-administracion (cambioRol)="actualizarMenuPorRol($event)"></app-pg-header-administracion>
+<div class="h-screen flex flex-col overflow-hidden">
+
+  <!-- Header fijo -->
+  <app-pg-header-administracion></app-pg-header-administracion>
 
   <div class="flex flex-1 overflow-hidden">
-      <!-- ✅ Menú lateral fijo -->
-      <app-pg-menu-administracion [rolActivo]="rolSeleccionado"></app-pg-menu-administracion>
+    
+    <!-- Sidebar fijo -->
+    <app-pg-menu-administracion></app-pg-menu-administracion>
 
-      <!-- ✅ Contenido dinámico ocupa el espacio restante -->
-      <div id="content-wrapper" class="flex-1 overflow-y-auto  bg-white">
-          <router-outlet></router-outlet>
-      </div>
+    <!-- 📌 Solo aquí va el scroll -->
+    <main class="flex-1 overflow-y-auto px-4 py-4">
+      <router-outlet></router-outlet>
+    </main>
+
   </div>
 
-  <!-- ✅ Footer abajo fijo -->
-  <app-pg-footer-administracion class="w-full"></app-pg-footer-administracion>
+  <!-- Footer fijo -->
+  <app-pg-footer-administracion></app-pg-footer-administracion>
 </div>

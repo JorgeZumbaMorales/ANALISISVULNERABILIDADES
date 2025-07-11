@@ -40,9 +40,12 @@
       </p-tag>
 
       <!-- Frecuencia -->
-      <div *ngIf="configuracionActiva.frecuencia_minutos" class="text-sm text-gray-600 mb-2">
-        Cada {{ configuracionActiva.frecuencia_minutos }} minutos
-      </div>
+      <!-- Frecuencia -->
+<div *ngIf="configuracionActiva.frecuencia_minutos" class="text-sm text-gray-600 mb-2">
+  Cada {{ configuracionActiva.frecuencia_minutos }} 
+  {{ configuracionActiva.unidad_frecuencia === 'hr' ? 'horas' : 'minutos' }}
+</div>
+
 
       <!-- Chips con horas -->
       <div *ngIf="configuracionActiva?.horas?.length" class="flex flex-wrap justify-center gap-1 mb-3">
@@ -107,7 +110,7 @@
              [rows]="5" 
              (sortFunction)="ordenPersonalizado($event, 'frecuencia')"
   [customSort]="true"
-             [globalFilterFields]="['nombre', 'frecuencia_minutos','fecha_inicio','estado']"
+             [globalFilterFields]="['nombre', 'frecuencia_texto','fecha_inicio','estado']"
              responsiveLayout="scroll">
              
       <!-- Título estilizado -->
@@ -127,7 +130,8 @@
       <ng-template pTemplate="header">
         <tr>
           <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
-          <th pSortableColumn="frecuencia_minutos">Frecuencia (min) <p-sortIcon field="frecuencia_minutos" /></th>
+         <th pSortableColumn="frecuencia_texto">Frecuencia <p-sortIcon field="frecuencia_texto" /></th>
+
           <th pSortableColumn="fecha_inicio">Fecha Inicio <p-sortIcon field="fecha_inicio" /></th>
           <th pSortableColumn="fecha_fin">Fecha Fin <p-sortIcon field="fecha_fin" /></th>
           <th pSortableColumn="estado">Estado  <p-sortIcon field="estado" /></th>
@@ -138,7 +142,9 @@
       <ng-template pTemplate="body" let-config>
         <tr>
           <td>{{ config.nombre }}</td>
-          <td>{{ config.frecuencia_minutos }}</td>
+          <td>{{ config.frecuencia_texto }}</td>
+
+
           <td>{{ config.fecha_inicio | date:'dd-MM-yyyy' }}</td>
           <td>{{ config.fecha_fin | date:'dd-MM-yyyy' }}</td>
           <td>

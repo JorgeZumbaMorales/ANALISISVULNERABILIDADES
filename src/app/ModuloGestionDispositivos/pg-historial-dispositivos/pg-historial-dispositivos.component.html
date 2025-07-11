@@ -29,18 +29,20 @@
 <!-- 🟨 Tabla -->
 <section class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 py-1">
   <p-table
-    #dt
-    [value]="dispositivos"
-    dataKey="dispositivo_id"
-    (sortFunction)="ordenarDispositivosRemovible($event)"
+  #dt
+  [value]="dispositivos.slice(first, first + rows)"
+
+  dataKey="dispositivo_id"
+  (sortFunction)="ordenarDispositivosRemovible($event)"
   [customSort]="true"
-    [paginator]="true"
-    [rows]="10"
-    [rowsPerPageOptions]="[5, 10, 20]"
-    [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip', 'estado', 'precision_so']"
-    responsiveLayout="scroll"
-    class="w-full"
-  >
+  [paginator]="false"
+  [rows]="rows"
+  [first]="first"
+  [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip', 'estado', 'precision_so']"
+  responsiveLayout="scroll"
+  class="w-full"
+>
+
     <!-- 🧭 Búsqueda -->
     <ng-template pTemplate="caption">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
@@ -161,6 +163,14 @@
     </ng-template>
   </p-table>
 </section>
+<p-paginator 
+  class="z-[9999] mt-4"
+  [first]="first" 
+  [rows]="rows"
+  [totalRecords]="dispositivos.length"
+  [dropdownAppendTo]="'body'"
+  [rowsPerPageOptions]="[5, 10, 15]"
+  (onPageChange)="onPageChange($event)" ></p-paginator>
 
 <!-- 🛠️ Modal Editar -->
 <p-dialog

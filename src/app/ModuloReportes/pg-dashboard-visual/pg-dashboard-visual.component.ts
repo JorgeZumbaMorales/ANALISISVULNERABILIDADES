@@ -12,10 +12,13 @@ export class PgDashboardVisualComponent {
   // Datos originales completos (para escaneos)
 labelsEscaneosOriginal: string[] = [];
 dataEscaneosOriginal: number[] = [];
-
+visibleDrawer: boolean = false;
 // Datos paginados que se muestran en el gráfico
 labelsEscaneosPaginadas: string[] = [];
 dataEscaneosPaginada: number[] = [];
+firstCVEs: number = 0;
+rowsCVEs: number = 10;
+totalDispositivosEvaluados: number = 0;
 
 // Variables de paginación
 indicePaginaEscaneos: number = 0;
@@ -93,10 +96,18 @@ opcionesGraficoBarrasVulnerabilidades: any;
      this.opcionesGraficoBarrasVulnerabilidades = this.obtenerOpcionesGraficoBarras(false, true);
 
   }
+  onPageChangeCVEs(event: any) {
+  this.firstCVEs = event.first;
+  this.rowsCVEs = event.rows;
+}
+
 abrirModalCVEs() {
   this.modalCVEsVisible = true;
+  this.cargandoCVEs = true; // ✅ asegura que el skeleton se muestre enseguida
+  
   this.cargarListaCVEs();
 }
+
 
 cargarListaCVEs() {
   this.cargandoCVEs = true;
@@ -209,18 +220,22 @@ cargarPuertosMasComunes() {
   }
 
   cargarNivelRiesgo() {
-    this.serviciosDashboard.obtenerNivelRiesgo().subscribe(res => {
-      this.datosNivelRiesgo = {
-        labels: res.labels,
-        datasets: [
-          {
-            data: res.data,
-            backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#9ca3af']
-          }
-        ]
-      };
-    });
-  }
+  this.serviciosDashboard.obtenerNivelRiesgo().subscribe(res => {
+    this.datosNivelRiesgo = {
+      labels: res.labels,
+      datasets: [
+        {
+          data: res.data,
+          backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#9ca3af']
+        }
+      ]
+    };
+
+    // ✅ Calcular total de dispositivos evaluados
+    this.totalDispositivosEvaluados = res.data.reduce((acc: number, val: number) => acc + val, 0);
+  });
+}
+
 filtrarTablaCVEs(event: Event) {
   const input = event.target as HTMLInputElement;
   const valor = input?.value || '';
@@ -288,14 +303,32 @@ obtenerOpcionesGraficoBarras(esPuertos: boolean = false, esVulnerabilidades: boo
 
 
   obtenerOpcionesGraficoDona(): any {
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom' }
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom'
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            const total = context.dataset.data.reduce((acc: number, val: number) => acc + val, 0);
+            const porcentaje = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+            return `${label}: ${value} (${porcentaje}%)`;
+          }
+        }
       }
-    };
-  }
+    },
+    animation: {
+      animateRotate: true,
+      animateScale: true
+    }
+  };
+}
+
 
   obtenerOpcionesGraficoLineas(): any {
     return {

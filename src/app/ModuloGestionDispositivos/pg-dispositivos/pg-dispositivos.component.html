@@ -80,23 +80,17 @@
 
 
 
-<!-- 🟨 Tabla -->
-<section class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 py-1">
+<section class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 pb-3">
   <p-table
   #dt
-  [value]="dispositivos"
+  [value]="dispositivosPaginados"
   [customSort]="true"
   (sortFunction)="ordenarDispositivosRemovible($event)"
   dataKey="dispositivo_id"
-  [paginator]="true"
-  [rows]="5"
-  [rowsPerPageOptions]="[5, 10, 20]"
-  [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip', 'precision_so']"
   responsiveLayout="scroll"
+  [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip', 'precision_so']"
   class="w-full"
 >
-
-    <!-- 🧭 Barra de búsqueda -->
     <ng-template pTemplate="caption">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
         <div class="bg-baseAzulOscuro text-white px-3 py-1 rounded-md shadow-sm">
@@ -116,8 +110,6 @@
         </p-iconfield>
       </div>
     </ng-template>
-
-    <!-- 🔠 Encabezado de tabla -->
     <ng-template pTemplate="header">
       <tr>
         <th pSortableColumn="nombre_dispositivo">Nombre <p-sortIcon field="nombre_dispositivo" /></th>
@@ -128,8 +120,6 @@
         <th class="text-center w-[150px]">Acciones</th>
       </tr>
     </ng-template>
-
-    <!-- 🧩 Cuerpo de tabla -->
     <ng-template pTemplate="body" let-dispositivo>
       <tr>
         <td>{{ dispositivo.nombre_dispositivo }}</td>
@@ -151,22 +141,10 @@
               (click)="abrirModal('editar', dispositivo)"
               class="">
             </p-button>
-            <!--
-            <p-button 
-  icon="pi pi-eye"
-  pTooltip="Ver puertos"
-  tooltipPosition="top"
-  (click)="verPuertosDispositivo(dispositivo)"
-  class="p-button-text p-button-info">
-</p-button>
--->
-
           </div>
         </td>
       </tr>
     </ng-template>
-
-    <!-- ❌ Mensaje si no hay datos -->
     <ng-template pTemplate="emptymessage">
       <tr>
         <td colspan="7" class="text-center">No hay dispositivos registrados.</td>
@@ -174,7 +152,16 @@
     </ng-template>
   </p-table>
 </section>
+<p-paginator
+  class="mt-2"
+  [first]="first"
+  [rows]="rows"
+  [totalRecords]="dispositivos.length"
+  [rowsPerPageOptions]="[5, 10, 15,20]"
 
+  [dropdownAppendTo]="'body'"
+  (onPageChange)="onPageChange($event)"
+></p-paginator>
 <p-dialog
   [(visible)]="modalEditarVisible"
   *ngIf="modalEditarVisible"

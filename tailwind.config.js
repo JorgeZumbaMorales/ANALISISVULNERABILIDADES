@@ -17,7 +17,8 @@ module.exports = {
     },
   },
   plugins: [
-    require('tailwindcss-primeui')
+    require('tailwindcss-primeui'),
+    require('@tailwindcss/forms')
   ],
 }
 
