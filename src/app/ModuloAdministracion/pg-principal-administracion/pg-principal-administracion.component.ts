@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-pg-principal-administracion',
-  standalone: false,
-  templateUrl: './pg-principal-administracion.component.html',
-  styleUrl: './pg-principal-administracion.component.css'
+  standalone: true,
+    selector: 'app-pg-principal-administracion',
+    templateUrl: './pg-principal-administracion.component.html',
+    styleUrl: './pg-principal-administracion.component.css',
+    imports: [RouterLink, NgClass, RouterOutlet]
 })
 export class PgPrincipalAdministracionComponent {
   tabs = [

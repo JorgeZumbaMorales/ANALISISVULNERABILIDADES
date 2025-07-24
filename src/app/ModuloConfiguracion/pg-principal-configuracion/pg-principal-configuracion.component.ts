@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { NgFor, NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-pg-principal-configuracion',
-  templateUrl: './pg-principal-configuracion.component.html',
-  styleUrls: ['./pg-principal-configuracion.component.css']
+  standalone: true,
+    selector: 'app-pg-principal-configuracion',
+    templateUrl: './pg-principal-configuracion.component.html',
+    styleUrls: ['./pg-principal-configuracion.component.css'],
+    imports: [NgFor, RouterLink, NgClass, RouterOutlet]
 })
 export class PgPrincipalConfiguracionComponent {
   

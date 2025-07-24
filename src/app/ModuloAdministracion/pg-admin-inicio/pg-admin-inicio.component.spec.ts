@@ -8,8 +8,8 @@ describe('PgAdminInicioComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PgAdminInicioComponent]
-    })
+    imports: [PgAdminInicioComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PgAdminInicioComponent);

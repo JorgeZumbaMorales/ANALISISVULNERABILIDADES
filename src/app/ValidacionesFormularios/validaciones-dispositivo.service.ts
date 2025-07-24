@@ -15,23 +15,23 @@ export class ValidacionesGeneralesService {
     return length >= min && length <= max;
   }
 
-  contieneCaracteresInvalidos(valor: string, patron: RegExp = /[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ\.\-]/): boolean {
+  contieneCaracteresInvalidos(valor: string, patron: RegExp = /[^a-zA-Z0-9_\sáéíóúÁÉÍÓÚñÑ\.\-]/): boolean {
     return patron.test(valor);
   }
 
   validarNombreDispositivo(nombre: string): boolean {
     if (this.campoVacio(nombre)) {
-      this.notificacion.warning('Campo requerido', 'El nombre del dispositivo no puede estar vacío.');
+      this.notificacion.info('Campo requerido', 'El nombre del dispositivo no puede estar vacío.');
       return false;
     }
 
     if (!this.longitudValida(nombre, 3, 100)) {
-      this.notificacion.warning('Longitud inválida', 'Debe tener entre 3 y 100 caracteres.');
+      this.notificacion.info('Longitud inválida', 'Debe tener entre 3 y 100 caracteres.');
       return false;
     }
 
     if (this.contieneCaracteresInvalidos(nombre)) {
-      this.notificacion.warning('Caracteres inválidos', 'El nombre contiene símbolos no permitidos.');
+      this.notificacion.info('Caracteres inválidos', 'El nombre contiene símbolos no permitidos.');
       return false;
     }
 
@@ -40,17 +40,17 @@ export class ValidacionesGeneralesService {
 
   validarNombreSO(nombre: string): boolean {
     if (this.campoVacio(nombre)) {
-      this.notificacion.warning('Campo requerido', 'El nombre del sistema operativo no puede estar vacío.');
+      this.notificacion.info('Campo requerido', 'El nombre del sistema operativo no puede estar vacío.');
       return false;
     }
 
     if (!this.longitudValida(nombre, 3, 255)) {
-      this.notificacion.warning('Longitud inválida', 'Debe tener entre 3 y 255 caracteres.');
+      this.notificacion.info('Longitud inválida', 'Debe tener entre 3 y 255 caracteres.');
       return false;
     }
 
     if (this.contieneCaracteresInvalidos(nombre)) {
-      this.notificacion.warning('Caracteres inválidos', 'El nombre contiene símbolos no permitidos.');
+      this.notificacion.info('Caracteres inválidos', 'El nombre contiene símbolos no permitidos.');
       return false;
     }
 
@@ -58,7 +58,7 @@ export class ValidacionesGeneralesService {
   }
   validarSistemaOperativoSeleccionado(seleccionado: any): boolean {
   if (!seleccionado || !seleccionado.sistema_operativo_id) {
-    this.notificacion.warning('Campo requerido', 'Debe seleccionar un sistema operativo válido.');
+    this.notificacion.info('Campo requerido', 'Debe seleccionar un sistema operativo válido.');
     return false;
   }
   return true;

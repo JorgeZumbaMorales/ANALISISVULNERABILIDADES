@@ -1,58 +1,91 @@
 <p-toast></p-toast>
 <p-confirmdialog #cd>
-  <ng-template let-message let-onAccept="onAccept" let-onReject="onReject" pTemplate="headless">
-    <div class="w-full max-w-lg mx-auto flex flex-col items-center py-4 px-6 bg-white rounded-md shadow-lg relative">
-      <div class="rounded-full bg-red-600 text-white inline-flex justify-center items-center h-16 w-16 -mt-10 shadow-md">
+  <ng-template
+    let-message
+    let-onAccept="onAccept"
+    let-onReject="onReject"
+    pTemplate="headless"
+  >
+    <div
+      class="w-full max-w-lg mx-auto flex flex-col items-center py-4 px-6 bg-white rounded-md shadow-lg relative"
+    >
+      <div
+        class="rounded-full bg-red-600 text-white inline-flex justify-center items-center h-16 w-16 -mt-10 shadow-md"
+      >
         <i class="pi pi-exclamation-triangle text-2xl"></i>
       </div>
-      <span class="font-bold text-xl mt-3 text-center">{{ message.header }}</span>
+      <span class="font-bold text-xl mt-3 text-center">{{
+        message.header
+      }}</span>
       <p class="text-center mt-2 text-sm leading-snug">{{ message.message }}</p>
       <div class="flex justify-end gap-3 mt-5">
-        <button pButton type="button" (click)="onReject()" label="Cancelar" class="p-button-outlined w-28"></button>
-        <button pButton type="button" (click)="onAccept()" label="Sí, eliminar" class="w-28"></button>
+        <button
+          pButton
+          type="button"
+          (click)="onReject()"
+          label="Cancelar"
+          class="p-button-outlined w-28"
+        ></button>
+        <button
+          pButton
+          type="button"
+          (click)="onAccept()"
+          label="Sí, eliminar"
+        ></button>
       </div>
     </div>
   </ng-template>
 </p-confirmdialog>
-
-
-<!-- 🟦 Encabezado -->
-<section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 mb-3">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<section
+  class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 mb-3"
+>
+  <div
+    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+  >
     <div>
       <h2 class="text-xl sm:text-2xl font-semibold">Historial Dispositivos</h2>
-      <p class="text-sm text-textoSecundario mt-1">Visualiza y administra todos los dispositivos detectados históricamente en la red.</p>
+      <p class="text-sm text-textoSecundario mt-1">
+        Visualiza y administra todos los dispositivos detectados históricamente
+        en la red.
+      </p>
     </div>
   </div>
 </section>
-
-<!-- 🟨 Tabla -->
-<section class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 py-1">
+<div class="w-full bg-white rounded-2xl shadow-md p-4 sm:p-5">
   <p-table
-  #dt
-  [value]="dispositivos.slice(first, first + rows)"
-
-  dataKey="dispositivo_id"
-  (sortFunction)="ordenarDispositivosRemovible($event)"
-  [customSort]="true"
-  [paginator]="false"
-  [rows]="rows"
-  [first]="first"
-  [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'sistema_operativo', 'ultima_ip', 'estado', 'precision_so']"
-  responsiveLayout="scroll"
-  class="w-full"
->
-
-    <!-- 🧭 Búsqueda -->
+    #dt
+    [value]="dispositivos"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10]"
+    paginatorPosition="bottom"
+    alwaysShowPaginator="true"
+    paginatorDropdownAppendTo="body"
+    [customSort]="true"
+    (sortFunction)="ordenarDispositivosRemovible($event)"
+    dataKey="dispositivo_id"
+    [globalFilterFields]="[
+      'nombre_dispositivo',
+      'mac_address',
+      'sistema_operativo',
+      'ultima_ip',
+      'estado',
+      'precision_so'
+    ]"
+    responsiveLayout="scroll"
+    class="w-full"
+  >
     <ng-template pTemplate="caption">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-        <div class="bg-baseAzulOscuro text-white px-3 py-1 rounded-md shadow-sm">
-          <h3 class="text-base sm:text-lg font-semibold">Lista de todos los dispositivos</h3>
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2"
+      >
+        <div class="bg-[#0A2342] text-white px-3 py-1 rounded-md shadow-sm">
+          <h3 class="text-base sm:text-lg font-semibold">
+            Lista de todos los dispositivos
+          </h3>
         </div>
         <p-iconfield iconPosition="left" class="mt-2 sm:mt-0">
-          <p-inputicon>
-            <i class="pi pi-search"></i>
-          </p-inputicon>
+          <p-inputicon><i class="pi pi-search"></i></p-inputicon>
           <input
             pInputText
             type="text"
@@ -63,116 +96,139 @@
         </p-iconfield>
       </div>
     </ng-template>
-
-    <!-- 🔠 Encabezado -->
     <ng-template pTemplate="header">
-      <tr>
-        <th pSortableColumn="nombre_dispositivo">Nombre <p-sortIcon field="nombre_dispositivo" /></th>
-        <th pSortableColumn="mac_address">MAC Address <p-sortIcon field="mac_address" /></th>
-        <th pSortableColumn="sistema_operativo">Sistema Operativo <p-sortIcon field="sistema_operativo" /></th>
-        <th pSortableColumn="precision_so">Precisión <p-sortIcon field="precision_so" /></th>
-        <th pSortableColumn="ultima_ip">Última IP <p-sortIcon field="ultima_ip" /></th>
-        <th pSortableColumn="estado">
-  Estado <p-sortIcon field="estado" />
-</th>
-
-        <th class="text-center w-[150px]">Acciones</th>
+      <tr class="bg-[#0A2342] text-white text-sm">
+        <th
+          pSortableColumn="nombre_dispositivo"
+          class="px-3 py-2 font-semibold"
+        >
+          Nombre <p-sortIcon field="nombre_dispositivo" />
+        </th>
+        <th pSortableColumn="mac_address" class="px-3 py-2 font-semibold">
+          MAC Address <p-sortIcon field="mac_address" />
+        </th>
+        <th pSortableColumn="sistema_operativo" class="px-3 py-2 font-semibold">
+          Sistema Operativo <p-sortIcon field="sistema_operativo" />
+        </th>
+        <th pSortableColumn="precision_so" class="px-3 py-2 font-semibold">
+          Precisión <p-sortIcon field="precision_so" />
+        </th>
+        <th pSortableColumn="ultima_ip" class="px-3 py-2 font-semibold">
+          Última IP <p-sortIcon field="ultima_ip" />
+        </th>
+        <th pSortableColumn="estado" class="px-3 py-2 font-semibold">
+          Estado <p-sortIcon field="estado" />
+        </th>
+        <th class="text-center px-3 py-2 font-semibold">Acciones</th>
       </tr>
     </ng-template>
-
-    <!-- 🧩 Cuerpo -->
-    <ng-template pTemplate="body" let-dispositivo>
-      <tr>
-        <td>{{ dispositivo.nombre_dispositivo }}</td>
-        <td>{{ dispositivo.mac_address }}</td>
-        <td>{{ dispositivo.sistema_operativo || 'Desconocido' }}</td>
-        <td>
-  {{ dispositivo.precision_so !== null ? dispositivo.precision_so + '%' : '—' }}
-</td>
-
-        <td>{{ dispositivo.ultima_ip || 'No asignada' }}</td>
-        <td class="text-center">
-          <p-tag [value]="dispositivo.estado ? 'Activo' : 'Inactivo'" [severity]="dispositivo.estado ? 'success' : 'danger'"></p-tag>
+    <ng-template pTemplate="body" let-dispositivo let-columns="columns">
+      <tr *ngIf="cargandoDispositivos">
+        <td colspan="7" class="text-center py-6">
+          <p-progressSpinner
+            strokeWidth="8"
+            fill="transparent"
+            animationDuration=".5s"
+            [style]="{ width: '50px', height: '50px' }"
+          />
+          <p class="mt-2 text-sm text-gray-500">Cargando dispositivos...</p>
         </td>
-        <td class="text-center">
-  <div class="flex justify-center gap-2 items-center">
-    <!-- Grupo 1: Editar y Eliminar -->
-    <ng-container *ngIf="accionesVisibles[dispositivo.dispositivo_id] !== 1">
-      <p-button 
-        icon="pi pi-pencil"
-        pTooltip="Editar"
-        tooltipPosition="top"
-        (click)="abrirModal('editar', dispositivo)"
-        class="">
-      </p-button>
-
-      <p-button 
-        icon="pi pi-trash"
-        pTooltip="Eliminar"
-        tooltipPosition="top"
-        (click)="eliminarDispositivo(dispositivo)"
-        class="">
-      </p-button>
-    </ng-container>
-
-    <!-- Grupo 2: Ver Puertos y Ver IPs -->
-    <ng-container *ngIf="accionesVisibles[dispositivo.dispositivo_id] === 1">
-      <p-button 
-        icon="pi pi-eye"
-        pTooltip="Ver puertos"
-        tooltipPosition="top"
-        (click)="verPuertosDispositivo(dispositivo)"
-        class="">
-      </p-button>
-
-      <p-button 
-        icon="pi pi-globe"
-        pTooltip="Ver historial IPs"
-        tooltipPosition="top"
-        (click)="verHistorialIPs(dispositivo)"
-        class="">
-      </p-button>
-    </ng-container>
-
-    <!-- Botón para alternar entre grupos -->
-    <button 
-      type="button"
-      pTooltip="Más acciones"
-      tooltipPosition="top"
-      (click)="alternarGrupoAcciones(dispositivo.dispositivo_id)"
-      class="text-gray-500 hover:text-gray-800 p-1 rounded-full transition-colors">
-      <i 
-        class="pi"
-        [ngClass]="{
-          'pi-angle-double-right': accionesVisibles[dispositivo.dispositivo_id] !== 1,
-          'pi-angle-double-left': accionesVisibles[dispositivo.dispositivo_id] === 1
-        }">
-      </i>
-    </button>
-  </div>
-</td>
-
+      </tr>
+      <tr *ngIf="!cargandoDispositivos" class="hover:bg-gray-100 text-sm">
+        <td class="px-3 py-2">{{ dispositivo.nombre_dispositivo }}</td>
+        <td class="px-3 py-2">{{ dispositivo.mac_address }}</td>
+        <td class="px-3 py-2">
+          {{ dispositivo.sistema_operativo || "Desconocido" }}
+        </td>
+        <td class="px-3 py-2">
+          {{
+            dispositivo.precision_so !== null
+              ? dispositivo.precision_so + "%"
+              : "—"
+          }}
+        </td>
+        <td class="px-3 py-2">{{ dispositivo.ultima_ip || "No asignada" }}</td>
+        <td class="px-3 py-2 text-center">
+          <p-tag
+            [value]="dispositivo.estado ? 'Activo' : 'Inactivo'"
+            [severity]="dispositivo.estado ? 'success' : 'danger'"
+          ></p-tag>
+        </td>
+        <td class="px-3 py-2 text-center">
+          <div class="flex justify-center gap-2 items-center">
+            <ng-container
+              *ngIf="accionesVisibles[dispositivo.dispositivo_id] !== 1"
+            >
+              <p-button
+                icon="pi pi-pencil"
+                pTooltip="Editar"
+                tooltipPosition="top"
+                (click)="abrirModal('editar', dispositivo)"
+              ></p-button>
+              <p-button
+                icon="pi pi-trash"
+                pTooltip="Eliminar"
+                tooltipPosition="top"
+                (click)="eliminarDispositivo(dispositivo)"
+              ></p-button>
+            </ng-container>
+            <ng-container
+              *ngIf="accionesVisibles[dispositivo.dispositivo_id] === 1"
+            >
+              <p-button
+                icon="pi pi-eye"
+                pTooltip="Ver puertos"
+                tooltipPosition="top"
+                (click)="verPuertosDispositivo(dispositivo)"
+              ></p-button>
+              <p-button
+                icon="pi pi-globe"
+                pTooltip="Ver historial IPs"
+                tooltipPosition="top"
+                (click)="verHistorialIPs(dispositivo)"
+              ></p-button>
+            </ng-container>
+            <button
+              type="button"
+              pTooltip="Más acciones"
+              tooltipPosition="top"
+              (click)="alternarGrupoAcciones(dispositivo.dispositivo_id)"
+              class="text-gray-500 hover:text-gray-800 p-1 rounded-full transition-colors"
+            >
+              <i
+                class="pi"
+                [ngClass]="{
+                  'pi-angle-double-right':
+                    accionesVisibles[dispositivo.dispositivo_id] !== 1,
+                  'pi-angle-double-left':
+                    accionesVisibles[dispositivo.dispositivo_id] === 1
+                }"
+              ></i>
+            </button>
+          </div>
+        </td>
       </tr>
     </ng-template>
-
-    <!-- ❌ Sin datos -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="6" class="text-center">No hay dispositivos registrados.</td>
+        <td colspan="7" class="text-center py-6">
+          <ng-container *ngIf="cargandoDispositivos; else sinDatos">
+            <p-progress-spinner
+              strokeWidth="8"
+              fill="transparent"
+              animationDuration=".5s"
+              [style]="{ width: '50px', height: '50px' }"
+            />
+            <p class="mt-2 text-sm text-gray-500">Cargando dispositivos...</p>
+          </ng-container>
+          <ng-template #sinDatos>
+            No hay dispositivos registrados.
+          </ng-template>
+        </td>
       </tr>
     </ng-template>
   </p-table>
-</section>
-<p-paginator 
-  class="z-[9999] mt-4"
-  [first]="first" 
-  [rows]="rows"
-  [totalRecords]="dispositivos.length"
-  [dropdownAppendTo]="'body'"
-  [rowsPerPageOptions]="[5, 10, 15]"
-  (onPageChange)="onPageChange($event)" ></p-paginator>
-
-<!-- 🛠️ Modal Editar -->
+</div>
 <p-dialog
   [(visible)]="modal.visible"
   *ngIf="modal.tipo === 'editar'"
@@ -184,10 +240,14 @@
 >
   <div *ngIf="dispositivoEditando" class="p-fluid p-4 space-y-5">
     <p-iftalabel class="block">
-      <input id="nombre" type="text" pInputText [(ngModel)]="dispositivoEditando.nombre_dispositivo" />
+      <input
+        id="nombre"
+        type="text"
+        pInputText
+        [(ngModel)]="dispositivoEditando.nombre_dispositivo"
+      />
       <label for="nombre">Nombre del dispositivo</label>
     </p-iftalabel>
-
     <p-iftalabel class="block">
       <p-autoComplete
         inputId="so"
@@ -203,19 +263,31 @@
         appendTo="body"
       >
         <ng-template let-so pTemplate="item">
-          <div class="text-gray-900 p-2">{{ so?.nombre_so || 'SO sin nombre' }}</div>
+          <div class="text-gray-900 p-2">
+            {{ so?.nombre_so || "SO sin nombre" }}
+          </div>
         </ng-template>
-        <ng-template pTemplate="footer">
- 
-</ng-template>
-
+        <ng-template pTemplate="footer"> </ng-template>
       </p-autoComplete>
       <label for="so">Sistema Operativo</label>
     </p-iftalabel>
 
-    <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-3 gap-2 pt-2">
-      <p-button label="Cancelar" severity="secondary" (click)="cerrarModal()" class="p-button-text w-full sm:w-auto" />
-      <p-button label="Guardar" (click)="guardarCambios()" class="w-full sm:w-auto" />
+    <div
+      class="flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-3 gap-2 pt-2"
+    >
+      <button
+        pButton
+        label="Cancelar"
+        type="button"
+        label="Cancelar"
+        (click)="cerrarModal()"
+        class="p-button-outlined w-28"
+      ></button>
+      <p-button
+        label="Guardar"
+        (click)="guardarCambios()"
+        class="w-full sm:w-auto"
+      />
     </div>
   </div>
 </p-dialog>
@@ -229,7 +301,6 @@
   (onHide)="cerrarModalCrearSO()"
 >
   <div class="p-fluid p-4 space-y-5">
-    <!-- Nombre del SO -->
     <p-iftalabel class="block">
       <input
         id="nombre_so"
@@ -241,9 +312,9 @@
       />
       <label for="nombre_so">Nombre del sistema operativo</label>
     </p-iftalabel>
-
-    <!-- Botones -->
-    <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-3 gap-2 pt-2">
+    <div
+      class="flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-3 gap-2 pt-2"
+    >
       <p-button
         label="Cancelar"
         severity="secondary"
@@ -259,109 +330,153 @@
     </div>
   </div>
 </p-dialog>
-<p-dialog 
-  header="Puertos abiertos del dispositivo {{ dispositivoEditando?.nombre_dispositivo }}" 
-  [(visible)]="dialogoVisible" 
-  [modal]="true" 
-  [style]="{ width: '450px' }" 
-  [closable]="true"
-  [dismissableMask]="true">
+<p-drawer
+  [(visible)]="dialogoVisible"
+  [modal]="true"
+  position="right"
+  [style]="{ width: '450px' }"
+  [blockScroll]="true"
+>
+  <ng-template #headless>
+    <div class="flex flex-col h-full">
+      <!-- 🔷 Header limpio y personalizado -->
+      <div
+        class="flex items-center justify-between px-4 pt-4 pb-2 border-b border-gray-200"
+      >
+        <div class="flex items-center gap-2">
+          <i class="pi pi-server text-xl"></i>
+          <span class="text-lg font-semibold text-gray-800">
+            Puertos de
+            {{ dispositivoEditando?.nombre_dispositivo || "dispositivo" }}
+          </span>
+        </div>
+        <p-button
+          icon="pi pi-times"
+          (click)="dialogoVisible = false"
+          rounded="true"
+          outlined="true"
+        ></p-button>
+      </div>
 
-  <div *ngIf="puertosDispositivo && puertosDispositivo.length > 0; else sinPuertos">
+      <!-- 📦 Contenido -->
+      <div class="flex-grow overflow-y-auto p-4">
+        <ng-container
+          *ngIf="
+            puertosDispositivo && puertosDispositivo.length > 0;
+            else sinPuertos
+          "
+        >
+          <p-listbox
+            [options]="puertosDispositivo"
+            optionLabel="puerto"
+            [filter]="true"
+            scrollHeight="60vh"
+            [style]="{ width: '100%' }"
+            [listStyle]="{ padding: '0' }"
+          >
+            <ng-template let-puerto pTemplate="item">
+              <div
+                class="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-100 transition duration-150"
+              >
+                <div class="flex items-center gap-3">
+                  <i class="pi pi-plug text-blue-500 text-base"></i>
+                  <div class="flex flex-col">
+                    <span class="text-base font-medium text-gray-800">
+                      Puerto {{ puerto.puerto }}
+                    </span>
+                    <span class="text-xs text-gray-500">
+                      Servicio: {{ puerto.servicio || "Desconocido" }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </p-listbox>
+        </ng-container>
 
-    <div class="flex flex-wrap gap-2 justify-center mt-2">
-      <p-chip 
-        *ngFor="let puerto of puertosDispositivo" 
-        [label]="puerto.puerto + ' - ' + puerto.servicio">
-        <ng-template pTemplate="icon">
-          <i class="pi pi-plug"></i>
+        <!-- ❌ Sin puertos -->
+        <ng-template #sinPuertos>
+          <p class="text-center text-gray-500 text-sm mt-3">
+            Este dispositivo no tiene puertos abiertos registrados.
+          </p>
         </ng-template>
-      </p-chip>
+      </div>
     </div>
-  </div>
-
-  <ng-template #sinPuertos>
-    <p class="text-center text-gray-500 text-sm mt-3">
-      Este dispositivo no tiene puertos abiertos registrados.
-    </p>
   </ng-template>
-</p-dialog>
-<p-dialog 
+</p-drawer>
+
+<p-drawer
   [(visible)]="modalHistorialVisible"
   [modal]="true"
-  [closable]="false"
-  [dismissableMask]="true"
-  [style]="{ width: '100%', maxWidth: '28rem' }"
-  styleClass="!bg-transparent !border-none"
+  position="right"
+  [style]="{ width: '450px' }"
+  [blockScroll]="true"
+  (onHide)="alCerrarDrawerHistorial()"
 >
-  <ng-template pTemplate="headless">
-    <div class="bg-white rounded-xl shadow-lg px-6 py-5 relative">
-      
-      <!-- Botón cerrar -->
-      <p-button 
-        icon="pi pi-times"
-        (click)="modalHistorialVisible = false"
-        styleClass="p-button-rounded p-button-text absolute top-3 right-3 text-gray-400 hover:text-gray-700"
-        aria-label="Cerrar"
-      ></p-button>
-
-      <!-- Título -->
-      <h3 class="text-lg font-semibold text-gray-800 mb-4 text-center">
-        Historial de IPs asignadas
-      </h3>
-
-      <!-- Botón eliminar IP seleccionada -->
-      <!-- Botón eliminar IP seleccionada -->
-<!-- Botón eliminar IP seleccionada -->
-<div class="text-right mb-2" *ngIf="ipSeleccionada">
-  <p-button 
-    icon="pi pi-trash" 
-    label="Eliminar IP seleccionada"
-    severity="danger"
-    size="small"
-    (click)="eliminarIpAsignada()"
-  ></p-button>
-</div>
-
-<!-- Timeline -->
-<div 
-  *ngIf="historialIps && historialIps.length > 0; else sinHistorial"
-  class="max-h-[400px] overflow-y-auto px-2 pt-1"
->
-  <p-timeline [value]="historialIps" align="alternate">
-    <ng-template pTemplate="content" let-ip>
-      <div 
-        pTooltip="Selecciona para eliminar esta IP"
-        tooltipPosition="top"
-        class="bg-gray-50 p-3 rounded-lg border border-gray-200 shadow-sm cursor-pointer hover:bg-gray-100 transition-all duration-200"
-        [ngClass]="{ 'ring-2 ring-primary-500': ipSeleccionada?.ip_asignacion_id === ip.ip_asignacion_id }"
-        (click)="seleccionarIP(ip)"
+  <ng-template #headless>
+    <div class="flex flex-col h-full">
+      <div
+        class="flex items-center justify-between px-4 pt-4 pb-2 border-b border-gray-200"
       >
-        <div class="font-semibold text-gray-800 text-base">
-          {{ ip.ip }}
+        <div class="flex items-center gap-2">
+          <i class="pi pi-history text-xl"></i>
+          <span class="text-lg font-semibold text-gray-800"
+            >Historial de IPs asignadas</span
+          >
         </div>
-        <div class="text-sm text-gray-500 mt-1">
-          Detectada el {{ ip.fecha }}
-        </div>
+        <p-button
+          icon="pi pi-times"
+          (click)="cerrarHistorialManual()"
+          rounded="true"
+          outlined="true"
+        ></p-button>
       </div>
-    </ng-template>
-  </p-timeline>
-</div>
+      <div #scrollContenedor class="flex-grow overflow-y-auto p-4">
+        <ng-container
+          *ngIf="historialIps && historialIps.length > 0; else sinHistorial"
+        >
+          <p-timeline [value]="historialIps" align="alternate">
+            <ng-template pTemplate="content" let-ip>
+              <div
+                #itemRef
+                pTooltip="Selecciona para eliminar esta IP"
+                tooltipPosition="top"
+                class="bg-gray-50 p-2 rounded-lg border border-gray-200 shadow-sm cursor-pointer hover:bg-gray-100 transition-all duration-200"
+                [ngClass]="{
+                  'ring-2 ring-primary-500':
+                    ipSeleccionada?.ip_asignacion_id === ip.ip_asignacion_id
+                }"
+                (click)="seleccionarIP(ip, itemRef)"
+              >
+                <div class="font-semibold text-gray-800 text-base">
+                  {{ ip.ip }}
+                </div>
+                <div class="text-sm text-gray-500 mt-1">
+                  Detectada el {{ ip.fecha }}
+                </div>
+              </div>
+            </ng-template>
+          </p-timeline>
+        </ng-container>
 
-
-      <!-- Sin historial -->
-      <ng-template #sinHistorial>
-        <p class="text-center text-gray-500 text-sm mt-3">
-          Este dispositivo no tiene historial de IPs registrado.
-        </p>
-      </ng-template>
+        <ng-template #sinHistorial>
+          <p class="text-center text-gray-500 text-sm mt-3">
+            Este dispositivo no tiene historial de IPs registrado.
+          </p>
+        </ng-template>
+      </div>
+      <div
+        class="p-3 border-t border-gray-200 bg-white text-center"
+        *ngIf="ipSeleccionada"
+      >
+        <p-button
+          icon="pi pi-trash"
+          label="Eliminar IP seleccionada"
+          severity="danger"
+          class="w-full"
+          (click)="eliminarIpAsignada()"
+        ></p-button>
+      </div>
     </div>
   </ng-template>
-</p-dialog>
-
-
-
-
-
-
-
+</p-drawer>

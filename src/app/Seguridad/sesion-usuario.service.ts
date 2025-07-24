@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SesionUsuarioService {
   private rolActivoSubject = new BehaviorSubject<string>(''); // Nuevo campo reactivo
-
+  private refrescarRolesSubject = new Subject<void>();
   constructor() {}
 
   // ===================== 🔐 Token =====================
@@ -31,7 +31,13 @@ export class SesionUsuarioService {
       return null;
     }
   }
+  dispararRefrescarRoles() {
+  this.refrescarRolesSubject.next();
+}
 
+escucharRefrescarRoles(): Observable<void> {
+  return this.refrescarRolesSubject.asObservable();
+}
   estaAutenticado(): boolean {
     return this.obtenerToken() !== null;
   }

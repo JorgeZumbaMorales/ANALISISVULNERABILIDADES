@@ -6,18 +6,23 @@ import { AbstractControl, ValidationErrors, ValidatorFn, FormBuilder, FormGroup,
 })
 export class ValidacionesRolesService {
 
-  constructor() {}
+  constructor() { }
 
   nombreRolValido(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-      const regex = /^[a-zA-Z\s]{3,50}$/;
-      return regex.test(control.value) ? null : { nombreRolInvalido: true };
+      const valor = (control.value || '').trim();
+      if (valor.length < 3 || valor.length > 20) {
+        return { nombreRolInvalido: true };
+      }
+      const regex = /^([A-Za-zÁÉÍÓÚáéíóúÑñ]+)(\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/;
+
+      return regex.test(valor) ? null : { nombreRolInvalido: true };
     };
   }
 
   descripcionValida(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-      return control.value && control.value.length <= 100
+      return control.value && control.value.length <= 50
         ? null
         : { descripcionInvalida: true };
     };
@@ -49,28 +54,28 @@ export class ValidacionesRolesService {
       if (control.errors) {
         if (control.errors['required']) {
           return {
-            tipo: 'warn',
+            tipo: 'info',
             resumen: 'Campo requerido',
             detalle: `Debe completar el campo: ${this.nombreAmigable(campo)}.`
           };
         }
         if (control.errors['nombreRolInvalido']) {
           return {
-            tipo: 'warn',
+            tipo: 'info',
             resumen: 'Nombre de rol inválido',
-            detalle: 'Debe contener solo letras y tener entre 3 y 50 caracteres.'
+            detalle: 'Debe contener solo letras y tener entre 3 y 20 caracteres.'
           };
         }
         if (control.errors['descripcionInvalida']) {
           return {
-            tipo: 'warn',
+            tipo: 'info',
             resumen: 'Descripción inválida',
-            detalle: 'La descripción no debe exceder los 100 caracteres.'
+            detalle: 'La descripción no debe exceder los 50 caracteres.'
           };
         }
         if (control.errors['accesosInvalidos']) {
           return {
-            tipo: 'warn',
+            tipo: 'info',
             resumen: 'Acceso inválido',
             detalle: 'Debe seleccionar al menos una sección del menú.'
           };

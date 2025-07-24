@@ -1,31 +1,37 @@
-<section class="w-full bg-white text-textoPrincipal py-5 px-4">
-  <div class="max-w-screen-xl mx-auto flex flex-col items-center gap-6">
+<section class="w-full bg-textoSecundario text-textoPrincipal py-4 px-4 border border-gray-300 rounded-xl">
 
-    <!-- Bienvenida -->
-    <div class="bg-[#0A2342] text-white rounded-xl shadow-lg px-6 py-6 w-full text-center">
+  <div class="max-w-screen-xl mx-auto flex flex-col items-center gap-6">
+    <div
+      class="bg-[#0A2342] text-white rounded-xl shadow-lg px-6 py-6 w-full text-center"
+    >
       <div class="mb-4">
-        <img src="logo_completo_.png" alt="Logo RedSegura" class="h-40 mx-auto" />
+        <img
+          src="logo_completo_.png"
+          alt="Logo RedSegura"
+          class="h-40 mx-auto"
+        />
       </div>
       <h1 class="text-3xl font-bold">¡Bienvenido, {{ nombreUsuario }}!</h1>
       <p class="text-sm text-white/90 mt-1 mb-3">
         Administra tu red, dispositivos, configuraciones y vulnerabilidades.
       </p>
-      <div class="inline-flex items-center gap-2 bg-white text-[#0A2342] rounded-full px-4 py-1 text-sm mx-auto">
+      <div
+        class="inline-flex items-center gap-2 bg-white text-[#0A2342] rounded-full px-4 py-1 text-sm mx-auto"
+      >
         <i class="pi pi-user-shield text-baseNaranja"></i>
         <span><strong>Rol actual:</strong> {{ rolActivo }}</span>
       </div>
     </div>
-
-    <!-- Carrusel limpio -->
     <div class="w-full">
       <div class="flex items-center justify-center mb-4">
         <div class="bg-baseNaranja w-1.5 h-6 rounded-sm mr-2"></div>
         <i class="pi pi-clone text-baseNaranja text-xl mr-2"></i>
-        <h2 class="text-xl sm:text-2xl font-semibold text-[#0A2342] text-center">
+        <h2
+          class="text-xl sm:text-2xl font-semibold text-[#0A2342] text-center"
+        >
           Tienes acceso a las siguientes secciones
         </h2>
       </div>
-
       <p-carousel
         [value]="seccionesTarjetas"
         [numVisible]="3"
@@ -40,49 +46,22 @@
         contentClass="gap-4 justify-center"
       >
         <ng-template let-item pTemplate="item">
-  <div
-    class="bg-white rounded-xl border border-[#0A2342]/10 shadow-lg
-           hover:shadow-xl hover:border-baseNaranja
-           px-4 py-5 mx-2 w-full min-w-[220px] max-w-[260px]
-           flex flex-col items-center text-center transition-all duration-300"
-  >
-    <!-- Icono y título -->
-    <i class="{{ item.icono }} text-3xl text-[#0A2342] mb-2"></i>
-    <span class="text-sm font-semibold text-[#0A2342] mb-3">
-      {{ item.nombre_seccion }}
-    </span>
-
-    <!-- Más info (p-button) -->
-    <p-button
-  icon="pi pi-info-circle"
-  label="Más info"
-  
-  (click)="info.toggle($event)"
-></p-button>
-
-<!-- Popover asociado -->
-<p-popover #info  [appendTo]="'body'">
-  
-  <div class="p-4 w-[20rem]">
-    <h3 class="font-semibold mb-2">{{ item.nombre_seccion }}</h3>
-    <p >
-      {{ item.descripcionExtendida }}
-    </p>
-  </div>
-</p-popover>
-
-    <!-- Ir a sección (p-button) -->
-    <p-button
-      icon="pi pi-arrow-right"
-      label="Ir a sección"
-      class="mt-2"
-      (click)="navegarASeccion(item)"
-    ></p-button>
-  </div>
-</ng-template>
-
+          <div
+            class="bg-white rounded-xl border border-[#0A2342]/10 shadow-lg hover:shadow-xl hover:border-baseNaranja px-4 py-5 mx-2 w-full min-w-[220px] max-w-[260px] flex flex-col items-center text-center transition-all duration-300"
+          >
+            <i class="{{ item.icono }} text-3xl text-baseNaranja mb-2"></i>
+            <span class="text-sm font-semibold text-[#0A2342] mb-3">
+              {{ item.nombre_seccion }}
+            </span>
+            <p-button
+              icon="pi pi-arrow-right"
+              label="Ir a sección"
+              class="mt-2"
+              (click)="navegarASeccion(item)"
+            ></p-button>
+          </div>
+        </ng-template>
       </p-carousel>
     </div>
-
   </div>
 </section>

@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { NgClass, NgIf } from '@angular/common';
 
 @Component({
-  selector: 'app-pg-principal-gestion-dispositivos',
-  templateUrl: './pg-principal-gestion-dispositivos.component.html',
-  styleUrls: ['./pg-principal-gestion-dispositivos.component.css']
+  standalone: true,
+    selector: 'app-pg-principal-gestion-dispositivos',
+    templateUrl: './pg-principal-gestion-dispositivos.component.html',
+    styleUrls: ['./pg-principal-gestion-dispositivos.component.css'],
+    imports: [RouterLink, NgClass, NgIf, RouterOutlet]
 })
 export class PgPrincipalGestionDispositivosComponent implements OnInit {
   tabs = [

@@ -8,8 +8,8 @@ describe('PgPortadaInicialComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PgPortadaInicialComponent]
-    })
+    imports: [PgPortadaInicialComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PgPortadaInicialComponent);

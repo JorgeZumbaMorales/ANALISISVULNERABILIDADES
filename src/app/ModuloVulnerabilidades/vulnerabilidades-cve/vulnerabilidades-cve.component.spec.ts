@@ -8,8 +8,8 @@ describe('VulnerabilidadesCveComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [VulnerabilidadesCveComponent]
-    })
+    imports: [VulnerabilidadesCveComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(VulnerabilidadesCveComponent);

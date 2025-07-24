@@ -7,21 +7,43 @@
     
 }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden; /* 👈 Mantenemos esto solo si el scroll está en main */
-}
-
-body.p-overflow-hidden {
-  overflow: hidden !important;
-}
-
-body > app-root {
-  height: 100%;
+.contenedor-principal {
   display: flex;
   flex-direction: column;
+  position: relative;
+  height: 100vh;
 }
+
+#wrapper {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+.main-container-app {
+  display: flex;
+  flex: 1;
+}
+
+#content-wrapper {
+  width: 100%;
+  overflow-y: auto;
+  height: 100%;
+  padding: 2rem;
+  background-color: var(--color-bg, #f4f4f4);
+  min-width: 350px;
+}
+
+.layout-menu {
+  height: 100%;
+}
+
+.content-slide {
+  display: flex;
+  height: 100%;
+}
+
+
 
 
 /* 

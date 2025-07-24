@@ -3,22 +3,23 @@ import { MessageService } from 'primeng/api';
 
 @Injectable({ providedIn: 'root' })
 export class NotificacionService {
-  constructor(private messageService: MessageService) {}
+  constructor(private messageService: MessageService) { }
 
-  success(mensaje: string, detalle: string = '') {
-    this.messageService.add({ severity: 'success', summary: mensaje, detail: detalle });
+  success(titulo: string, mensaje: string = '') {
+    this.messageService.add({ severity: 'success', summary: titulo, detail: mensaje });
   }
 
-  error(mensaje: string, detalle: string = '') {
-    this.messageService.add({ severity: 'error', summary: mensaje, detail: detalle });
+  error(titulo: string, mensaje: string = '') {
+    this.messageService.add({ severity: 'error', summary: titulo, detail: mensaje });
   }
 
-  warning(mensaje: string, detalle: string = '') {
-    this.messageService.add({ severity: 'warn', summary: mensaje, detail: detalle });
+  warning(titulo: string, mensaje: string = '') {
+    this.messageService.add({ severity: 'warn', summary: titulo, detail: mensaje });
   }
 
-  info(mensaje: string, detalle: string = '') {
-    this.messageService.add({ severity: 'info', summary: mensaje, detail: detalle });
+  info(titulo: string, mensaje: string = '') {
+    this.messageService.add({ severity: 'info', summary: titulo, detail: mensaje });
   }
 }
+
 

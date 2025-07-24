@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-pg-principal-reportes',
-  templateUrl: './pg-principal-reportes.component.html',
-  styleUrls: ['./pg-principal-reportes.component.css']
+  standalone: true,
+    selector: 'app-pg-principal-reportes',
+    templateUrl: './pg-principal-reportes.component.html',
+    styleUrls: ['./pg-principal-reportes.component.css'],
+    imports: [RouterLink, NgClass, RouterOutlet]
 })
 export class PgPrincipalReportesComponent {
   tabs = [

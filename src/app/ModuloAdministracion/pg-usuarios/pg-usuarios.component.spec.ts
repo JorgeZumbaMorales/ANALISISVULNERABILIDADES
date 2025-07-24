@@ -8,8 +8,8 @@ describe('PgUsuariosComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PgUsuariosComponent]
-    })
+    imports: [PgUsuariosComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PgUsuariosComponent);

@@ -8,8 +8,8 @@ describe('PgMenuAdministracionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PgMenuAdministracionComponent]
-    })
+    imports: [PgMenuAdministracionComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PgMenuAdministracionComponent);

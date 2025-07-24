@@ -1,12 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { ServiciosAutenticacion } from '../../../ModuloServiciosWeb/ServiciosAutenticacion.component';
 import { SesionUsuarioService } from '../../../Seguridad/sesion-usuario.service';
+import { PgHeaderAdministracionComponent } from '../pg-header-administracion/pg-header-administracion.component';
+import { PgMenuAdministracionComponent } from '../pg-menu-administracion/pg-menu-administracion.component';
+import { PgFooterAdministracionComponent } from '../pg-footer-administracion/pg-footer-administracion.component';
 
 @Component({
-  selector: 'app-pg-dashboard-administracion',
-  templateUrl: './pg-dashboard-administracion.component.html',
-  styleUrl: './pg-dashboard-administracion.component.css'
+  standalone: true,
+    selector: 'app-pg-dashboard-administracion',
+    templateUrl: './pg-dashboard-administracion.component.html',
+    styleUrl: './pg-dashboard-administracion.component.css',
+    imports: [PgHeaderAdministracionComponent, PgMenuAdministracionComponent, RouterOutlet, PgFooterAdministracionComponent]
 })
 export class PgDashboardAdministracionComponent implements OnInit {
   rolSeleccionado: string = '';

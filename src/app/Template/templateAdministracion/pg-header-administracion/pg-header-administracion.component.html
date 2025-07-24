@@ -1,123 +1,279 @@
 <header class="bg-baseAzulOscuro text-textoSecundario p-2 shadow-md">
   <nav class="flex justify-between items-center">
     <div class="flex items-center ml-6">
-  <h1 class="text-xl font-bold">RedSegura</h1>
-</div>
-
+      <h1 class="text-xl font-bold">RedSegura</h1>
+    </div>
 
     <div class="flex items-center space-x-4">
       <!-- Notificaciones -->
-<div class="relative flex items-center">
-  <i 
-    class="pi pi-bell text-xl cursor-pointer text-white hover:text-baseNaranja transition duration-150"
-    *ngIf="cantidadNotificaciones > 0"
-    pBadge 
-    pTooltip="Notificaciones"
-    tooltipPosition="top"
-    [value]="cantidadNotificaciones"
-    [badgeStyle]="{ backgroundColor: '#fc4b08', color: 'white' }"
-    (click)="mostrarNotificaciones($event)"
-  ></i>
-  <i 
-    *ngIf="cantidadNotificaciones === 0"
-    class="pi pi-bell text-xl cursor-pointer text-white hover:text-baseNaranja transition duration-150"
-    pTooltip="Notificaciones"
-    tooltipPosition="top"
-    (click)="mostrarNotificaciones($event)"
-  ></i>
-</div>
-
-
-<p-overlayPanel #opNotificaciones [dismissable]="true" [showCloseIcon]="true" [style]="{ width: '270px' }">
-  <div class="space-y-2 max-h-[300px] overflow-auto">
-    <!-- Nuevas -->
-    <div *ngFor="let noti of notificaciones" 
-         class="p-2 border-b border-gray-200 text-sm text-black font-semibold">
-      <i class="pi pi-info-circle text-baseNaranja mr-2"></i>
-      {{ noti.mensaje_notificacion }}
-    </div>
-
-    <!-- Historial -->
-    <div *ngIf="historialNotificaciones.length > 0">
-      <div class="text-xs font-bold text-gray-500 px-2 mt-2">Últimas notificaciones</div>
-      <div *ngFor="let noti of historialNotificaciones" 
-           class="p-2 border-b border-gray-100 text-sm text-gray-600 italic">
-        <i class="pi pi-history text-gray-500 mr-2"></i>
-        {{ noti.mensaje_notificacion }}
+      <div class="relative flex items-center">
+        <i
+          class="pi pi-bell text-xl cursor-pointer text-white hover:text-baseNaranja transition duration-150"
+          *ngIf="cantidadNotificaciones > 0"
+          pBadge
+          pTooltip="Notificaciones"
+          tooltipPosition="top"
+          [value]="cantidadNotificaciones"
+          [badgeStyle]="{ backgroundColor: '#fc4b08', color: 'white' }"
+          (click)="mostrarNotificaciones($event)"
+        ></i>
+        <i
+          *ngIf="cantidadNotificaciones === 0"
+          class="pi pi-bell text-xl cursor-pointer text-white hover:text-baseNaranja transition duration-150"
+          pTooltip="Notificaciones"
+          tooltipPosition="top"
+          (click)="mostrarNotificaciones($event)"
+        ></i>
       </div>
-    </div>
 
-    <!-- Si no hay nada -->
-    <div *ngIf="notificaciones.length === 0 && historialNotificaciones.length === 0">
-      <div class="text-center p-3 text-sm text-gray-500">No hay notificaciones</div>
-    </div>
-  </div>
-</p-overlayPanel>
+      <p-overlayPanel
+        #opNotificaciones
+        [dismissable]="true"
+        [showCloseIcon]="true"
+        [style]="{ width: '270px' }"
+      >
+        <div class="space-y-2 max-h-[300px] overflow-auto">
+          <!-- Nuevas -->
+          <div
+            *ngFor="let noti of notificaciones"
+            class="p-2 border-b border-gray-200 text-sm text-black font-semibold"
+          >
+            <i class="pi pi-info-circle text-baseNaranja mr-2"></i>
+            {{ noti.mensaje_notificacion }}
+          </div>
 
+          <!-- Historial -->
+          <div *ngIf="historialNotificaciones.length > 0">
+            <div class="text-xs font-bold text-gray-500 px-2 mt-2">
+              Últimas notificaciones
+            </div>
+            <div
+              *ngFor="let noti of historialNotificaciones"
+              class="p-2 border-b border-gray-100 text-sm text-gray-600 italic"
+            >
+              <i class="pi pi-history text-gray-500 mr-2"></i>
+              {{ noti.mensaje_notificacion }}
+            </div>
+          </div>
 
-
+          <!-- Si no hay nada -->
+          <div
+            *ngIf="
+              notificaciones.length === 0 &&
+              historialNotificaciones.length === 0
+            "
+          >
+            <div class="text-center p-3 text-sm text-gray-500">
+              No hay notificaciones
+            </div>
+          </div>
+        </div>
+      </p-overlayPanel>
 
       <!-- Selector de Roles limpio -->
       <div class="text-white text-sm flex items-center space-x-1">
-  <p-iftalabel class="w-44">
-    <p-dropdown 
-  [options]="roles" 
-  [(ngModel)]="selectedRole"
-  optionLabel="label"
-  optionValue="value"
-  (onChange)="onCambiarRol()"
-  appendTo="body"
-  [showClear]="false"
-  class="bg-transparent border-none focus:ring-0 w-full"
-  [style]="{ color: 'white', background: 'transparent' }"
-  [panelStyle]="{ background: 'white', color: 'black' }"
-  [dropdownIcon]="'pi pi-chevron-down text-white ml-2'"
->
-  <!-- Mostrar ítem seleccionado -->
-  <ng-template let-selected pTemplate="selectedItem">
-    <span class="text-white">{{ selected?.label }}</span>
-  </ng-template>
+        <p-iftalabel class="w-44">
+          <p-dropdown
+            [options]="roles"
+            [(ngModel)]="selectedRole"
+            optionLabel="label"
+            optionValue="value"
+            (onChange)="onCambiarRol()"
+            appendTo="body"
+            [showClear]="false"
+            class="bg-transparent border-none focus:ring-0 w-full"
+            [style]="{ color: 'white', background: 'transparent' }"
+            [panelStyle]="{ background: 'white', color: 'black' }"
+            [dropdownIcon]="'pi pi-chevron-down text-white ml-2'"
+          >
+            <!-- Mostrar ítem seleccionado -->
+            <ng-template let-selected pTemplate="selectedItem">
+              <span class="text-white">{{ selected?.label }}</span>
+            </ng-template>
 
-  <!-- Estilo para cada opción -->
-  <ng-template let-option pTemplate="item">
-    <span 
-      class="block px-2 py-1 text-black" 
-      [ngClass]="{ 'active:bg-transparent font-bold': option.value === selectedRole }"
-    >
-      {{ option.label }}
-    </span>
-  </ng-template>
-</p-dropdown>
+            <!-- Estilo para cada opción -->
+            <ng-template let-option pTemplate="item">
+              <span
+                class="block px-2 py-1 text-black"
+                [ngClass]="{
+                  'active:bg-transparent font-bold':
+                    option.value === selectedRole
+                }"
+              >
+                {{ option.label }}
+              </span>
+            </ng-template>
+          </p-dropdown>
 
-    <label for="roles" class="text-orange-500">Rol seleccionado</label>
-
-  </p-iftalabel>
-</div>
-
-
-
+          <label for="roles" class="text-orange-500">Rol seleccionado</label>
+        </p-iftalabel>
+      </div>
 
       <!-- Menú de perfil -->
-      <p-menu 
-        #menu 
-        [popup]="true" 
-        [model]="perfilMenu" 
+      <p-menu
+        #menu
+        [popup]="true"
+        [model]="perfilMenu"
         class="bg-white text-sm text-textoPrincipal shadow-md rounded-md"
       ></p-menu>
 
       <!-- Botón de usuario -->
-      <button 
-  pButton 
-  type="button" 
-  (click)="menu.toggle($event)"
-  class="bg-transparent border-none text-white text-sm px-2 py-1 hover:text-baseNaranja flex items-center space-x-2 transition duration-200"
->
-  <i class="pi pi-user"></i>
-  <span>{{ nombresCompletos }}</span>
-  <i class="pi pi-chevron-down text-xs"></i>
-</button>
-
-
+      <button
+        pButton
+        type="button"
+        (click)="menu.toggle($event)"
+        class="bg-transparent border-none text-white text-sm px-2 py-1 hover:text-baseNaranja flex items-center space-x-2 transition duration-200"
+      >
+        <span>{{ nombresCompletos }}</span>
+        <i class="pi pi-chevron-down text-xs"></i>
+      </button>
     </div>
   </nav>
 </header>
+
+<p-dialog
+  [(visible)]="dialogoPerfilVisible"
+  [modal]="true"
+  [closable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: 'auto', padding: '0' }"
+  styleClass="!border-none !bg-transparent !shadow-none"
+  maskStyleClass="backdrop-blur-sm"
+>
+  <ng-template pTemplate="content">
+    <div
+      class="flex flex-col items-center px-8 py-10 rounded-2xl space-y-4"
+      style="
+        border-radius: 16px;
+        background-image: radial-gradient(circle at top left, #fc4b08, #0a2342);
+      "
+    >
+      <!-- Avatar + Nombre -->
+      <div class="flex flex-col items-center space-y-2">
+        <p-avatar
+          [label]="nombresCompletos.charAt(0)"
+          shape="circle"
+          size="xlarge"
+          styleClass="bg-white text-baseNaranja text-4xl font-bold"
+        ></p-avatar>
+        <h2 class="text-white text-xl font-bold text-center whitespace-nowrap">
+          {{ nombresCompletos }}
+        </h2>
+      </div>
+
+      <!-- Usuario y correo -->
+      <div class="flex flex-col items-center gap-2 text-white/90 text-sm mt-2">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-user"></i>
+          <span>{{ nombreUsuario }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="pi pi-envelope"></i>
+          <span>{{ correo }}</span>
+        </div>
+      </div>
+      <div class="pt-4 w-full">
+        <p-button
+          label="Actualizar contraseña"
+          (click)="abrirDialogoContrasena()"
+          styleClass="!bg-white/10 !border-white/30 text-white hover:!bg-white/20"
+          [text]="true"
+          class="w-full"
+        ></p-button>
+      </div>
+
+      <!-- Botón -->
+      <div class="pt-4">
+        <p-button
+          label="Cerrar"
+          (click)="dialogoPerfilVisible = false"
+          styleClass="!bg-white/10 !border-white/30 text-white hover:!bg-white/20"
+          [text]="true"
+          class="w-auto mx-auto"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="dialogoContrasenaVisible"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '400px' }"
+  header="Actualizar Contraseña"
+  class="modal-cambiar-contrasena"
+>
+  <div class="space-y-4 p-2">
+    <p-iftalabel>
+      <p-password
+        [(ngModel)]="formContrasena.actual"
+        [toggleMask]="true"
+        [feedback]="false"
+        appendTo="body"
+        class="w-full"
+        inputId="contrasena-actual"
+      />
+      <label for="contrasena-actual">Contraseña actual</label>
+    </p-iftalabel>
+
+    <p-iftalabel>
+      <p-password
+        [(ngModel)]="formContrasena.nueva"
+        [feedback]="true"
+        [toggleMask]="true"
+        promptLabel="Ingrese una nueva contraseña"
+        weakLabel="Simple"
+        mediumLabel="Media"
+        strongLabel="Fuerte"
+        appendTo="body"
+        class="w-full"
+        inputId="nueva-contrasena"
+        (keydown)="bloquearEspacios($event)"
+      >
+        <ng-template pTemplate="footer">
+          <p-divider />
+          <p class="mt-2">Recomendaciones:</p>
+          <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
+            <li>Al menos una letra minúscula</li>
+            <li>Al menos una letra mayúscula</li>
+            <li>Al menos un número</li>
+            <li>Mínimo 8 caracteres</li>
+          </ul>
+        </ng-template>
+      </p-password>
+      <label for="nueva-contrasena">Nueva contraseña</label>
+    </p-iftalabel>
+
+    <p-iftalabel>
+      <p-password
+        [(ngModel)]="formContrasena.repetir"
+        [toggleMask]="true"
+        promptLabel="Repita la nueva contraseña"
+        weakLabel="Simple"
+        mediumLabel="Media"
+        strongLabel="Fuerte"
+        appendTo="body"
+        class="w-full"
+        inputId="repetir-contrasena"
+        (keydown)="bloquearEspacios($event)"
+      ></p-password>
+      <label for="repetir-contrasena">Confirmar contraseña</label>
+    </p-iftalabel>
+  </div>
+
+  <div class="modal-footer flex justify-end items-center mt-4 space-x-4">
+    <button
+      pButton
+      type="button"
+      label="Cancelar"
+      (click)="dialogoContrasenaVisible = false"
+      class="p-button-outlined w-28"
+    ></button>
+    <p-button
+      label="Guardar"
+      (click)="guardarNuevaContrasena()"
+      class="w-28"
+    ></p-button>
+  </div>
+</p-dialog>

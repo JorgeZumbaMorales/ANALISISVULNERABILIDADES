@@ -2,14 +2,27 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { SesionUsuarioService } from '../../Seguridad/sesion-usuario.service';
 import { ServiciosAutenticacion } from '../../ModuloServiciosWeb/ServiciosAutenticacion.component';
-import { MessageService } from 'primeng/api';
+import { MessageService, PrimeTemplate } from 'primeng/api';
 import { Observable } from 'rxjs';
+import { Toast } from 'primeng/toast';
+import { FormsModule } from '@angular/forms';
+import { IftaLabel } from 'primeng/iftalabel';
+import { InputText } from 'primeng/inputtext';
+import { Password } from 'primeng/password';
+import { Button } from 'primeng/button';
+import { Dialog } from 'primeng/dialog';
+import { TabView, TabPanel } from 'primeng/tabview';
+import { NgIf } from '@angular/common';
+import { ProgressSpinner } from 'primeng/progressspinner';
+import { InputOtp } from 'primeng/inputotp';
+import { Divider } from 'primeng/divider';
 
 @Component({
-  selector: 'app-pg-login',
-  standalone: false,
-  templateUrl: './pg-login.component.html',
-  styleUrl: './pg-login.component.css'
+  standalone: true,
+    selector: 'app-pg-login',
+    templateUrl: './pg-login.component.html',
+    styleUrl: './pg-login.component.css',
+    imports: [Toast, FormsModule, IftaLabel, InputText, Password, Button, Dialog, PrimeTemplate, TabView, TabPanel, NgIf, ProgressSpinner, InputOtp, Divider]
 })
 export class PgLoginComponent {
   usuario: string = '';

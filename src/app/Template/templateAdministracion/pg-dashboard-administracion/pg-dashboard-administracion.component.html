@@ -1,20 +1,30 @@
-<div class="h-screen flex flex-col overflow-hidden">
+<!-- layout.component.html -->
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <title>RedSegura</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="icono_tab.png">
 
-  <!-- Header fijo -->
-  <app-pg-header-administracion></app-pg-header-administracion>
+</head>
+<body class="h-full">
+<div class="contenedor-principal">
+  <app-pg-header-administracion (cambioRol)="actualizarMenuPorRol($event)"></app-pg-header-administracion>
 
-  <div class="flex flex-1 overflow-hidden">
-    
-    <!-- Sidebar fijo -->
-    <app-pg-menu-administracion></app-pg-menu-administracion>
 
-    <!-- 📌 Solo aquí va el scroll -->
-    <main class="flex-1 overflow-y-auto px-4 py-4">
+  <div id="wrapper" class="main-container-app">
+   <app-pg-menu-administracion class="layout-menu" [rolActivo]="rolSeleccionado"></app-pg-menu-administracion>
+
+
+    <div id="content-wrapper">
       <router-outlet></router-outlet>
-    </main>
-
+    </div>
   </div>
 
-  <!-- Footer fijo -->
   <app-pg-footer-administracion></app-pg-footer-administracion>
 </div>
+  
+</body>
+</html>

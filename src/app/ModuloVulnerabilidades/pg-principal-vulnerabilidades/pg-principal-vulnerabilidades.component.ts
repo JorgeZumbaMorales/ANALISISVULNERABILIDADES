@@ -1,36 +1,42 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { NgFor, NgClass } from '@angular/common';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
+  standalone: true,
   selector: 'app-pg-principal-vulnerabilidades',
   templateUrl: './pg-principal-vulnerabilidades.component.html',
-  styleUrls: ['./pg-principal-vulnerabilidades.component.css']
+  styleUrls: ['./pg-principal-vulnerabilidades.component.css'],
+  imports: [NgFor, RouterLink, NgClass, RouterOutlet]
 })
-export class PgPrincipalVulnerabilidadesComponent {
-  
-  // ✅ Definir los Tabs para la navegación
+export class PgPrincipalVulnerabilidadesComponent implements OnInit {
   tabs = [
     { label: 'Puertos Vulnerables', route: 'dispositivos-vulnerables', icon: 'pi pi-desktop' },
     { label: 'Vulnerabilidades', route: 'cve', icon: 'pi pi-lock' }
   ];
-  
 
-  activeTab: string = this.tabs[0].route; 
+  activeTab: string = '';
 
-  constructor(private route: ActivatedRoute, private router: Router) {
-    // ✅ Detectar el tab activo basado en la URL
-    this.route.url.subscribe(() => {
-      const currentRoute = this.router.url;
-      this.activeTab = this.tabs.find(tab => currentRoute.includes(tab.route))?.route || this.tabs[0].route;
-    });
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {
+    this.actualizarTabActivo(this.router.url);
+
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.actualizarTabActivo(event.urlAfterRedirects);
+      });
   }
 
-  // ✅ Método para cambiar el tab activo
-  setActiveTab(route: string) {
-    this.activeTab = route;
+  private actualizarTabActivo(ruta: string): void {
+    this.activeTab =
+      this.tabs.find(tab => ruta.endsWith(tab.route))?.route ||
+      this.tabs.find(tab => ruta.includes(tab.route))?.route || '';
   }
 
-  // ✅ Método para mejorar la performance en el *ngFor
   trackByFn(index: number, item: any) {
     return item.route;
   }

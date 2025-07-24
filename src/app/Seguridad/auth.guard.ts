@@ -14,27 +14,25 @@ export class AuthGuard implements CanActivate {
     private sesionService: SesionUsuarioService,
     private authService: ServiciosAutenticacion,
     private router: Router
-  ) {}
+  ) { }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-  if (!this.sesionService.estaAutenticado()) {
-    this.router.navigate(['/public/login']);
-    return of(false);
-  }
-
-  // ⚠️ Validación real del token con el backend
-  return this.authService.obtenerMiPerfil().pipe(
-    map((perfil) => {
-      this.sesionService.guardarPerfil(perfil); // Guarda por si hace falta
-      return true;
-    }),
-    catchError(() => {
-      this.sesionService.cerrarSesion(); // Elimina el token inválido
+    if (!this.sesionService.estaAutenticado()) {
       this.router.navigate(['/public/login']);
       return of(false);
-    })
-  );
-}
+    }
+    return this.authService.obtenerMiPerfil().pipe(
+      map((perfil) => {
+        this.sesionService.guardarPerfil(perfil);
+        return true;
+      }),
+      catchError(() => {
+        this.sesionService.cerrarSesion();
+        this.router.navigate(['/public/login']);
+        return of(false);
+      })
+    );
+  }
 
 
 }

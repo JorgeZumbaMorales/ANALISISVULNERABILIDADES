@@ -1,25 +1,17 @@
-<aside class="w-50 bg-fondoClaro  text-baseAzulOscuro shadow-lg  flex flex-col  h-[calc(100vh-4rem)] border-r border-baseAzulOscuro ">
-
-  <!-- Contenedor del Menú -->
-  <nav class="flex-1">
-      <ul class="space-y-2"> <!-- 🛠 Espaciado entre elementos -->
-          @for(item of menuItems; track item.routerLink){
-              <li>
-                  <button 
-  [routerLink]="item.routerLink"
-  class="w-full flex items-center px-4 py-3  transition-all duration-200"
-  [ngClass]="{
-    'text-black font-semibold': item.routerLink.includes(activeMenu),
-    'hover:bg-baseNaranja hover:text-black': !item.routerLink.includes(activeMenu)
-  }"
-  (click)="setActiveMenu(item.routerLink)"
->
-  <i [class]="item.icon" class="mr-3"></i>
-  <span>{{ item.label }}</span>
-</button>
-
-              </li>
-          }
-      </ul>
+<aside class="h-full bg-fondoClaro text-baseAzulOscuro flex flex-col border-r border-baseAzulOscuro shadow-lg">
+  <nav class="flex-1 flex flex-col justify-between py-4 px-4">
+    <ul class="space-y-2">
+      <li *ngFor="let item of items; trackBy: trackByLink">
+        <a
+          [routerLink]="item.routerLink"
+          routerLinkActive="menu-item-active"
+          [routerLinkActiveOptions]="{ exact: false }"
+          class="menu-item flex items-center px-3 py-2 rounded-lg transition-colors duration-200"
+        >
+          <i [class]="item.icon + ' text-lg'"></i>
+          <span class="ml-3">{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
   </nav>
 </aside>

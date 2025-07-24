@@ -8,8 +8,8 @@ describe('PgLoginPublicoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PgLoginPublicoComponent]
-    })
+    imports: [PgLoginPublicoComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PgLoginPublicoComponent);

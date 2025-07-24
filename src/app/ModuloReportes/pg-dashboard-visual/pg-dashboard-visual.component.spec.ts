@@ -8,8 +8,8 @@ describe('PgDashboardVisualComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PgDashboardVisualComponent]
-    })
+    imports: [PgDashboardVisualComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PgDashboardVisualComponent);

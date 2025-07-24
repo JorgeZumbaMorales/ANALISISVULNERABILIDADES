@@ -1,65 +1,72 @@
-import { Component, OnInit , Input, OnChanges, SimpleChanges} from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MenuItem } from 'primeng/api';
+import { CommonModule } from '@angular/common';
+
 import { ServiciosAutenticacion } from '../../../ModuloServiciosWeb/ServiciosAutenticacion.component';
 import { SesionUsuarioService } from '../../../Seguridad/sesion-usuario.service';
 
 @Component({
+  standalone: true,
   selector: 'app-pg-menu-administracion',
   templateUrl: './pg-menu-administracion.component.html',
-  styleUrls: ['./pg-menu-administracion.component.css']
+  styleUrls: ['./pg-menu-administracion.component.css'],
+  imports: [
+    CommonModule,    
+    RouterModule    
+  ]
 })
-export class PgMenuAdministracionComponent implements OnInit {
-  @Input() rolActivo: string = ''; // 🔹 Nuevo
-  menuItems: any[] = [];
-  activeMenu: string = '';
+export class PgMenuAdministracionComponent implements OnInit, OnChanges {
+  @Input() rolActivo = '';
+  items: MenuItem[] = [];
 
   constructor(
+    private auth: ServiciosAutenticacion,
+    private session: SesionUsuarioService,
     private route: ActivatedRoute,
-    private router: Router,
-    private authService: ServiciosAutenticacion,
-    private sesionService: SesionUsuarioService
-  ) {}
+    private router: Router
+  ) { }
 
-  ngOnInit(): void {
-    const perfil = this.sesionService.obtenerPerfil();
-    if (perfil && perfil.roles.length > 0) {
+  ngOnInit() {
+    const perfil = this.session.obtenerPerfil();
+    if (perfil?.roles?.length) {
       this.rolActivo = perfil.roles[0];
-      this.cargarMenuPorRol(this.rolActivo);
+      this.loadItems(this.rolActivo);
     }
+    this.route.parent?.params.subscribe(() => { });
+  }
 
-    this.route.url.subscribe(() => {
-      this.activeMenu = this.router.url;
-    });
-  }
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['rolActivo'] && changes['rolActivo'].currentValue) {
-      this.cargarMenuPorRol(this.rolActivo);
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['rolActivo']?.currentValue) {
+      this.loadItems(this.rolActivo);
     }
   }
-  cargarMenuPorRol(rol: string) {
-    this.authService.obtenerMenuPorRol(rol).subscribe({
-      next: (secciones) => {
-        this.menuItems = secciones.map((s: any) => ({
-          label: s.nombre_seccion,
-          routerLink: s.ruta,
-          icon: this.obtenerIcono(s.nombre_seccion)
-        }));
-      }
+
+  private loadItems(rol: string) {
+    this.auth.obtenerMenuPorRol(rol).subscribe(secciones => {
+      this.items = secciones.map((s: any) => ({
+        label: s.nombre_seccion,
+        icon: this.iconFor(s.nombre_seccion),
+        routerLink: s.ruta,
+        routerLinkActiveOptions: { exact: false }
+      }));
     });
   }
-  obtenerIcono(nombre: string): string {
-    const iconos: any = {
+
+  private iconFor(name: string): string {
+    return {
       Inicio: 'pi pi-home',
       Administración: 'pi pi-users',
       Dispositivos: 'pi pi-desktop',
       Vulnerabilidades: 'pi pi-shield',
       Reportes: 'pi pi-chart-line',
       Configuraciones: 'pi pi-cog'
-    };
-    return iconos[nombre] || 'pi pi-bars';
+    }[name] || 'pi pi-bars';
   }
 
-  setActiveMenu(route: string) {
-    this.activeMenu = route;
+
+  trackByLink(_idx: number, item: MenuItem) {
+    return item.routerLink;
   }
 }

@@ -3,11 +3,11 @@ import {
   OnInit,
   AfterViewInit,
   ViewChild,
-} from '@angular/core';
 
-import { Table } from 'primeng/table';
-import { MessageService, SortEvent } from 'primeng/api';
-import { Router, ActivatedRoute } from '@angular/router';
+} from '@angular/core';
+import { CanComponentDeactivate } from '../../Seguridad/confirm-deactivate.guard';
+import { Table, TableModule } from 'primeng/table';
+import { MessageService, SortEvent, PrimeTemplate } from 'primeng/api';
 import { ServiciosDispositivos } from '../../ModuloServiciosWeb/ServiciosDispositivos.component';
 import { NotificacionService } from '../../ValidacionesFormularios/notificacion.service';
 import { ValidacionesGeneralesService } from '../../ValidacionesFormularios/validaciones-dispositivo.service';
@@ -16,6 +16,21 @@ import { ServiciosAnalisisVulnerabilidades } from '../../ModuloServiciosWeb/Serv
 import { ServiciosAlertas } from '../../ModuloServiciosWeb/ServiciosAlertas.component';
 import { SesionUsuarioService } from '../../Seguridad/sesion-usuario.service';
 import { ConfirmationService } from 'primeng/api';
+import { Toast } from 'primeng/toast';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ButtonDirective, Button } from 'primeng/button';
+import { NgIf, NgFor } from '@angular/common';
+import { ProgressSpinner } from 'primeng/progressspinner';
+import { ProgressBar } from 'primeng/progressbar';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
+import { Tag } from 'primeng/tag';
+import { Tooltip } from 'primeng/tooltip';
+import { Dialog } from 'primeng/dialog';
+import { IftaLabel } from 'primeng/iftalabel';
+import { FormsModule } from '@angular/forms';
+
 interface SistemaOperativo {
   sistema_operativo_id: number;
   nombre_so: string;
@@ -31,26 +46,22 @@ interface Dispositivo {
   estado: boolean;
   puertos?: any[];
 }
-
 @Component({
+  standalone: true,
   selector: 'app-pg-dispositivos',
   templateUrl: './pg-dispositivos.component.html',
-  styleUrls: ['./pg-dispositivos.component.css']
+  styleUrls: ['./pg-dispositivos.component.css'],
+  imports: [Toast, ConfirmDialog, PrimeTemplate, ButtonDirective, NgIf, Button, ProgressSpinner, ProgressBar, TableModule, IconField, InputIcon, InputText, Tag, Tooltip, Dialog, IftaLabel, FormsModule,]
 })
-export class PgDispositivosComponent implements OnInit, AfterViewInit {
+export class PgDispositivosComponent implements OnInit, AfterViewInit, CanComponentDeactivate {
   @ViewChild('dt') dt!: Table;
   Math = Math
   dispositivos: Dispositivo[] = [];
   dispositivosOriginales: Dispositivo[] = [];
-
   sistemasOperativos: SistemaOperativo[] = [];
   sistemasOperativosFiltrados: SistemaOperativo[] = [];
-
   modalEditarVisible = false;
   modalCrearSOVisible = false;
-first: number = 0;
-rows: number = 10;
-
   dialogoVisible = false;
   puertosDispositivo: any[] = [];
   dispositivoSeleccionado: any = null;
@@ -58,11 +69,8 @@ rows: number = 10;
   sistemaOperativoSeleccionado: SistemaOperativo | null = null;
   ordenActivo: boolean | null = null;
   escaneando: boolean = false;
-  progresoActual: number = 0;
-  progresoTotal: number = 0;
-
+  cargandoDispositivos: boolean = true;
   nuevoSO = { nombre_so: '' };
-
   constructor(
     private serviciosDispositivos: ServiciosDispositivos,
     private notificacion: NotificacionService,
@@ -71,52 +79,58 @@ rows: number = 10;
     private segundoPlano: ServicioSegundoPlano,
     private analisisVulnerabilidades: ServiciosAnalisisVulnerabilidades,
     private confirmationService: ConfirmationService,
-      private sesionUsuario: SesionUsuarioService,
-  private servicioAlertas: ServiciosAlertas
-  ) {}
+    private sesionUsuario: SesionUsuarioService,
+    private servicioAlertas: ServiciosAlertas
+  ) { }
 
-ngOnInit(): void {
-  this.cargarDispositivos();
-  this.cargarSistemasOperativos();
-  this.reanudarEscaneoSiEstabaActivo(); // nuevo
+  ngOnInit(): void {
+    this.cargarDispositivos();
+    this.cargarSistemasOperativos();
+    this.reanudarEscaneoSiEstabaActivo();
 
-}
-
-
-
-
-
-
-
+  }
 
   ngAfterViewInit(): void {
     if (!this.dt) {
-      console.warn('❌ Tabla de dispositivos (dt) no inicializada.');
+      console.warn('Tabla de dispositivos (dt) no inicializada.');
     }
   }
+  cancelPendingOperation(): Promise<boolean> {
+    return new Promise(resolve => {
+      this.analisisVulnerabilidades.cancelarEscaneoRapido().subscribe({
+        next: () => {
+          this.escaneando = false;
 
+          resolve(true);
+        },
+        error: () => {
+          this.escaneando = false;
+          resolve(true);
+        }
+      });
+    });
+  }
+
+  canDeactivate(): boolean {
+    return !this.escaneando;
+  }
   private cargarDispositivos(): void {
+    this.cargandoDispositivos = true;
     this.serviciosDispositivos.listarDispositivosCompleto().subscribe({
       next: ({ data }) => {
         this.dispositivos = data;
         this.dispositivosOriginales = [...data];
       },
-      error: (err) => console.error('❌ Error al obtener dispositivos:', err)
+      error: (err) => console.error(' Error al obtener dispositivos:', err)
     });
   }
-  get dispositivosPaginados() {
-  return this.dispositivos.slice(this.first, this.first + this.rows);
-}
-onPageChange(event: any) {
-  this.first = event.first;
-  this.rows = event.rows;
-}
+
   private cargarSistemasOperativos(): void {
     this.serviciosDispositivos.listarSistemasOperativos().subscribe({
       next: (so) => {
         this.sistemasOperativos = so;
       },
-      error: (err) => console.error('❌ Error al cargar sistemas operativos:', err)
+      error: (err) => console.error('Error al cargar sistemas operativos:', err)
     });
   }
 
@@ -130,8 +144,8 @@ onPageChange(event: any) {
 
     this.sistemasOperativosFiltrados = termino.length >= 3
       ? this.sistemasOperativos.filter(so =>
-          so.nombre_so.toLowerCase().includes(termino)
-        )
+        so.nombre_so.toLowerCase().includes(termino)
+      )
       : [];
   }
 
@@ -205,29 +219,10 @@ onPageChange(event: any) {
           detail: mensaje
         });
 
-        console.error('🧪 Error crudo recibido:', error);
+
       }
     });
   }
-
-  guardarSistemaOperativo(): void {
-    const nombre = this.nuevoSO.nombre_so.trim();
-
-    if (!this.validaciones.validarNombreSO(nombre)) return;
-
-    this.serviciosDispositivos.crearSistemaOperativo({ nombre_so: nombre }).subscribe({
-      next: () => {
-        this.notificacion.success('Éxito', 'Sistema operativo creado correctamente.');
-        this.cargarSistemasOperativos();
-        this.cerrarModal('crear_so');
-      },
-      error: (err) => {
-        this.notificacion.error('Error', 'No se pudo crear el sistema operativo.');
-        console.error('Error al guardar SO:', err);
-      }
-    });
-  }
-
   verPuertosDispositivo(dispositivo: Dispositivo): void {
     this.dispositivoSeleccionado = dispositivo;
     this.puertosDispositivo = dispositivo.puertos || [];
@@ -269,135 +264,117 @@ onPageChange(event: any) {
     });
   }
 
+  abrirDialogoCancelarEscaneo(): void {
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de cancelar el escaneo?',
+      header: 'Cancelar escaneo',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, cancelar',
+      rejectLabel: 'Regresar',
+      accept: () => {
+        this.analisisVulnerabilidades.cancelarEscaneoRapido().subscribe({
+          next: () => {
 
+            this.escaneando = false;
 
+          },
+          error: (err) => {
+            console.error(' Error al cancelar escaneo:', err);
+          }
+        });
+      }
+    });
+  }
 
-abrirDialogoCancelarEscaneo(): void {
-  this.confirmationService.confirm({
-    message: '¿Estás seguro de cancelar el escaneo rápido?',
-    header: 'Cancelar escaneo',
-    icon: 'pi pi-exclamation-triangle',
-    acceptLabel: 'Sí, cancelar',
-    rejectLabel: 'No',
-    accept: () => {
-      this.analisisVulnerabilidades.cancelarEscaneoRapido().subscribe({
-        next: () => {
-          // ❌ Eliminar este toast porque ya se mostrará al final del seguimiento
-          // this.notificacion.warning('Escaneo cancelado', 'El escaneo rápido ha sido cancelado.');
-          
+  private crearNotificacionFinalizacion(): void {
+    const usuario_id = this.sesionUsuario.obtenerUsuarioDesdeToken()?.usuario_id;
+    if (!usuario_id) return;
+
+    const notificacion = {
+      mensaje_notificacion: "Escaneo de red finalizado correctamente.",
+      tipo_alerta_id: 1,
+      canal_alerta_id: 1,
+      usuario_id,
+      dispositivo_id: null
+    };
+
+    this.servicioAlertas.crearNotificacion(notificacion).subscribe({
+      next: () => console.log('Notificación de escaneo creada.'),
+      error: (err) => console.warn('Error al crear notificación:', err)
+    });
+  }
+
+  private reanudarEscaneoSiEstabaActivo(): void {
+    this.analisisVulnerabilidades.obtenerEstadoEscaneoRapido().subscribe({
+      next: ({ estado }) => {
+        if (estado === 'en_progreso') {
+          this.escaneando = true;
+          this.iniciarSeguimientoEscaneo();
+        } else {
           this.escaneando = false;
-          this.progresoActual = 0;
-          this.progresoTotal = 0;
-        },
-        error: (err) => {
-          console.error('❌ Error al cancelar escaneo:', err);
         }
-      });
-    }
-  });
-}
-
-
-
-private crearNotificacionFinalizacion(): void {
-  const usuario_id = this.sesionUsuario.obtenerUsuarioDesdeToken()?.usuario_id;
-  if (!usuario_id) return;
-
-  const notificacion = {
-    mensaje_notificacion: "Escaneo de red finalizado correctamente.",
-    tipo_alerta_id: 1,  // o el que uses para "informativo"
-    canal_alerta_id: 1, // canal por defecto (web)
-    usuario_id,
-    dispositivo_id: null
-  };
-
-  this.servicioAlertas.crearNotificacion(notificacion).subscribe({
-    next: () => console.log('🔔 Notificación de escaneo creada.'),
-    error: (err) => console.warn('⚠️ Error al crear notificación:', err)
-  });
-}
-
-private reanudarEscaneoSiEstabaActivo(): void {
-  this.analisisVulnerabilidades.obtenerEstadoEscaneoRapido().subscribe({
-    next: ({ estado }) => {
-      if (estado === 'en_progreso') {
-        this.iniciarSeguimientoEscaneo();
-      } else {
+      },
+      error: () => {
         this.escaneando = false;
       }
-    },
-    error: () => {
-      this.escaneando = false;
-    }
-  });
-}
+    });
+  }
 
-ejecutarEscaneoRapido(): void {
-  this.escaneando = true;
 
-  this.analisisVulnerabilidades.ejecutarEscaneoRapido().subscribe({
-    next: () => {
-      this.iniciarSeguimientoEscaneo(); // 🔁 Seguimiento en segundo plano
-    },
-    error: (err) => {
-      this.notificacion.error('Error', 'No se pudo iniciar el escaneo rápido.');
-      this.escaneando = false;
-    }
-  });
-}
-private iniciarSeguimientoEscaneo(): void {
-  this.segundoPlano.iniciar('escaneo_rapido', {
-    intervaloMs: 3000,
-    obtenerEstado: () => this.analisisVulnerabilidades.obtenerEstadoEscaneoRapido(),
-    alFinalizar: () => {
-  this.analisisVulnerabilidades.obtenerEstadoEscaneoRapido().subscribe({
-    next: ({ estado }) => {
-      console.log('🧪 Estado final del escaneo:', estado); // 👈 VERIFICAR
+  ejecutarEscaneoRapido(): void {
+    this.escaneando = true;
 
-      this.escaneando = false;
-      this.cargarDispositivos();
-
-      if (estado === 'completado') {
-        this.crearNotificacionFinalizacion();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Escaneo finalizado',
-          detail: 'El escaneo rápido ha terminado exitosamente.'
-        });
-      } else if (estado === 'cancelado') {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Escaneo cancelado',
-          detail: 'El escaneo fue cancelado.'
-        });
-      } else {
-        this.messageService.add({
-          severity: 'info',
-          summary: 'Estado desconocido',
-          detail: `El estado final fue: ${estado}`
-        });
+    this.analisisVulnerabilidades.ejecutarEscaneoRapido().subscribe({
+      next: () => {
+        this.iniciarSeguimientoEscaneo();
+      },
+      error: (err) => {
+        this.notificacion.error('Error', 'No se pudo iniciar el escaneo rápido.');
+        this.escaneando = false;
       }
-    },
-    error: () => {
-      this.escaneando = false;
-      this.notificacion.error('Error', 'Error al verificar estado final del escaneo.');
-    }
-  });
-}
-,
-    alError: () => {
-      this.escaneando = false;
-      this.notificacion.error('Error', 'Error al obtener estado de escaneo rápido.');
-    },
-    alIterar: () => {
-      this.escaneando = true;
-    }
-  });
-}
-
-
-
-
+    });
+  }
+  private iniciarSeguimientoEscaneo(): void {
+    this.segundoPlano.iniciar('escaneo_rapido', {
+      intervaloMs: 3000,
+      obtenerEstado: () => this.analisisVulnerabilidades.obtenerEstadoEscaneoRapido(),
+      alFinalizar: () => {
+        this.confirmationService.close();
+        this.analisisVulnerabilidades.obtenerEstadoEscaneoRapido().subscribe({
+          next: ({ estado }) => {
+            this.escaneando = false;
+            this.cargarDispositivos();
+            if (estado === 'completado') {
+              this.crearNotificacionFinalizacion();
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Escaneo finalizado',
+                detail: 'El escaneo ha terminado exitosamente.'
+              });
+            } else {
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Escaneo cancelado',
+                detail: 'El escaneo fue cancelado.'
+              });
+            }
+          },
+          error: () => {
+            this.escaneando = false;
+            this.notificacion.error('Error', 'Error al verificar estado final del escaneo.');
+          }
+        });
+      },
+      alError: () => {
+        this.confirmationService.close();
+        this.escaneando = false;
+        this.notificacion.error('Error', 'Error al obtener estado de escaneo rápido.');
+      },
+      alIterar: () => {
+        this.escaneando = true;
+      }
+    });
+  }
 
 
 }

@@ -1,170 +1,207 @@
 <p-toast></p-toast>
-<!-- 🔷 Sección: Encabezado de Generación de Reportes -->
-<section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-3 sm:py-4 mb-1">
-  <!-- Encabezado de gestión -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <!-- Bloque de título -->
+
+<section
+  class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 sm:py-4 mb-3"
+>
+  <div
+    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+  >
     <div class="flex-auto">
       <h2 class="text-xl sm:text-2xl font-semibold">Generador de Reportes</h2>
       <p class="text-sm text-textoSecundario mt-1">
-        Crea reportes personalizados en formato PDF. Visualiza y administra el historial de reportes generados.
+        Crea reportes personalizados en formato PDF. Visualiza y administra el
+        historial de reportes generados.
       </p>
     </div>
-
-    <!-- Botón -->
     <div class="flex-shrink-0">
-      <p-button 
-        icon="pi pi-plus" 
+      <p-button
+        icon="pi pi-plus"
         label="Nuevo Reporte"
         class="p-button-sm"
-        (click)="accionBotonGeneral('crear')">
+        (click)="accionBotonGeneral('crear')"
+      >
       </p-button>
     </div>
   </div>
 </section>
 
-
-
-
-<section class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 py-1 mb-3">
-  
-<p-table
-  [value]="reportes"
-  dataKey="reporte_generado_id"
-  [paginator]="true"
-  [rows]="5"
-  [globalFilterFields]="['nombre_reporte_generado', 'descripcion', 'usuario_nombre']"
-  responsiveLayout="scroll"
-  class="w-full"
->
-  <!-- CAPTION -->
-  <ng-template pTemplate="caption">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-      <div class="bg-baseAzulOscuro text-white px-3 py-1 rounded-md shadow-sm">
-        <h3 class="text-base sm:text-lg font-semibold">Historial de Reportes Generados</h3>
-      </div>
-
-      <p-iconfield iconPosition="left" class="mt-2 sm:mt-0">
-        <p-inputicon>
-          <i class="pi pi-search"></i>
-        </p-inputicon>
-        <input
-          pInputText
-          type="text"
-          (input)="filtrar($event)"
-          placeholder="Buscar reporte..."
-          class="w-full md:w-72"
-        />
-      </p-iconfield>
-    </div>
-  </ng-template>
-
-  <!-- HEADER -->
-  <ng-template pTemplate="header">
-    <tr>
-      <th>Nombre del Reporte</th>
-      <th>Descripción</th>
-      <th>Formato</th>
-      <th>Generado por</th>
-      <th>Fecha de Generación</th>
-      <th class="text-center w-[180px]">Acciones</th>
-    </tr>
-  </ng-template>
-
-  <!-- BODY -->
-  <ng-template pTemplate="body" let-reporte>
-    <tr>
-      <td>{{ reporte.nombre_reporte_generado }}</td>
-      <td>{{ reporte.descripcion || 'Sin descripción' }}</td>
-
-      <td class="text-center">
-  <i 
-    [class]="getIconoYTooltipArchivo(reporte).icono" 
-    [pTooltip]="getIconoYTooltipArchivo(reporte).tooltip" 
-    tooltipPosition="top"
-    class="text-xl"
-  ></i>
-</td>
-
-
-
-
-
-
-      <td>{{ reporte.usuario_nombre || 'Sin usuario' }}</td>
-
-      <!-- Fecha → formato dd-MM-yyyy -->
-      <td>{{ reporte.fecha_creacion | date:'dd-MM-yyyy' }}</td>
-
-      <!-- Acciones agrupadas -->
-      <td class="text-center">
-        <div class="flex justify-center gap-2 items-center">
-          <!-- 👁️ Ver -->
-          <p-button
-            icon="pi pi-eye"
-            pTooltip="Ver reporte"
-            tooltipPosition="top"
-            (click)="accionBotonGeneral('ver', reporte)"
-            class=""
-          ></p-button>
-
-          <!-- ⬇️ Descargar -->
-          <p-button
-            icon="pi pi-download"
-            pTooltip="Descargar"
-            tooltipPosition="top"
-            (click)="descargarPDF(reporte)"
-            class=""
-          ></p-button>
-
-          <!-- 🗑️ Eliminar -->
-          <p-button
-            icon="pi pi-trash"
-            pTooltip="Eliminar"
-            tooltipPosition="top"
-            (click)="accionBotonGeneral('eliminar', reporte)"
-            class=""
-          ></p-button>
+<div class="w-full bg-white rounded-2xl shadow-md p-4 sm:p-5">
+  <p-table
+    #dtReportes
+    [value]="reportes"
+    dataKey="reporte_generado_id"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10]"
+    paginatorPosition="bottom"
+    paginatorDropdownAppendTo="body"
+    alwaysShowPaginator="true"
+    responsiveLayout="scroll"
+    class="w-full"
+    [globalFilterFields]="[
+      'nombre_reporte_generado',
+      'descripcion',
+      'usuario_nombre'
+    ]"
+  >
+    <!-- CAPTION -->
+    <ng-template pTemplate="caption">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2"
+      >
+        <div class="bg-[#0A2342] text-white px-3 py-2 rounded-md shadow-sm">
+          <h3 class="text-base sm:text-lg font-semibold">
+            Historial de Reportes Generados
+          </h3>
         </div>
-      </td>
-    </tr>
-  </ng-template>
 
-  <!-- MENSAJE VACÍO -->
-  <ng-template pTemplate="emptymessage">
-    <tr>
-      <td colspan="6">No hay reportes generados aún.</td>
-    </tr>
-  </ng-template>
+        <p-iconfield iconPosition="left" class="mt-2 sm:mt-0">
+          <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+          <input
+            pInputText
+            type="text"
+            (input)="filtrar($event)"
+            placeholder="Buscar reporte..."
+            class="w-full md:w-72"
+          />
+        </p-iconfield>
+      </div>
+    </ng-template>
 
-</p-table>
+    <!-- HEADER -->
+    <ng-template pTemplate="header">
+      <tr class="bg-[#0A2342] text-white text-sm">
+        <th
+          class="px-3 py-2 font-semibold"
+          pTooltip="Nombre asignado al reporte generado"
+          tooltipPosition="top"
+        >
+          Nombre del Reporte
+        </th>
 
+        <th
+          class="px-3 py-2 font-semibold"
+          pTooltip="Descripción opcional que detalla el contenido del reporte"
+          tooltipPosition="top"
+        >
+          Descripción
+        </th>
 
+        <th
+          class="px-3 py-2 font-semibold text-center"
+          pTooltip="Formato en el que fue generado el reporte (PDF, Excel, etc.)"
+          tooltipPosition="top"
+        >
+          Formato
+        </th>
 
-</section>
+        <th
+          class="px-3 py-2 font-semibold"
+          pTooltip="Usuario responsable de haber generado el reporte"
+          tooltipPosition="top"
+        >
+          Generado por
+        </th>
 
+        <th
+          class="px-3 py-2 font-semibold"
+          pTooltip="Fecha en la que se generó el reporte"
+          tooltipPosition="top"
+        >
+          Fecha de Generación
+        </th>
 
-<p-dialog 
+        <th
+          class="px-3 py-2 font-semibold text-center"
+          pTooltip="Acciones disponibles: ver, descargar o eliminar"
+          tooltipPosition="top"
+        >
+          Acciones
+        </th>
+      </tr>
+    </ng-template>
+
+    <!-- BODY -->
+    <ng-template pTemplate="body" let-reporte>
+      <tr class="hover:bg-gray-100 text-sm">
+        <td class="px-3 py-2">{{ reporte.nombre_reporte_generado }}</td>
+        <td class="px-3 py-2">
+          {{ reporte.descripcion || "Sin descripción" }}
+        </td>
+
+        <td class="px-3 py-2 text-center">
+          <i
+            [class]="getIconoYTooltipArchivo(reporte).icono"
+            [pTooltip]="getIconoYTooltipArchivo(reporte).tooltip"
+            tooltipPosition="top"
+            class="text-xl"
+          ></i>
+        </td>
+
+        <td class="px-3 py-2">
+          {{ reporte.usuario_nombre || "Sin usuario" }}
+        </td>
+
+        <td class="px-3 py-2">
+          {{ reporte.fecha_creacion | date : "dd-MM-yyyy" }}
+        </td>
+
+        <td class="px-3 py-2 text-center">
+          <div class="flex justify-center gap-2 items-center">
+            <p-button
+              icon="pi pi-eye"
+              pTooltip="Ver reporte"
+              tooltipPosition="top"
+              (click)="accionBotonGeneral('ver', reporte)"
+            ></p-button>
+            <p-button
+              icon="pi pi-download"
+              pTooltip="Descargar"
+              tooltipPosition="top"
+              (click)="descargarPDF(reporte)"
+            ></p-button>
+            <p-button
+              icon="pi pi-trash"
+              pTooltip="Eliminar"
+              tooltipPosition="top"
+              (click)="accionBotonGeneral('eliminar', reporte)"
+            ></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- MENSAJE VACÍO -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center py-6">
+          <p class="text-sm text-gray-500">No hay reportes generados aún.</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog
   header="Nuevo Reporte Personalizado"
   [(visible)]="modalCrearVisible"
   [modal]="true"
   [style]="{ width: '100%', maxWidth: '670px', height: '80vh' }"
   [contentStyle]="{ 'overflow-y': 'auto', 'max-height': '65vh' }"
-  [closable]="false">
-
-  <form class="px-4 py-2 space-y-2  rounded-lg">
-
-    <!-- SECTION: Tipo de Reporte -->
+  [closable]="false"
+>
+  <form class="px-4 py-2 space-y-2 rounded-lg">
     <section>
-      <h3 class="text-lg font-semibold text-gray-800 my-2 ">Tipo de Reporte</h3>
-      <p-selectButton 
-  [options]="opcionesTipoReporte" 
-  [(ngModel)]="tipoReporteSeleccionado"
-  optionLabel="label"
-  optionValue="value"
-  (onChange)="validarSeleccionTipoReporte()"
-  class="w-full"
-  name="tipoReporteSeleccionado">
+      <h3 class="text-lg font-semibold text-gray-800 my-2">Tipo de Reporte</h3>
+      <p-selectButton
+        [options]="opcionesTipoReporte"
+        [(ngModel)]="tipoReporteSeleccionado"
+        optionLabel="label"
+        optionValue="value"
+        (onChange)="validarSeleccionTipoReporte()"
+        class="w-full"
+        name="tipoReporteSeleccionado"
+      >
         <ng-template #item let-item>
           <span class="flex items-center gap-2">
             <i [class]="item.icon"></i> {{ item.label }}
@@ -172,521 +209,717 @@
         </ng-template>
       </p-selectButton>
     </section>
-
-    <!-- SECTION: Dispositivos -->
     <section *ngIf="tipoReporteSeleccionado === 'dispositivos'">
-  <h3 class="text-lg font-semibold text-gray-800 mb-2">Dispositivos</h3>
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">Dispositivos</h3>
 
-  <!-- Filtros de Dispositivos -->
-  <div class="flex items-center gap-4 mb-3">
-    <div class="flex items-center gap-2">
-      <p-radioButton name="estado" [value]="true" [(ngModel)]="estadoFiltro" inputId="radio-activos" (onClick)="actualizarLista('dispositivos')"/>
-      <label for="radio-activos" class="text-sm text-gray-700">Activos</label>
-    </div>
-    <div class="flex items-center gap-2">
-      <p-radioButton name="estado" [value]="false" [(ngModel)]="estadoFiltro" inputId="radio-inactivos" (onClick)="actualizarLista('dispositivos')" />
-      <label for="radio-inactivos" class="text-sm text-gray-700">Inactivos</label>
-    </div>
-    <div class="flex items-center gap-2">
-      <p-radioButton name="estado" [value]="null" [(ngModel)]="estadoFiltro" inputId="radio-todos" (onClick)="actualizarLista('dispositivos')" />
-      <label for="radio-todos" class="text-sm text-gray-700">Todos</label>
-    </div>
-  </div>
+      <p class="text-sm text-gray-600 mb-2">
+        Puede generar un reporte personalizado de los dispositivos detectados en
+        la red. Comience filtrando los dispositivos según su estado actual:
+      </p>
 
-  <p-multiSelect 
-    display="chip"
-    [options]="dispositivosFiltrados" 
-    optionLabel="nombre" 
-    optionValue="id"
-    [(ngModel)]="filtros.dispositivos"
-    placeholder="Seleccione uno o varios dispositivos"
-    appendTo="body"
-    styleClass="w-full"
-    name="dispositivos">
-  </p-multiSelect>
-
-  <!-- Título general -->
-  <div class="mt-3 mb-2">
-    <h4 class="text-lg font-semibold text-gray-800 mb-2">
-      Seleccione la información a incluir en el reporte
-    </h4>
-  </div>
-
-  <!-- IPs -->
-  <div class="flex items-center justify-between mb-3">
-    <label class="text-sm text-gray-700 flex items-center gap-2">
-      <i class="pi pi-history"></i> Historial de direcciones IP
-    </label>
-    <p-toggleSwitch [(ngModel)]="filtros.incluirHistorialIps" name="incluirHistorialIps" />
-  </div>
-
-  <!-- Puertos -->
-  <div class="flex items-center justify-between mb-3">
-    <label class="text-sm text-gray-700 flex items-center gap-2">
-      <i class="pi pi-server"></i> Puertos abiertos
-    </label>
-    <p-toggleSwitch [(ngModel)]="filtros.incluirPuertos" name="incluirPuertos" />
-  </div>
-
-  <!-- Vulnerabilidades -->
-  <div class="flex flex-col space-y-4">
-    <div class="flex items-center justify-between">
-      <label class="text-sm text-gray-700 flex items-center gap-2">
-        <i class="pi pi-shield"></i> Vulnerabilidades
-      </label>
-      <p-toggleSwitch [(ngModel)]="filtros.incluirVulnerabilidades" name="incluirVulnerabilidades" />
-    </div>
-
-    <div *ngIf="filtros.incluirVulnerabilidades" class="space-y-4">
-      <!-- Exploit -->
-      <div class="flex items-center justify-between">
-        <label class="text-sm text-gray-700 flex items-center gap-2">
-          <i class="pi pi-bolt"></i> Incluir columna de exploit
-        </label>
-        <p-toggleSwitch [(ngModel)]="filtros.incluirExploit" name="incluirExploit" />
+      <!-- Filtro por estado -->
+      <div class="flex items-center gap-4 mb-3">
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estado"
+            [value]="true"
+            [(ngModel)]="estadoFiltro"
+            inputId="radio-activos"
+            (onClick)="actualizarLista('dispositivos')"
+          />
+          <label for="radio-activos" class="text-sm text-gray-700"
+            >Activos</label
+          >
+        </div>
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estado"
+            [value]="false"
+            [(ngModel)]="estadoFiltro"
+            inputId="radio-inactivos"
+            (onClick)="actualizarLista('dispositivos')"
+          />
+          <label for="radio-inactivos" class="text-sm text-gray-700"
+            >Inactivos</label
+          >
+        </div>
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estado"
+            [value]="null"
+            [(ngModel)]="estadoFiltro"
+            inputId="radio-todos"
+            (onClick)="actualizarLista('dispositivos')"
+          />
+          <label for="radio-todos" class="text-sm text-gray-700">Todos</label>
+        </div>
       </div>
 
-      <!-- Riesgo -->
-      <div class="flex items-center justify-between">
-        <label class="text-sm text-gray-700 flex items-center gap-2">
-          <i class="pi pi-chart-line"></i> Incluir columna de riesgo CVSS
-        </label>
-        <p-toggleSwitch [(ngModel)]="filtros.incluirRiesgo" name="incluirRiesgo" />
+      <!-- Selección de dispositivos -->
+      <p class="text-sm text-gray-600 mb-2">
+        Seleccione uno o varios dispositivos que desea incluir en el reporte:
+      </p>
+      <p-multiSelect
+        display="chip"
+        [options]="dispositivosFiltrados"
+        optionLabel="nombre"
+        optionValue="id"
+        [(ngModel)]="filtros.dispositivos"
+        placeholder="Seleccione uno o varios dispositivos"
+        appendTo="body"
+        styleClass="w-full"
+        name="dispositivos"
+      ></p-multiSelect>
+
+      <!-- Campos a incluir -->
+      <div class="mt-4 space-y-4">
+        <h4 class="text-lg font-semibold text-gray-800 mb-2">
+          ¿Qué información desea incluir en el reporte?
+        </h4>
+
+        <p class="text-sm text-gray-600 mb-2">
+          Active o desactive los siguientes elementos para personalizar los
+          datos que se incluirán en el reporte generado:
+        </p>
+
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-history"></i>
+            <span class="text-sm text-gray-700"
+              >Historial de direcciones IP asignadas</span
+            >
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirHistorialIps"
+            name="incluirHistorialIps"
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-server"></i>
+            <span class="text-sm text-gray-700"
+              >Puertos abiertos detectados</span
+            >
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirPuertos"
+            name="incluirPuertos"
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-shield"></i>
+            <span class="text-sm text-gray-700"
+              >Vulnerabilidades detectadas</span
+            >
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirVulnerabilidades"
+            name="incluirVulnerabilidades"
+          />
+        </div>
+
+        <!-- Subopciones si hay vulnerabilidades -->
+        <div *ngIf="filtros.incluirVulnerabilidades" class="space-y-4 ml-4">
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <i class="pi pi-bolt"></i>
+              <span class="text-sm text-gray-700"
+                >Columna que indique si existe exploit conocido</span
+              >
+            </span>
+            <p-toggleSwitch
+              [(ngModel)]="filtros.incluirExploit"
+              name="incluirExploit"
+            />
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <i class="pi pi-link"></i>
+              <span class="text-sm text-gray-700"
+                >Enlace a información oficial externa</span
+              >
+            </span>
+            <p-toggleSwitch
+              [(ngModel)]="filtros.incluirUrl"
+              name="incluirUrl"
+            />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between mt-4">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-align-left"></i>
+            <span class="text-sm text-gray-700"
+              >Resumen técnico por cada puerto analizado</span
+            >
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirResumenesTecnicos"
+            name="incluirResumenesTecnicos"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section *ngIf="tipoReporteSeleccionado === 'usuarios'">
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">Usuarios</h3>
+
+      <p class="text-sm text-gray-600 mb-2">
+        Puede generar un reporte personalizado con los datos de los usuarios
+        registrados en el sistema. A continuación, seleccione el estado de los
+        usuarios que desea incluir:
+      </p>
+
+      <!-- Filtros por estado -->
+      <div class="flex items-center gap-4 mb-3">
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estadoUsuario"
+            [value]="true"
+            [(ngModel)]="estadoUsuariosFiltro"
+            inputId="radio-usuarios-activos"
+            (onClick)="cambiarFiltroUsuarios(true)"
+          />
+          <label for="radio-usuarios-activos" class="text-sm text-gray-700"
+            >Activos</label
+          >
+        </div>
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estadoUsuario"
+            [value]="false"
+            [(ngModel)]="estadoUsuariosFiltro"
+            inputId="radio-usuarios-inactivos"
+            (onClick)="cambiarFiltroUsuarios(false)"
+          />
+          <label for="radio-usuarios-inactivos" class="text-sm text-gray-700"
+            >Inactivos</label
+          >
+        </div>
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estadoUsuario"
+            [value]="null"
+            [(ngModel)]="estadoUsuariosFiltro"
+            inputId="radio-usuarios-todos"
+            (onClick)="cambiarFiltroUsuarios(null)"
+          />
+          <label for="radio-usuarios-todos" class="text-sm text-gray-700"
+            >Todos</label
+          >
+        </div>
       </div>
 
-      <!-- URL -->
-      <div class="flex items-center justify-between">
-        <label class="text-sm text-gray-700 flex items-center gap-2">
-          <i class="pi pi-link"></i> Incluir columna de URL
-        </label>
-        <p-toggleSwitch [(ngModel)]="filtros.incluirUrl" name="incluirUrl" />
+      <!-- Selección de usuarios -->
+      <p class="text-sm text-gray-600 mb-2">
+        Seleccione uno o varios usuarios para incluirlos en el reporte:
+      </p>
+      <p-multiSelect
+        display="chip"
+        [options]="usuariosFiltrados"
+        optionLabel="nombre"
+        optionValue="id"
+        [(ngModel)]="filtros.usuario_ids"
+        placeholder="Seleccione uno o varios usuarios"
+        appendTo="body"
+        styleClass="w-full"
+        name="usuarios"
+      >
+      </p-multiSelect>
+
+      <!-- Campos a incluir -->
+      <div class="mt-4 space-y-4">
+        <h4 class="text-lg font-semibold text-gray-800 mb-2">
+          ¿Qué información desea incluir en el reporte?
+        </h4>
+
+        <p class="text-sm text-gray-600 mb-2">
+          Active o desactive los siguientes campos según la información que
+          necesite exportar:
+        </p>
+
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-user"></i>
+            <span class="text-sm text-gray-700">Nombre de Usuario</span>
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirNombreUsuario"
+            name="incluirNombreUsuario"
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-id-card"></i>
+            <span class="text-sm text-gray-700">Nombres Completos</span>
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirNombresCompletos"
+            name="incluirNombresCompletos"
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-envelope"></i>
+            <span class="text-sm text-gray-700">Correo Electrónico</span>
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirEmail"
+            name="incluirEmail"
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-phone"></i>
+            <span class="text-sm text-gray-700">Teléfono</span>
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirTelefono"
+            name="incluirTelefono"
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-users"></i>
+            <span class="text-sm text-gray-700">Roles Asignados</span>
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirRoles"
+            name="incluirRoles"
+          />
+        </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- Resumen técnico -->
-  <div class="flex items-center justify-between mt-4">
-    <label class="text-sm text-gray-700 flex items-center gap-2">
-      <i class="pi pi-align-left"></i> Incluir resumen técnico por puerto
-    </label>
-    <p-toggleSwitch [(ngModel)]="filtros.incluirResumenesTecnicos" name="incluirResumenesTecnicos" />
-  </div>
-</section>
-
-
-
-    <!-- SECTION: Usuarios -->
-  <section *ngIf="tipoReporteSeleccionado === 'usuarios'">
-  <h3 class="text-lg font-semibold text-gray-800 mb-2">Usuarios</h3>
-
-  <!-- Filtros de Usuarios -->
-<div class="flex items-center gap-4 mb-3">
-  <div class="flex items-center gap-2">
-    <p-radioButton 
-      name="estadoUsuario" 
-      [value]="true" 
-      [(ngModel)]="estadoUsuariosFiltro" 
-      inputId="radio-usuarios-activos" 
-      (onClick)="cambiarFiltroUsuarios(true)" />
-    <label for="radio-usuarios-activos" class="text-sm text-gray-700">Activos</label>
-  </div>
-
-  <div class="flex items-center gap-2">
-    <p-radioButton 
-      name="estadoUsuario" 
-      [value]="false" 
-      [(ngModel)]="estadoUsuariosFiltro" 
-      inputId="radio-usuarios-inactivos" 
-      (onClick)="cambiarFiltroUsuarios(false)" />
-    <label for="radio-usuarios-inactivos" class="text-sm text-gray-700">Inactivos</label>
-  </div>
-
-  <div class="flex items-center gap-2">
-    <p-radioButton 
-      name="estadoUsuario" 
-      [value]="null" 
-      [(ngModel)]="estadoUsuariosFiltro" 
-      inputId="radio-usuarios-todos" 
-      (onClick)="cambiarFiltroUsuarios(null)" />
-    <label for="radio-usuarios-todos" class="text-sm text-gray-700">Todos</label>
-  </div>
-</div>
-
-
-  <!-- MultiSelect Usuarios -->
-  <p-multiSelect 
-    display="chip"
-    [options]="usuariosFiltrados" 
-    optionLabel="nombre" 
-    optionValue="id"
-    [(ngModel)]="filtros.usuario_ids"
-    placeholder="Seleccione uno o varios usuarios"
-    appendTo="body"
-    styleClass="w-full"
-    name="usuarios">
-  </p-multiSelect>
-
-  <!-- Opciones de Campos -->
-  <div class="mt-3 space-y-4">
-    <h4 class="text-lg font-semibold text-gray-800 mb-2">
-
-      Seleccione los campos del reporte
-    </h4>
-
-    <div class="flex items-center justify-between">
-      <span class="flex items-center gap-2">
-        <i class="pi pi-user"></i> Nombre de Usuario
-      </span>
-      <p-toggleSwitch [(ngModel)]="filtros.incluirNombreUsuario" name="incluirNombreUsuario" />
-    </div>
-
-    <div class="flex items-center justify-between">
-      <span class="flex items-center gap-2">
-        <i class="pi pi-id-card"></i> Nombres Completos
-      </span>
-      <p-toggleSwitch [(ngModel)]="filtros.incluirNombresCompletos" name="incluirNombresCompletos" />
-    </div>
-
-    <div class="flex items-center justify-between">
-      <span class="flex items-center gap-2">
-        <i class="pi pi-envelope"></i> Email
-      </span>
-      <p-toggleSwitch [(ngModel)]="filtros.incluirEmail" name="incluirEmail" />
-    </div>
-
-    <div class="flex items-center justify-between">
-      <span class="flex items-center gap-2">
-        <i class="pi pi-phone"></i> Teléfono
-      </span>
-      <p-toggleSwitch [(ngModel)]="filtros.incluirTelefono" name="incluirTelefono" />
-    </div>
-
-    <div class="flex items-center justify-between">
-      <span class="flex items-center gap-2">
-        <i class="pi pi-users"></i> Roles
-      </span>
-      <p-toggleSwitch [(ngModel)]="filtros.incluirRoles" name="incluirRoles" />
-    </div>
-    
-
-  </div>
-</section>
-
-
-
-
-    <!-- SECTION: Roles -->
     <section *ngIf="tipoReporteSeleccionado === 'roles'">
-  <h3 class="text-lg font-semibold text-gray-800 mb-2">Roles</h3>
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">Roles</h3>
 
+      <p class="text-sm text-gray-600 mb-2">
+        Genere un reporte con la información detallada de los roles registrados
+        en el sistema. Primero, filtre los roles según su estado actual:
+      </p>
 
-<div class="flex items-center gap-4 mb-3">
-  <div class="flex items-center gap-2">
-    <p-radioButton name="estadoRol" [value]="true" [(ngModel)]="estadoRolesFiltro" inputId="radio-roles-activos" (onClick)="cambiarFiltroRoles()" />
-    <label for="radio-roles-activos" class="text-sm text-gray-700">Activos</label>
-  </div>
-  <div class="flex items-center gap-2">
-    <p-radioButton name="estadoRol" [value]="false" [(ngModel)]="estadoRolesFiltro" inputId="radio-roles-inactivos" (onClick)="cambiarFiltroRoles()" />
-    <label for="radio-roles-inactivos" class="text-sm text-gray-700">Inactivos</label>
-  </div>
-  <div class="flex items-center gap-2">
-    <p-radioButton name="estadoRol" [value]="null" [(ngModel)]="estadoRolesFiltro" inputId="radio-roles-todos" (onClick)="cambiarFiltroRoles()" />
-    <label for="radio-roles-todos" class="text-sm text-gray-700">Todos</label>
-  </div>
-</div>
+      <!-- Filtro por estado -->
+      <div class="flex items-center gap-4 mb-3">
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estadoRol"
+            [value]="true"
+            [(ngModel)]="estadoRolesFiltro"
+            inputId="radio-roles-activos"
+            (onClick)="cambiarFiltroRoles()"
+          />
+          <label for="radio-roles-activos" class="text-sm text-gray-700"
+            >Activos</label
+          >
+        </div>
 
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estadoRol"
+            [value]="false"
+            [(ngModel)]="estadoRolesFiltro"
+            inputId="radio-roles-inactivos"
+            (onClick)="cambiarFiltroRoles()"
+          />
+          <label for="radio-roles-inactivos" class="text-sm text-gray-700"
+            >Inactivos</label
+          >
+        </div>
 
-  <p-multiSelect 
-    display="chip"
-    [options]="rolesFiltrados" 
-    optionLabel="nombre_rol" 
-    optionValue="rol_id"
-    [(ngModel)]="filtros.roles"
-    placeholder="Seleccione uno o varios roles"
-    appendTo="body"
-    styleClass="w-full mb-2"
-    name="roles">
-  </p-multiSelect>
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estadoRol"
+            [value]="null"
+            [(ngModel)]="estadoRolesFiltro"
+            inputId="radio-roles-todos"
+            (onClick)="cambiarFiltroRoles()"
+          />
+          <label for="radio-roles-todos" class="text-sm text-gray-700"
+            >Todos</label
+          >
+        </div>
+      </div>
 
-  <!-- Opciones de Campos -->
-  <div class="space-y-1 mt-1">
-    <h4 class="text-lg font-semibold text-gray-800 mb-2">
+      <!-- Selección de roles -->
+      <p class="text-sm text-gray-600 mb-2">
+        Seleccione uno o varios roles para incluirlos en el reporte:
+      </p>
+      <p-multiSelect
+        display="chip"
+        [options]="rolesFiltrados"
+        optionLabel="nombre_rol"
+        optionValue="rol_id"
+        [(ngModel)]="filtros.roles"
+        placeholder="Seleccione uno o varios roles"
+        appendTo="body"
+        styleClass="w-full mb-2"
+        name="roles"
+      ></p-multiSelect>
 
-      Seleccione los campos del reporte
-    </h4>
+      <!-- Campos del reporte -->
+      <div class="mt-4 space-y-4">
+        <h4 class="text-lg font-semibold text-gray-800 mb-2">
+          ¿Qué información desea incluir en el reporte?
+        </h4>
 
-    <div class="flex items-center justify-between">
-      <span class="flex items-center gap-2">
-        <i class="pi pi-id-card"></i> Nombre del Rol
-      </span>
-      <p-toggleSwitch [(ngModel)]="filtros.incluirNombreRol" name="incluirNombreRol" />
-    </div>
+        <p class="text-sm text-gray-600 mb-2">
+          Active los campos que desea visualizar en el reporte final. Puede
+          incluir detalles como el nombre del rol, su descripción y las
+          secciones del menú asociadas:
+        </p>
 
-    <div class="flex items-center justify-between">
-      <span class="flex items-center gap-2">
-        <i class="pi pi-align-left"></i> Descripción
-      </span>
-      <p-toggleSwitch [(ngModel)]="filtros.incluirDescripcionRol" name="incluirDescripcionRol" />
-    </div>
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-id-card"></i>
+            <span class="text-sm text-gray-700">Nombre del Rol</span>
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirNombreRol"
+            name="incluirNombreRol"
+          />
+        </div>
 
-    <div class="flex items-center justify-between">
-      <span class="flex items-center gap-2">
-        <i class="pi pi-th-large"></i> Secciones de Menú
-      </span>
-      <p-toggleSwitch [(ngModel)]="filtros.incluirSeccionesMenu" name="incluirSeccionesMenu" />
-    </div>
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-align-left"></i>
+            <span class="text-sm text-gray-700">Descripción del Rol</span>
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirDescripcionRol"
+            name="incluirDescripcionRol"
+          />
+        </div>
 
-  </div>
-</section>
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-th-large"></i>
+            <span class="text-sm text-gray-700"
+              >Secciones de Menú Asignadas</span
+            >
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirSeccionesMenu"
+            name="incluirSeccionesMenu"
+          />
+        </div>
+      </div>
+    </section>
 
-<section *ngIf="tipoReporteSeleccionado === 'configuraciones'">
+    <section *ngIf="tipoReporteSeleccionado === 'configuraciones'">
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">Configuraciones</h3>
 
-<div class="mb-4">
-  <h4 class="text-lg font-semibold text-gray-800 mb-2">
-    Tipo de Configuración
-  </h4>
-  <p-selectButton 
-    [options]="opcionesTipoConfiguracion" 
-    [(ngModel)]="tipoConfiguracionSeleccionado"
-    (onChange)="actualizarLista('configuraciones', true)"  
-    optionLabel="label"
-    optionValue="value"
-    class="w-full"
-    name="tipoConfiguracionSeleccionado">
-    <ng-template #item let-item>
-      <span class="flex items-center gap-2">
-        {{ item.label }}
-      </span>
-    </ng-template>
-  </p-selectButton>
-</div>
+      <p class="text-sm text-gray-600 mb-3">
+        Genere un reporte con los parámetros configurados en el sistema para los
+        escaneos programados. Comience eligiendo el tipo de configuración que
+        desea consultar:
+      </p>
 
-<!-- Filtros de Estado -->
-<div class="flex items-center gap-4 mb-4">
-  <div class="flex items-center gap-2">
-    <p-radioButton name="estadoConfiguracion" [value]="true" [(ngModel)]="estadoConfiguracionesFiltro" inputId="radio-config-activos" (onClick)="actualizarLista('configuraciones', true)"/>
-    <label for="radio-config-activos" class="text-sm text-gray-700">Activos</label>
-  </div>
-  <div class="flex items-center gap-2">
-    <p-radioButton name="estadoConfiguracion" [value]="false" [(ngModel)]="estadoConfiguracionesFiltro" inputId="radio-config-inactivos" (onClick)="actualizarLista('configuraciones', true)"/>
-    <label for="radio-config-inactivos" class="text-sm text-gray-700">Inactivos</label>
-  </div>
-  <div class="flex items-center gap-2">
-    <p-radioButton name="estadoConfiguracion" [value]="null" [(ngModel)]="estadoConfiguracionesFiltro" inputId="radio-config-todos" (onClick)="actualizarLista('configuraciones', true)"/>
-    <label for="radio-config-todos" class="text-sm text-gray-700">Todos</label>
-  </div>
-</div>
+      <!-- Tipo de configuración -->
+      <div class="mb-4">
+        <p-selectButton
+          [options]="opcionesTipoConfiguracion"
+          [(ngModel)]="tipoConfiguracionSeleccionado"
+          (onChange)="actualizarLista('configuraciones', true)"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+          name="tipoConfiguracionSeleccionado"
+        >
+          <ng-template #item let-item>
+            <span class="flex items-center gap-2">{{ item.label }}</span>
+          </ng-template>
+        </p-selectButton>
+      </div>
 
-<!-- MultiSelect de configuraciones -->
-<p-multiSelect 
-  display="chip"
-  [options]="configuracionesFiltradas" 
-  optionLabel="nombre" 
-  optionValue="id"
-  [(ngModel)]="filtros.configuracion_ids"
-  placeholder="Seleccione una o varias configuraciones"
-  appendTo="body"
-  styleClass="w-full mb-4"
-  name="configuraciones">
-</p-multiSelect>
+      <!-- Filtro por estado -->
+      <p class="text-sm text-gray-600 mb-2">
+        Puede filtrar las configuraciones según su estado actual en el sistema:
+      </p>
 
+      <div class="flex items-center gap-4 mb-4">
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estadoConfiguracion"
+            [value]="true"
+            [(ngModel)]="estadoConfiguracionesFiltro"
+            inputId="radio-config-activos"
+            (onClick)="actualizarLista('configuraciones', true)"
+          />
+          <label for="radio-config-activos" class="text-sm text-gray-700"
+            >Activos</label
+          >
+        </div>
 
-  <!-- Título general para los toggles -->
-  <div class="mt-3 mb-2">
-    <h4 class="text-lg font-semibold text-gray-800 mb-2">
-      Seleccione la información a incluir en el reporte
-    </h4>
-  </div>
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estadoConfiguracion"
+            [value]="false"
+            [(ngModel)]="estadoConfiguracionesFiltro"
+            inputId="radio-config-inactivos"
+            (onClick)="actualizarLista('configuraciones', true)"
+          />
+          <label for="radio-config-inactivos" class="text-sm text-gray-700"
+            >Inactivos</label
+          >
+        </div>
 
-  <!-- Nombre siempre disponible -->
-  <div class="flex items-center justify-between mb-3">
-    <label for="toggleNombreConfig" class="text-sm text-gray-700 flex items-center gap-2">
-      <i class="pi pi-id-card"></i> Nombre de la configuración
-    </label>
-    <p-toggleSwitch 
-      [(ngModel)]="filtros.incluirNombreConfiguracion" 
-      inputId="toggleNombreConfig" 
-      name="incluirNombreConfiguracion" />
-  </div>
+        <div class="flex items-center gap-2">
+          <p-radioButton
+            name="estadoConfiguracion"
+            [value]="null"
+            [(ngModel)]="estadoConfiguracionesFiltro"
+            inputId="radio-config-todos"
+            (onClick)="actualizarLista('configuraciones', true)"
+          />
+          <label for="radio-config-todos" class="text-sm text-gray-700"
+            >Todos</label
+          >
+        </div>
+      </div>
 
-  <!-- Frecuencia (solo si es Frecuencia o Ambos) -->
-  <div class="flex items-center justify-between mb-3" *ngIf="tipoConfiguracionSeleccionado === 'frecuencia' || tipoConfiguracionSeleccionado === 'ambos'">
-    <label for="toggleFrecuencia" class="text-sm text-gray-700 flex items-center gap-2">
-      <i class="pi pi-stopwatch"></i> Frecuencia
-    </label>
-    <p-toggleSwitch 
-      [(ngModel)]="filtros.incluirFrecuencia" 
-      inputId="toggleFrecuencia" 
-      name="incluirFrecuencia" />
-  </div>
+      <!-- Selección de configuraciones -->
+      <p class="text-sm text-gray-600 mb-2">
+        Seleccione una o varias configuraciones que desee incluir en el reporte:
+      </p>
+      <p-multiSelect
+        display="chip"
+        [options]="configuracionesFiltradas"
+        optionLabel="nombre"
+        optionValue="id"
+        [(ngModel)]="filtros.configuracion_ids"
+        placeholder="Seleccione una o varias configuraciones"
+        appendTo="body"
+        styleClass="w-full mb-4"
+        name="configuraciones"
+      ></p-multiSelect>
 
-  <!-- Horas configuradas (solo si es Hora o Ambos) -->
-  <div class="flex items-center justify-between mb-3" *ngIf="tipoConfiguracionSeleccionado === 'hora' || tipoConfiguracionSeleccionado === 'ambos'">
-    <label for="toggleHoras" class="text-sm text-gray-700 flex items-center gap-2">
-      <i class="pi pi-clock
-"></i> Horas configuradas
-    </label>
-    <p-toggleSwitch 
-      [(ngModel)]="filtros.incluirHoras" 
-      inputId="toggleHoras" 
-      name="incluirHoras" />
-  </div>
+      <!-- Campos a incluir -->
+      <div class="mt-3 space-y-4">
+        <h4 class="text-lg font-semibold text-gray-800 mb-2">
+          ¿Qué información desea incluir en el reporte?
+        </h4>
 
-  <!-- Fechas de inicio y fin (siempre disponible) -->
-  <div class="flex items-center justify-between mb-3">
-    <label for="toggleFechas" class="text-sm text-gray-700 flex items-center gap-2">
-      <i class="pi pi-calendar"></i> Fechas de inicio y fin
-    </label>
-    <p-toggleSwitch 
-      [(ngModel)]="filtros.incluirFechas" 
-      inputId="toggleFechas" 
-      name="incluirFechas" />
-  </div>
+        <p class="text-sm text-gray-600 mb-2">
+          A continuación puede activar los campos que desea mostrar en el
+          reporte, según el tipo de configuración seleccionada:
+        </p>
 
-</section>
+        <div class="flex items-center justify-between mb-3">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-id-card"></i>
+            <span class="text-sm text-gray-700"
+              >Nombre de la configuración</span
+            >
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirNombreConfiguracion"
+            inputId="toggleNombreConfig"
+            name="incluirNombreConfiguracion"
+          />
+        </div>
 
+        <!-- Frecuencia -->
+        <div
+          class="flex items-center justify-between mb-3"
+          *ngIf="
+            tipoConfiguracionSeleccionado === 'frecuencia' ||
+            tipoConfiguracionSeleccionado === 'ambos'
+          "
+        >
+          <span class="flex items-center gap-2">
+            <i class="pi pi-stopwatch"></i>
+            <span class="text-sm text-gray-700">Frecuencia programada</span>
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirFrecuencia"
+            inputId="toggleFrecuencia"
+            name="incluirFrecuencia"
+          />
+        </div>
 
+        <!-- Horas -->
+        <div
+          class="flex items-center justify-between mb-3"
+          *ngIf="
+            tipoConfiguracionSeleccionado === 'hora' ||
+            tipoConfiguracionSeleccionado === 'ambos'
+          "
+        >
+          <span class="flex items-center gap-2">
+            <i class="pi pi-clock"></i>
+            <span class="text-sm text-gray-700">Horas configuradas</span>
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirHoras"
+            inputId="toggleHoras"
+            name="incluirHoras"
+          />
+        </div>
 
-  
+        <!-- Fechas -->
+        <div class="flex items-center justify-between mb-3">
+          <span class="flex items-center gap-2">
+            <i class="pi pi-calendar"></i>
+            <span class="text-sm text-gray-700">Fechas de inicio y fin</span>
+          </span>
+          <p-toggleSwitch
+            [(ngModel)]="filtros.incluirFechas"
+            inputId="toggleFechas"
+            name="incluirFechas"
+          />
+        </div>
+      </div>
+    </section>
   </form>
-  <!-- Footer siempre visible -->
+
   <ng-template pTemplate="footer">
     <div class="flex justify-end gap-3 border-t pt-4">
-      <p-button label="Cancelar" severity="secondary" (click)="cerrarModalCrear()"></p-button>
-      <p-button 
-  [label]="generandoPDF ? 'Generando...' : 'Generar Reporte'"
-  icon="pi pi-spinner"
-  [loading]="generandoPDF"
-  [disabled]="generandoPDF"
-  (click)="generarReporte()">
-</p-button>
-
-
-
-
-
-
-
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        class="p-button-outlined w-30"
+        (click)="cerrarModalCrear()"
+      ></button>
+      <p-button
+        [label]="generandoPDF ? 'Generando...' : 'Generar Reporte'"
+        icon="pi pi-spinner"
+        [loading]="generandoPDF"
+        [disabled]="generandoPDF"
+        (click)="generarReporte()"
+      >
+      </p-button>
     </div>
   </ng-template>
 </p-dialog>
 
-<p-dialog 
+<p-dialog
   header="Previsualización del Reporte"
   [(visible)]="dialogoPDFVisible"
   [modal]="true"
   [style]="{ width: '65vw', height: '90vh' }"
-  [contentStyle]="{ 'overflow': 'auto', 'max-height': 'calc(100vh - 100px)' }"
+  [contentStyle]="{ overflow: 'auto', 'max-height': 'calc(100vh - 100px)' }"
   [closable]="true"
-  (onHide)="cerrarModalPrevisualizacion()">
-
+  (onHide)="cerrarModalPrevisualizacion()"
+>
   <!-- Cambiamos a IFRAME -->
-  <iframe 
+  <iframe
     *ngIf="urlPDF"
     [src]="urlPDF"
-    style="width: 100%; height: 80vh; border: none;"
-    loading="lazy">
+    style="width: 100%; height: 80vh; border: none"
+    loading="lazy"
+  >
   </iframe>
 
   <ng-template pTemplate="footer">
-  <div class="flex justify-end gap-3">
-    <p-button *ngIf="mostrarBotonGuardarReporte" severity="secondary" label="Cerrar" (click)="cerrarModalPrevisualizacion()"></p-button>
-    <p-button 
-      *ngIf="mostrarBotonGuardarReporte"
-      label="Guardar reporte" 
-      (click)="abrirModalGuardar()">
-    </p-button>
-  </div>
-</ng-template>
-
-
+    <div class="flex justify-end gap-3">
+      <button
+        pButton
+        type="button"
+        *ngIf="mostrarBotonGuardarReporte"
+        class="p-button-outlined w-30"
+        label="Cerrar"
+        (click)="cerrarModalPrevisualizacion()"
+      ></button>
+      <p-button
+        *ngIf="mostrarBotonGuardarReporte"
+        label="Guardar reporte"
+        (click)="abrirModalGuardar()"
+      >
+      </p-button>
+    </div>
+  </ng-template>
 </p-dialog>
 
-
-<p-dialog 
+<p-dialog
   header="Guardar Reporte"
   [(visible)]="modalGuardarVisible"
   [modal]="true"
-  [style]="{ width: '600px' }"
-  [closable]="true">
+  [closable]="true"
+>
+  <!-- Nombre del documento -->
+  <p-iftalabel class="mb-3">
+    <input
+      pInputText
+      id="inputNombreReporte"
+      [(ngModel)]="nombreReporteGuardar"
+      autocomplete="off"
+       (blur)="limpiarEspaciosTexto('nombre')"
+    />
+    <label for="inputNombreReporte">Nombre del documento generado</label>
+  </p-iftalabel>
 
-  <div class="space-y-3">
-
-    <!-- Nombre del documento -->
-    <p-iftalabel>
-      <input 
-        pInputText 
-        id="inputNombreReporte" 
-        [(ngModel)]="nombreReporteGuardar" 
-        autocomplete="off"
-        class="w-full" />
-      <label for="inputNombreReporte">Nombre del documento generado</label>
-    </p-iftalabel>
-
-    <!-- Descripción del documento -->
-    <p-iftalabel>
-  <textarea 
-    pTextarea 
-    id="descripcionReporte" 
-    [(ngModel)]="descripcionReporteGuardar" 
-    rows="5" 
-    cols="30"
-    class="w-full pl-3 pt-4 pb-2 resize-none"
-  ></textarea>
-  <label for="descripcionReporte">Descripción del documento</label>
-</p-iftalabel>
-
-
-  </div>
+  <!-- Descripción del documento -->
+  <p-iftalabel>
+    <textarea
+      id="descripcionReporte"
+      [(ngModel)]="descripcionReporteGuardar"
+      rows="5"
+      class="w-full pt-4 pb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-baseNaranja resize-none"
+      style="min-height: 120px"
+      (blur)="limpiarEspaciosTexto('descripcion')"
+    ></textarea>
+    <label for="descripcionReporte">Descripción del documento</label>
+  </p-iftalabel>
 
   <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-3">
-      <p-button label="Cancelar" severity="secondary" (click)="modalGuardarVisible = false"></p-button>
-      <p-button 
-  [disabled]="guardandoReporte || !nombreReporteGuardar"
-  (click)="guardarReporte()"
-  class=""
->
-  <ng-container *ngIf="!guardandoReporte">
-
-    <span class="ml-2">Guardar</span>
-  </ng-container>
-  <ng-container *ngIf="guardandoReporte">
-    <p-progressSpinner 
-      strokeWidth="6" 
-      fill="transparent" 
-      animationDuration=".5s"
-      [style]="{ width: '18px', height: '18px' }">
-    </p-progressSpinner>
-    <span class="ml-2">Guardando..</span>
-  </ng-container>
-</p-button>
-
-
-
-
-
-
-
-
-
-    </div>
+    <button
+      pButton
+      type="button"
+      label="Cancelar"
+      class="p-button-outlined w-30"
+      (click)="modalGuardarVisible = false"
+    ></button>
+    <p-button (click)="guardarReporte()" class="">
+      <ng-container *ngIf="!guardandoReporte">
+        <span class="ml-2">Guardar</span>
+      </ng-container>
+      <ng-container *ngIf="guardandoReporte">
+        <p-progressSpinner
+          strokeWidth="6"
+          fill="transparent"
+          animationDuration=".5s"
+          [style]="{ width: '18px', height: '18px' }"
+        ></p-progressSpinner>
+        <span class="ml-2">Guardando..</span>
+      </ng-container>
+    </p-button>
   </ng-template>
-
 </p-dialog>
+
 <p-confirmdialog #cdEliminar>
-  <ng-template pTemplate="headless" let-message let-onAccept="onAccept" let-onReject="onReject">
-    <div class="w-full max-w-lg mx-auto flex flex-col items-center py-4 px-6 bg-white rounded-md shadow-lg relative">
+  <ng-template
+    pTemplate="headless"
+    let-message
+    let-onAccept="onAccept"
+    let-onReject="onReject"
+  >
+    <div
+      class="w-full max-w-lg mx-auto flex flex-col items-center py-4 px-6 bg-white rounded-md shadow-lg relative"
+    >
       <div
         class="rounded-full text-white inline-flex justify-center items-center h-16 w-16 -mt-10 shadow-md"
         [ngClass]="{
           'bg-green-600': message.icon === 'pi pi-user-plus',
-          'bg-red-600': message.icon === 'pi pi-user-minus' || message.icon === 'pi pi-trash'
+          'bg-red-600':
+            message.icon === 'pi pi-user-minus' ||
+            message.icon === 'pi pi-trash'
         }"
       >
         <i class="{{ message.icon }} text-2xl"></i>
       </div>
-      <span class="font-bold text-xl mt-3 text-center">{{ message.header }}</span>
+      <span class="font-bold text-xl mt-3 text-center">{{
+        message.header
+      }}</span>
       <p class="text-center mt-2 text-sm leading-snug">{{ message.message }}</p>
       <div class="flex justify-end gap-3 mt-5">
         <button
@@ -706,7 +939,3 @@
     </div>
   </ng-template>
 </p-confirmdialog>
-
-
-
-

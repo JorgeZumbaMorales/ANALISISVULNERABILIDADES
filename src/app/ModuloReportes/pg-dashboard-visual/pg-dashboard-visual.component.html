@@ -1,493 +1,759 @@
-<!-- 🟦 TÍTULO + SUBTÍTULO + Datepicker a la derecha -->
-<section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 mb-4">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<section
+  class="w-full bg-baseAzulOscuro text-textoSecundario rounded-2xl shadow-md px-4 sm:px-6 py-4 mb-4"
+>
+  <div
+    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+  >
     <div>
-      <h2 class="text-2xl sm:text-3xl font-bold">Dashboard de Análisis de Seguridad</h2>
-      <p class="text-sm mt-1">Panel de control para el seguimiento de dispositivos, escaneos y vulnerabilidades.</p>
+      <h2 class="text-2xl sm:text-3xl font-bold">
+        Dashboard de Análisis de Seguridad
+      </h2>
+      <p class="text-sm mt-1">
+        Panel de control para el seguimiento de dispositivos, puertos y
+        vulnerabilidades.
+      </p>
     </div>
   </div>
 </section>
-
-<!-- 🟧 Métricas Totales -->
-<section class="w-full bg-white rounded-2xl px-4 py-2 mb-4">
+<section class="w-full rounded-2xl px-4 py-2 mb-4">
   <div class="max-w-7xl mx-auto flex flex-wrap justify-center gap-6">
-
-    <!-- Dispositivos Registrados -->
-    <p-panel [toggleable]="false" class="w-64 sm:w-56 md:w-52 lg:w-48 xl:w-48 rounded-2xl hover:shadow-lg hover:scale-105 transform transition-all duration-300">
+    <p-panel
+      pTooltip="Clic para visualizar"
+      (click)="abrirModalDispositivos()"
+      [toggleable]="false"
+      class="cursor-pointer w-64 sm:w-56 md:w-52 lg:w-48 xl:w-48 rounded-2xl hover:shadow-lg hover:scale-105 transform transition-all duration-300"
+    >
       <div class="flex flex-col items-center justify-center py-5 px-3">
         <i class="pi pi-desktop text-3xl mb-2 text-baseNaranja"></i>
-        <p class="text-sm text-black mb-1 text-center">Dispositivos Registrados</p>
+        <p class="text-sm text-black mb-1 text-center">
+          Dispositivos Registrados
+        </p>
         <p class="text-4xl font-bold text-gray-900">{{ totalDispositivos }}</p>
       </div>
     </p-panel>
-
-    <!-- Escaneos Realizados -->
-    <p-panel [toggleable]="false" class="w-64 sm:w-56 md:w-52 lg:w-48 xl:w-48 rounded-2xl hover:shadow-lg hover:scale-105 transform transition-all duration-300">
+    <p-panel
+      (click)="abrirModalCVEs()"
+      pTooltip="Clic para visualizar"
+      [toggleable]="false"
+      class="cursor-pointer w-64 sm:w-56 md:w-52 lg:w-48 xl:w-48 rounded-2xl hover:shadow-lg hover:scale-105 transform transition-all duration-300"
+    >
       <div class="flex flex-col items-center justify-center py-5 px-3">
-        <i class="pi pi-search text-3xl mb-2 text-baseNaranja"></i>
-        <p class="text-sm text-black mb-1 text-center">Escaneos Realizados</p>
-        <p class="text-4xl font-bold text-gray-900">{{ totalEscaneos }}</p>
+        <i
+          class="pi pi-exclamation-triangle text-3xl mb-2 text-baseNaranja"
+        ></i>
+        <p class="text-sm text-black mb-1 text-center">
+          Vulnerabilidades Detectadas
+        </p>
+        <p class="text-4xl font-bold text-gray-900">
+          {{ totalVulnerabilidades }}
+        </p>
       </div>
     </p-panel>
-
-    <!-- Vulnerabilidades Detectadas -->
-    <!-- Vulnerabilidades Detectadas -->
-<p-panel 
-  (click)="abrirModalCVEs()" 
-  pTooltip="Clic para visualizar los CVE" 
-  [toggleable]="false" 
-  class="w-64 sm:w-56 md:w-52 lg:w-48 xl:w-48 rounded-2xl hover:shadow-lg hover:scale-105 transform transition-all duration-300"
->
-  <div class="flex flex-col items-center justify-center py-5 px-3">
-    <i class="pi pi-exclamation-triangle text-3xl mb-2 text-baseNaranja"></i>
-    <p class="text-sm text-black mb-1 text-center">Vulnerabilidades Detectadas</p>
-    <p class="text-4xl font-bold text-gray-900">{{ totalVulnerabilidades }}</p>
-  </div>
-</p-panel>
-
-
-    <!-- Puertos Abiertos Detectados -->
-    <p-panel [toggleable]="false" class="w-64 sm:w-56 md:w-52 lg:w-48 xl:w-48 rounded-2xl hover:shadow-lg hover:scale-105 transform transition-all duration-300">
+    <p-panel
+      [toggleable]="false"
+      (click)="abrirModalPuertos()"
+      pTooltip="Clic para visualizar"
+      class="cursor-pointer w-64 sm:w-56 md:w-52 lg:w-48 xl:w-48 rounded-2xl hover:shadow-lg hover:scale-105 transform transition-all duration-300"
+    >
       <div class="flex flex-col items-center justify-center py-5 px-3">
         <i class="pi pi-globe text-3xl mb-2 text-baseNaranja"></i>
-        <p class="text-sm text-black mb-1 text-center">Puertos Abiertos Detectados</p>
-        <p class="text-4xl font-bold text-gray-900">{{ totalPuertosAbiertos }}</p>
+        <p class="text-sm text-black mb-1 text-center">
+          Puertos Abiertos Detectados
+        </p>
+        <p class="text-4xl font-bold text-gray-900">
+          {{ totalPuertosAbiertos }}
+        </p>
       </div>
     </p-panel>
-
   </div>
 </section>
-
-<!-- 📊 Sección de Tabs con Gráficos -->
-
-<section class="w-full bg-white rounded-2xl px-4 py-2 mt-2 mb-4">
+<section class="w-full rounded-2xl px-4 py-2 mt-2 mb-4 bg-white">
   <div class="max-w-7xl mx-auto flex flex-col items-center gap-4">
-
-    <div class="flex items-center gap-2 bg-gray-100 text-gray-800 px-4 py-2 rounded-md shadow-sm border border-gray-200 mb-2 self-start sm:self-center">
-  <i class="pi pi-chart-bar text-baseNaranja text-lg"></i>
-  <span class="text-sm sm:text-base font-semibold">Seleccione el gráfico a visualizar:</span>
-</div>
-
-
-<p-tabView [(activeIndex)]="indiceActivo" class="w-full sm:max-w-5xl rounded-lg shadow-sm">
-
-  <!-- Escaneos -->
-  <p-tabPanel header="Escaneos">
-    <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
-      <h3 class="text-lg font-semibold">Tendencia de Escaneos</h3>
-      <p class="text-sm mt-1">Visualiza cuántos escaneos se han realizado en el periodo seleccionado.</p>
-    </section>
-    <div class="flex justify-end mb-2">
-      <p-dropdown
-        [options]="opcionesFiltrosTiempo"
-        [(ngModel)]="filtroEscaneos"
-        (onChange)="cargarEscaneosPorFecha()"
-        placeholder="Seleccione el periodo"
-        class="w-60">
-      </p-dropdown>
-    </div>
-    <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
-      <p-chart type="line"
-               [data]="datosEscaneos"
-               [options]="opcionesGraficoLineas"
-               style="height: 860px;">
-      </p-chart>
-    </div>
-    <div class="flex justify-center mt-2 gap-2">
-      <p-button icon="pi pi-angle-left"
-                (click)="paginaAnteriorEscaneos()"
-                [disabled]="indicePaginaEscaneos === 0"
-                styleClass="p-button-rounded p-button-outlined p-button-secondary">
-      </p-button>
-      <span class="text-sm px-2 flex items-center">
-        Página {{indicePaginaEscaneos + 1}} de {{totalPaginasEscaneos}}
-      </span>
-      <p-button icon="pi pi-angle-right"
-                (click)="paginaSiguienteEscaneos()"
-                [disabled]="indicePaginaEscaneos >= totalPaginasEscaneos - 1"
-                styleClass="p-button-rounded p-button-outlined p-button-secondary">
-      </p-button>
-    </div>
-  </p-tabPanel>
-
-<!-- Estado de Dispositivos -->
-<p-tabPanel header="Estado de Dispositivos">
-  <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
-    <h3 class="text-lg font-semibold">Estado Actual de los Dispositivos</h3>
-    <p class="text-sm mt-1">Distribución de dispositivos activos e inactivos en la red.</p>
-  </section>
-
-  <!-- 🟢 Resumen arriba -->
- <div class="text-sm text-center mb-4">
-  <span>Actualmente hay</span>
-  <span class="font-semibold text-green-600">
-    <p-badge [value]="datosEstadoDispositivos.datasets[0].data[0]" severity="success" class="mx-1"></p-badge>
-    
-  </span>
-  dispositivos activos
-  <span>y</span>
-  <span class="font-semibold text-red-600">
-    <p-badge [value]="datosEstadoDispositivos.datasets[0].data[1]" severity="danger" class="mx-1"></p-badge>
-    
-  </span>
-  inactivos,
-  <span>de un total de</span>
-  <span class="font-semibold text-blue-800">
-    <p-badge [value]="datosEstadoDispositivos.datasets[0].data[0] + datosEstadoDispositivos.datasets[0].data[1]" severity="info" class="mx-1"></p-badge>
-    
-  </span>
-  dispositivos registrados en la red.
-</div>
-
-
-  <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
-    <p-chart type="doughnut"
-             [data]="datosEstadoDispositivos"
-             [options]="opcionesGraficoDona"
-             style="height: 400px;">
-    </p-chart>
-  </div>
-</p-tabPanel>
-
-
-
-
-  <!-- Puertos Abiertos -->
-  <p-tabPanel header="Puertos Abiertos">
-  <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
-    <h3 class="text-lg font-semibold">Puertos Abiertos Más Comunes</h3>
-    <p class="text-sm mt-1">Identifica los puertos más abiertos en los dispositivos analizados.</p>
-  </section>
-
-  <!-- 🔍 Resumen textual -->
-  
-
-  <!-- 📊 Filtros -->
-  <div class="flex flex-wrap justify-end mb-2 gap-2">
-    <p-dropdown
-      [options]="opcionesFiltrosTiempo"
-      [(ngModel)]="filtroPuertos"
-      (onChange)="cargarPuertosMasComunes()"
-      placeholder="Seleccione el periodo"
-      class="w-60">
-    </p-dropdown>
-    <p-dropdown
-      [options]="opcionesLimite"
-      [(ngModel)]="limitePuertos"
-      (onChange)="cargarPuertosMasComunes()"
-      placeholder="Seleccione el límite"
-      class="w-40">
-    </p-dropdown>
-  </div>
- <!-- 🔍 Resumen textual -->
-<div class="text-sm text-center mt-4 mb-4">
-  <ng-container *ngIf="datosPuertos?.labels?.length && datosPuertos?.datasets?.[0]?.data?.length; else sinDatos">
-
-    <span class="text-sm text-gray-700">
-  Se han detectado 
-  <p-badge 
-    [value]="datosPuertos.labels.length" 
-
+    <p-tabView
+      [(activeIndex)]="indiceActivo"
+      class="w-full sm:max-w-5xl rounded-lg shadow-sm"
     >
-  </p-badge> 
-
-</span>
-
-    puertos diferentes, siendo 
-    <p-chip 
-      label="Puerto {{ datosPuertos.labels[0] }} - {{ datosPuertos.servicios?.[0] || 'Desconocido' }}" 
-      
-      class="mx-1"
-      styleClass="bg-orange-100 text-orange-800 border-none font-medium">
-    </p-chip>
-    el más frecuente con 
-    <span class="font-semibold text-orange-600">{{ datosPuertos.datasets[0].data[0] }}</span> 
-    ocurrencias.
-  </ng-container>
-
-  <ng-template #sinDatos>
-    <p class="text-gray-500 italic">
-      No se encontraron datos de puertos abiertos para el periodo y límite seleccionados.
-    </p>
-  </ng-template>
-</div>
-
-
-  <!-- 📈 Gráfico -->
-  <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
-    <p-chart type="bar"
-             [data]="datosPuertos"
-             [options]="opcionesGraficoBarrasPuertos"
-             class="h-[30rem]">
-    </p-chart>
-  </div>
-</p-tabPanel>
-
-
-  <!-- Vulnerabilidades -->
-  <p-tabPanel header="Vulnerabilidades">
-  <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
-    <h3 class="text-lg font-semibold">Vulnerabilidades Más Frecuentes</h3>
-    <p class="text-sm mt-1">Muestra las vulnerabilidades detectadas con mayor recurrencia.</p>
-  </section>
-
-  <!-- 🔍 Resumen textual -->
-  
-
-  <!-- 🔁 Filtros -->
-  <div class="flex flex-wrap justify-end mb-2 gap-2">
-    <p-dropdown
-      [options]="opcionesFiltrosTiempo"
-      [(ngModel)]="filtroVulnerabilidades"
-      (onChange)="cargarVulnerabilidadesMasFrecuentes()"
-      placeholder="Seleccione el periodo"
-      class="w-60">
-    </p-dropdown>
-    <p-dropdown
-      [options]="opcionesLimite"
-      [(ngModel)]="limiteVulnerabilidades"
-      (onChange)="cargarVulnerabilidadesMasFrecuentes()"
-      placeholder="Seleccione el límite"
-      class="w-40">
-    </p-dropdown>
-  </div>
-  <div *ngIf="datosVulnerabilidades.labels?.length; else sinDatos" class="text-sm text-center mt-4 mb-4">
-    Se han identificado 
-    <p-badge 
-      [value]="datosVulnerabilidades.labels.length" 
+      <p-tabPanel
+        header="Estado de Dispositivos"
+        class="border-none"
+        contentStyleClass="border-none"
       >
-    </p-badge>
-    vulnerabilidades distintas. La más común es 
-    <p-chip 
-      [label]="datosVulnerabilidades.labels[0]" 
-      styleClass="bg-red-100 text-red-800 border-none font-medium mx-1">
-    </p-chip>
-    con 
-    <span class="font-semibold text-red-600">
-      {{ datosVulnerabilidades.datasets[0]?.data[0] || 0 }}
-    </span> ocurrencias reportadas.
-  </div>
-  <!-- 📊 Gráfico -->
-  <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
-    <p-chart type="bar"
-             [data]="datosVulnerabilidades"
-             [options]="opcionesGraficoBarrasVulnerabilidades"
-             class="h-[30rem]">
-    </p-chart>
-  </div>
+        <section
+          class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-3"
+        >
+          <h3 class="text-lg font-semibold mb-1">
+            Resumen del Estado de los Dispositivos
+          </h3>
+          <p class="text-sm">
+            Este panel muestra un resumen visual de los dispositivos registrados
+            en la red, clasificados como <strong>activos</strong> o
+            <strong>inactivos</strong>.
+          </p>
+        </section>
+        <div class="text-sm text-gray-700 px-4 mb-4 leading-snug">
+          <strong>Nota:</strong> Los datos corresponden al
+          <strong>Historial de dispositivos registrados</strong>. Para obtener
+          un estado actualizado, se recomienda ejecutar un nuevo escaneo de
+          dispositivos en la red.
+        </div>
+        <div class="text-sm text-center text-gray-800 mb-5 space-y-1">
+          <div>
+            Actualmente hay
+            <p-badge
+              [value]="datosEstadoDispositivos.datasets[0].data[0]"
+              class="mx-1"
+            ></p-badge>
+            dispositivos activos y
+            <p-badge
+              [value]="datosEstadoDispositivos.datasets[0].data[1]"
+              class="mx-1"
+            ></p-badge>
+            inactivos.
+          </div>
+          <div>
+            Total de dispositivos detectados:
+            <p-badge
+              [value]="
+                datosEstadoDispositivos.datasets[0].data[0] +
+                datosEstadoDispositivos.datasets[0].data[1]
+              "
+              class="mx-1"
+            ></p-badge>
+          </div>
+        </div>
+        <div class="px-4">
+          <p-chart
+            type="doughnut"
+            [data]="datosEstadoDispositivos"
+            [options]="opcionesGraficoDona"
+            style="height: 400px"
+          ></p-chart>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel
+        header="Puertos Abiertos"
+        class="border-none"
+        contentStyleClass="border-none"
+      >
+        <section
+          class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-3"
+        >
+          <h3 class="text-lg font-semibold mb-1">
+            Puertos Abiertos Más Comunes
+          </h3>
+          <p class="text-sm">
+            Este panel permite visualizar los puertos abiertos con más
+            frecuentemente en los dispositivos analizados, facilitando la
+            identificación de servicios ampliamente expuestos en la red.
+          </p>
+        </section>
+        <div class="flex flex-wrap justify-end mb-2 gap-2">
+          <p-dropdown
+            [options]="opcionesFiltrosTiempo"
+            [(ngModel)]="filtroPuertos"
+            (onChange)="cargarPuertosMasComunes()"
+            placeholder="Seleccione el periodo"
+            class="w-60"
+          ></p-dropdown>
+          <p-dropdown
+            [options]="opcionesLimite"
+            [(ngModel)]="limitePuertos"
+            (onChange)="cargarPuertosMasComunes()"
+            placeholder="Seleccione el límite"
+            class="w-40"
+          ></p-dropdown>
+        </div>
+        <div class="text-sm text-center mt-5 mb-4">
+          <ng-container
+            *ngIf="datosPuertos?.labels?.length && datosPuertos?.datasets?.[0]?.data?.length; else sinDatos"
+          >
+            <div class="mb-2">
+              Se han identificado
+              <p-badge
+                [value]="datosPuertos.labels.length"
+                class="mx-1"
+              ></p-badge>
+              puertos distintos en el conjunto de dispositivos evaluados.
+            </div>
+            <div>
+              El puerto más frecuente es
+              <p-chip
+                label="Puerto {{
+                  datosPuertos.labels[0]
+                }} - {{ datosPuertos.servicios?.[0] || 'Desconocido' }}"
+                class="mx-1"
+                styleClass="bg-orange-100 text-orange-800 border-none font-medium"
+              ></p-chip>
+              con un total de
+              <p-badge
+                [value]="datosPuertos.datasets[0].data[0]"
+                class="mx-1"
+              ></p-badge>
+              ocurrencias.
+            </div>
+          </ng-container>
+          <ng-template #sinDatos>
+            <p class="text-gray-500">
+              No se encontraron registros de puertos abiertos para los filtros
+              seleccionados.
+            </p>
+          </ng-template>
+        </div>
+        <div class="px-4">
+          <p-chart
+            type="bar"
+            [data]="datosPuertos"
+            [options]="opcionesGraficoBarrasPuertos"
+            class="h-[30rem]"
+          ></p-chart>
+        </div>
+      </p-tabPanel>
 
-  <!-- 🛑 Sin datos -->
-  <ng-template #sinDatos>
-    <div class="text-center text-gray-500 italic text-sm my-6">
-      No se han detectado vulnerabilidades en el periodo y límite seleccionados.
-    </div>
-  </ng-template>
-</p-tabPanel>
+      <p-tabPanel header="Vulnerabilidades">
+        <section
+          class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4"
+        >
+          <h3 class="text-lg font-semibold">Vulnerabilidades Más Frecuentes</h3>
+          <p class="text-sm mt-1">
+            Visualiza las vulnerabilidades que se repiten con mayor frecuencia
+            en los puertos y servicios analizados de los dispositivos evaluados.
+            Esta información permite identificar patrones de riesgo y priorizar
+            acciones correctivas.
+          </p>
+        </section>
 
+        <div class="flex flex-wrap justify-end mb-2 gap-2">
+          <p-dropdown
+            [options]="opcionesFiltrosTiempo"
+            [(ngModel)]="filtroVulnerabilidades"
+            (onChange)="cargarVulnerabilidadesMasFrecuentes()"
+            placeholder="Seleccione el periodo"
+            class="w-60"
+          ></p-dropdown>
 
-  <!-- Dispositivos con CVE -->
-  <p-tabPanel header="Dispositivos con CVE">
-  <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
-    <h3 class="text-lg font-semibold">
-      Dispositivos con Mayor Número de CVEs (Vulnerabilidades y exposiciones comunes)
-    </h3>
-    <p class="text-sm mt-1">
-      Ranking de dispositivos que presentan más vulnerabilidades conocidas.
-    </p>
-  </section>
+          <p-dropdown
+            [options]="opcionesLimite"
+            [(ngModel)]="limiteVulnerabilidades"
+            (onChange)="cargarVulnerabilidadesMasFrecuentes()"
+            placeholder="Seleccione el límite"
+            class="w-40"
+          ></p-dropdown>
+        </div>
 
-  <!-- 🔍 Resumen textual -->
- 
+        <!-- Contenido principal -->
+        <div
+          *ngIf="datosVulnerabilidades.labels?.length; else sinDatos"
+          class="text-sm text-center mt-4 mb-6 text-gray-800"
+        >
+          <p class="mb-4">
+            Se han identificado
+            <span
+              class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full mx-1"
+            >
+              {{ datosVulnerabilidades.labels.length }}
+            </span>
+            vulnerabilidades distintas asociadas a servicios y puertos
+            analizados.
+          </p>
 
-  <!-- 📊 Filtros -->
-  <div class="flex flex-wrap justify-end mb-2 gap-2">
-    <p-dropdown
-      [options]="opcionesFiltrosTiempo"
-      [(ngModel)]="filtroDispositivosCVEs"
-      (onChange)="cargarDispositivosConMasCVEs()"
-      placeholder="Seleccione el periodo"
-      class="w-60">
-    </p-dropdown>
-    <p-dropdown
-      [options]="opcionesLimite"
-      [(ngModel)]="limiteDispositivosCVEs"
-      (onChange)="cargarDispositivosConMasCVEs()"
-      placeholder="Seleccione el límite"
-      class="w-40">
-    </p-dropdown>
-  </div>
- <div *ngIf="datosDispositivosConCVE.labels?.length; else sinDatos" class="text-sm text-center mt-4 mb-4">
-    Se han identificado 
-    <p-badge 
-      [value]="datosDispositivosConCVE.labels.length" 
-   >
-    </p-badge>
-    dispositivos con al menos una vulnerabilidad. 
-    El que presenta mayor número de CVEs es
-    <p-chip 
-      [label]="datosDispositivosConCVE.labels[0]" 
-      styleClass="bg-orange-100 text-orange-800 border-none font-medium mx-1">
-    </p-chip>
-    con 
-    <span class="font-semibold text-orange-600">
-      {{ datosDispositivosConCVE.datasets[0]?.data[0] || 0 }}
-    </span> vulnerabilidades detectadas.
-  </div>
-  <!-- 📈 Gráfico -->
-  <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
-    <p-chart type="bar"
-             [data]="datosDispositivosConCVE"
-             [options]="opcionesGraficoBarras"
-             style="height: 400px;">
-    </p-chart>
-  </div>
+          <div class="flex flex-wrap justify-center gap-4 px-2">
+            <div
+              *ngFor="let id of datosVulnerabilidades.originales; let i = index"
+              class="w-[300px] min-h-[180px] border border-gray-200 rounded-xl bg-white shadow-sm p-4 flex flex-col justify-between"
+            >
+              <!-- Encabezado -->
+              <div>
+                <p class="text-base font-semibold text-gray-900 mb-1">
+                  Vulnerabilidad {{ i + 1 }}
+                </p>
 
-  <!-- 🛑 Sin datos -->
-  <ng-template #sinDatos>
-    <div class="text-center text-gray-500 italic text-sm my-6">
-      No se han registrado dispositivos con CVEs en el periodo y límite seleccionados.
-    </div>
-  </ng-template>
-</p-tabPanel>
+                <p class="text-xs text-gray-600 mb-2">
+                  <span class="font-medium">Identificador:</span>
+                  <span
+                    class="block mt-1 text-gray-800 font-mono text-xs truncate"
+                    title="{{ id }}"
+                  >
+                    {{ id }}
+                  </span>
+                </p>
 
+                <p class="text-xs text-gray-600">
+                  Detectada
+                  <span class="font-semibold text-gray-900">
+                    {{ datosVulnerabilidades.datasets[0]?.data[i] }}
+                  </span>
+                  {{
+                    datosVulnerabilidades.datasets[0]?.data[i] === 1
+                      ? "vez"
+                      : "veces"
+                  }}
+                  en los análisis realizados.
+                </p>
+              </div>
 
-  <!-- Nivel de Riesgo -->
-  <p-tabPanel header="Nivel de Riesgo">
-  <section class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4">
-    <h3 class="text-lg font-semibold">Distribución del Nivel de Riesgo</h3>
-    <p class="text-sm mt-1">Clasificación de los dispositivos según su nivel de riesgo estimado.</p>
-  </section>
+              <a
+                *ngIf="datosVulnerabilidades.urls[i]"
+                [href]="datosVulnerabilidades.urls[i]"
+                class="text-xs text-blue-600 hover:underline mt-4"
+                target="_blank"
+              >
+                Ver detalles sobre esta vulnerabilidad
+              </a>
+            </div>
+          </div>
+        </div>
 
-  <!-- 🧾 Resumen textual -->
-  <div *ngIf="datosNivelRiesgo?.datasets?.[0]?.data?.length" class="text-center text-sm text-gray-700 mb-3">
-  <span class="font-medium">Evaluación realizada sobre</span>
-  <span class="font-semibold text-orange-600">
-    {{ totalDispositivosEvaluados }}
-  </span>
-  <span class="font-medium">dispositivos con la siguiente clasificación:</span>
-</div>
+        <!-- Gráfico de barras -->
+        <div class="p-4 bg-white mt-6 rounded shadow-sm">
+          <p-chart
+            type="bar"
+            [data]="datosVulnerabilidades"
+            [options]="opcionesGraficoBarrasVulnerabilidades"
+            class="h-[30rem]"
+          ></p-chart>
+        </div>
 
+        <!-- Sin datos -->
+        <ng-template #sinDatos>
+          <div class="text-center text-gray-500 italic text-sm my-6">
+            No se han detectado vulnerabilidades en el periodo y límite
+            seleccionados.
+          </div>
+        </ng-template>
+      </p-tabPanel>
 
-  <!-- 🧩 Lista de riesgos por nivel -->
-  <div class="flex flex-wrap justify-center gap-3 mb-4" *ngIf="datosNivelRiesgo.labels?.length">
-    <p-chip *ngFor="let label of datosNivelRiesgo.labels; let i = index"
-            [label]="label + ': ' + datosNivelRiesgo.datasets[0].data[i] + ' dispositivos'"
-            class="text-sm bg-gray-100 text-gray-800 border-none font-medium px-3 py-1 rounded-xl">
-    </p-chip>
-  </div>
+      <p-tabPanel header="Dispositivos Vulnerables">
+        <section
+          class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4"
+        >
+          <h3 class="text-lg font-semibold">
+            Dispositivos con Mayor Cantidad de Vulnerabilidades Detectadas
+          </h3>
+          <p class="text-sm mt-1">
+            Lista de los dispositivos que presentan más fallos de seguridad
+            conocidos, los cuales podrían ser aprovechados por atacantes para
+            comprometer la red.
+          </p>
+        </section>
 
-  <!-- 📈 Gráfico -->
-  <div class="border border-gray-200 rounded-xl shadow-sm p-4 bg-white">
-    <p-chart type="doughnut"
-             [data]="datosNivelRiesgo"
-             [options]="opcionesGraficoDona"
-             style="height: 400px;">
-    </p-chart>
-  </div>
-</p-tabPanel>
+        <div class="flex flex-wrap justify-end mb-2 gap-2">
+          <p-dropdown
+            [options]="opcionesFiltrosTiempo"
+            [(ngModel)]="filtroDispositivosCVEs"
+            (onChange)="cargarDispositivosConMasCVEs()"
+            placeholder="Seleccione el periodo"
+            class="w-60"
+          ></p-dropdown>
+          <p-dropdown
+            [options]="opcionesLimite"
+            [(ngModel)]="limiteDispositivosCVEs"
+            (onChange)="cargarDispositivosConMasCVEs()"
+            placeholder="Seleccione el límite"
+            class="w-40"
+          ></p-dropdown>
+        </div>
 
+        <div
+          *ngIf="datosDispositivosConCVE.originales?.length; else sinDatos"
+          class="text-sm text-center mt-4 mb-6 text-gray-800"
+        >
+          <p class="mb-4">
+            Se han detectado
+            <span
+              class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full mx-1"
+            >
+              {{ datosDispositivosConCVE.originales.length }}
+            </span>
+            dispositivos en la red que presentan al menos una falla de seguridad
+            reportada públicamente.
+          </p>
 
+          <div class="flex flex-wrap justify-center gap-4 px-2">
+            <div
+              *ngFor="
+                let d of datosDispositivosConCVE.originales;
+                let i = index
+              "
+              class="w-[280px] border border-gray-200 rounded-lg bg-gray-50 p-4 flex flex-col gap-3 shadow-sm"
+            >
+              <div class="space-y-1 text-sm text-gray-700">
+                <div
+                  class="text-center text-base text-gray-800 font-medium mb-2"
+                >
+                  Dispositivo {{ i + 1 }}
+                </div>
 
-</p-tabView>
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Nombre</span>
+                  <span class="text-gray-800">{{ d.nombre_dispositivo }}</span>
+                </div>
 
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Dirección IP</span>
+                  <span class="text-gray-800">{{ d.ultima_ip }}</span>
+                </div>
 
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Dirección MAC</span>
+                  <span class="text-gray-800">{{ d.mac_address }}</span>
+                </div>
 
+                <div class="flex justify-between border-t pt-2 mt-2">
+                  <span class="text-gray-500">Vulnerabilidades conocidas</span>
+                  <span class="text-gray-800 font-semibold">{{
+                    d.cantidad_cves
+                  }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
+        <div class="p-4 bg-white">
+          <p-chart
+            type="bar"
+            [data]="datosDispositivosConCVE"
+            [options]="opcionesGraficoBarras"
+            style="height: 400px"
+          ></p-chart>
+        </div>
+
+        <ng-template #sinDatos>
+          <div class="text-center text-gray-500 italic text-sm my-6">
+            No se han registrado dispositivos con CVEs en el periodo y límite
+            seleccionados.
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel header="Nivel de Riesgo">
+        <section
+          class="w-full bg-baseAzulOscuro text-textoSecundario rounded-xl shadow-sm px-4 py-3 mb-4"
+        >
+          <h3 class="text-lg font-semibold">
+            Clasificación de Dispositivos según su Nivel de Riesgo
+          </h3>
+          <p class="text-sm mt-1">
+            Este panel muestra cómo se distribuyen los dispositivos detectados
+            en la red según el nivel de riesgo evaluado que representan según la
+            información recolectada.
+          </p>
+        </section>
+
+        <div
+          *ngIf="datosNivelRiesgo?.datasets?.[0]?.data?.length"
+          class="text-center text-sm text-gray-700 mb-3"
+        >
+          <span class="font-medium">Se analizaron</span>
+          <span
+            class="inline-block text-xs font-semibold px-2 py-0.5 bg-orange-200 text-black rounded-md mx-1"
+          >
+            {{ totalDispositivosEvaluados }}
+          </span>
+          <span class="font-medium">
+            dispositivos conectados a la red. Los resultados se agrupan según el
+            nivel de riesgo identificado:
+          </span>
+        </div>
+
+        <div
+          class="flex flex-wrap justify-center gap-4 mb-6"
+          *ngIf="datosNivelRiesgo.labels?.length"
+        >
+          <div
+            *ngFor="let label of datosNivelRiesgo.labels; let i = index"
+            class="flex items-center gap-2 rounded-lg border px-4 py-2 bg-white shadow-sm"
+            style="border-left-width: 5px; border-color: #e5e7eb"
+            [style.borderLeftColor]="coloresRiesgo[i]"
+          >
+            <span class="text-sm text-gray-800 font-medium">
+              {{ label }}:
+              <span class="font-semibold text-gray-900">
+                {{ datosNivelRiesgo.datasets[0].data[i] }} dispositivos
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <div class="p-4 bg-white">
+          <p-chart
+            type="doughnut"
+            [data]="datosNivelRiesgo"
+            [options]="opcionesGraficoDona"
+            style="height: 400px"
+          >
+          </p-chart>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
   </div>
 </section>
 <p-dialog
   [(visible)]="modalCVEsVisible"
-  [style]="{ width: '90vw' }"
+  [style]="{ width: '70vw' }"
   header="Lista de Vulnerabilidades"
-  [closable]="true"
   [dismissableMask]="true"
+  [modal]="true"
+  [baseZIndex]="10000"
+  position="top"
+  (onHide)="limpiarBusquedaCVEs()"
 >
-  <!-- Contenedor scrollable más bajo -->
-  <section
-    class="w-full bg-white border border-gray-200 rounded-2xl shadow-lg px-4 py-1 overflow-y-auto"
-    style="max-height: 45vh;" 
+  <div class="flex justify-end mb-3">
+    <p-iconfield iconPosition="left" class="w-full sm:w-1/2">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        #inputCVEs
+        pInputText
+        type="text"
+        (input)="filtrarTablaCVEs($event)"
+        placeholder="Buscar por identificador o tipo"
+        class="w-full text-sm"
+      />
+    </p-iconfield>
+  </div>
+
+  <p-table
+    #dtCVEs
+    class="w-full text-sm"
+    [value]="listaCves"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10]"
+    [responsiveLayout]="'scroll'"
+    [globalFilterFields]="['cve_id', 'tipo', 'url']"
+    sortField="cve_id"
+    [sortOrder]="1"
+    dataKey="cve_id"
+    paginatorDropdownAppendTo="body"
   >
-    <p-table
-      #dtCVEs
-      class="w-full"
-      [value]="listaCves.slice(firstCVEs, firstCVEs + rowsCVEs)"
-      dataKey="cve_id"
-      [paginator]="false"
-      [rows]="rowsCVEs"
-      [first]="firstCVEs"
-      [globalFilterFields]="['cve_id', 'tipo', 'score', 'url']"
-      [sortMode]="'multiple'"
-      responsiveLayout="scroll"
-    >
-      <!-- Filtro -->
-      <ng-template pTemplate="caption">
-        <div class="flex justify-end mb-2">
-          <span class="p-input-icon-left">
-            <input
-              pInputText
-              type="text"
-              (input)="filtrarTablaCVEs($event)"
-              placeholder="Buscar CVE..."
-            />
-          </span>
-        </div>
-      </ng-template>
+    <!-- 🧾 Cabecera -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="cve_id" class="whitespace-nowrap px-2 py-1">
+          Identificador Global de Vulnerabilidad <p-sortIcon field="cve_id" />
+        </th>
+        <th pSortableColumn="tipo" class="whitespace-nowrap px-2 py-1">
+          Tipo de Amenaza <p-sortIcon field="tipo" />
+        </th>
+        <th pSortableColumn="url" class="whitespace-nowrap px-2 py-1">
+          Enlace a Detalles <p-sortIcon field="url" />
+        </th>
+      </tr>
+    </ng-template>
 
-      <!-- Cabecera -->
-      <ng-template pTemplate="header">
-        <tr>
-          <th pSortableColumn="cve_id">CVE ID <p-sortIcon field="cve_id" /></th>
-          <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo" /></th>
-          <th pSortableColumn="score">Score <p-sortIcon field="score" /></th>
-          <th>URL</th>
-        </tr>
-      </ng-template>
+    <!-- 🧬 Cuerpo -->
+    <ng-template pTemplate="body" let-cve>
+      <tr>
+        <td class="px-2 py-1">{{ cve.cve_id }}</td>
+        <td class="px-2 py-1">{{ cve.tipo || "No especificado" }}</td>
+        <td class="px-2 py-1">
+          <a
+            *ngIf="cve.url"
+            [href]="cve.url"
+            target="_blank"
+            class="text-blue-700 underline hover:text-blue-900"
+          >
+            Ver información
+          </a>
+          <span *ngIf="!cve.url">-</span>
+        </td>
+      </tr>
+    </ng-template>
 
-      <!-- Cuerpo -->
-      <ng-template pTemplate="body" let-cve>
-        <tr>
-          <td>{{ cve.cve_id }}</td>
-          <td>{{ cve.tipo || 'N/A' }}</td>
-          <td>{{ cve.score ?? 'N/A' }}</td>
-          <td>
-            <a *ngIf="cve.url" [href]="cve.url" target="_blank" class="text-blue-600 underline">Ver</a>
-            <span *ngIf="!cve.url">-</span>
-          </td>
-        </tr>
-      </ng-template>
-
-      <!-- Vacío -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="4" class="text-center text-gray-500 py-3">
-            No se encontraron vulnerabilidades.
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </section>
-
-  <!-- Paginador fijo -->
-  <p-paginator
-    [first]="firstCVEs"
-    [rows]="rowsCVEs"
-    styleClass="z-[9999]"
-    [dropdownAppendTo]="'body'"
-    [totalRecords]="listaCves.length"
-    [rowsPerPageOptions]="[5, 10, 15]"
-    (onPageChange)="onPageChangeCVEs($event)"
-    class="mt-3"
-  ></p-paginator>
+    <!-- 🈳 Vacío con spinner -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="3" class="text-center py-6">
+          <ng-container *ngIf="cargandoCVEs; else noDatos">
+            <p-progress-spinner
+              strokeWidth="6"
+              fill="transparent"
+              animationDuration=".6s"
+              [style]="{ width: '40px', height: '40px' }"
+            ></p-progress-spinner>
+            <p class="mt-2 text-sm text-gray-500">
+              Cargando vulnerabilidades...
+            </p>
+          </ng-container>
+          <ng-template #noDatos>
+            <p class="text-sm text-gray-500">
+              No se encontraron vulnerabilidades.
+            </p>
+          </ng-template>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 </p-dialog>
 
+<p-dialog
+  [(visible)]="modalDispositivosVisible"
+  [style]="{ width: '70vw' }"
+  header="Lista de Dispositivos Activos"
+  [dismissableMask]="true"
+  [modal]="true"
+  [baseZIndex]="10000"
+  position="top"
+  (onHide)="limpiarBusquedaDispositivos()"
+>
+  <!-- 🔍 Buscador -->
+  <div class="flex justify-end mb-3">
+    <p-iconfield iconPosition="left" class="w-full sm:w-1/2">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        #inputDispositivos
+        pInputText
+        type="text"
+        (input)="filtrarTablaDispositivos($event)"
+        placeholder="Buscar por nombre, MAC o IP"
+        class="w-full text-sm"
+      />
+    </p-iconfield>
+  </div>
 
+  <!-- 📋 Tabla -->
+  <p-table
+    #tablaDispositivos
+    class="w-full text-sm"
+    [value]="listaDispositivosResumen"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10]"
+    [responsiveLayout]="'scroll'"
+    [globalFilterFields]="['nombre_dispositivo', 'mac_address', 'ultima_ip']"
+    sortField="nombre_dispositivo"
+    [sortOrder]="1"
+    dataKey="mac_address"
+    paginatorDropdownAppendTo="body"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th
+          pSortableColumn="nombre_dispositivo"
+          class="whitespace-nowrap px-2 py-1"
+        >
+          Nombre del Dispositivo
+          <p-sortIcon field="nombre_dispositivo" />
+        </th>
+        <th pSortableColumn="mac_address" class="whitespace-nowrap px-2 py-1">
+          Dirección MAC
+          <p-sortIcon field="mac_address" />
+        </th>
+        <th pSortableColumn="ultima_ip" class="whitespace-nowrap px-2 py-1">
+          Última IP Asignada
+          <p-sortIcon field="ultima_ip" />
+        </th>
+      </tr>
+    </ng-template>
 
+    <ng-template pTemplate="body" let-dispositivo>
+      <tr>
+        <td class="px-2 py-1">{{ dispositivo.nombre_dispositivo || "-" }}</td>
+        <td class="px-2 py-1">{{ dispositivo.mac_address }}</td>
+        <td class="px-2 py-1">{{ dispositivo.ultima_ip || "-" }}</td>
+      </tr>
+    </ng-template>
 
+    <!-- Vacío -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="3" class="text-center py-6">
+          <ng-container *ngIf="cargandoDispositivos; else noDatosDispositivos">
+            <p-progress-spinner
+              strokeWidth="6"
+              fill="transparent"
+              animationDuration=".6s"
+              [style]="{ width: '40px', height: '40px' }"
+            ></p-progress-spinner>
+            <p class="mt-2 text-sm text-gray-500">Cargando dispositivos...</p>
+          </ng-container>
+          <ng-template #noDatosDispositivos>
+            <p class="text-sm text-gray-500">No se encontraron dispositivos.</p>
+          </ng-template>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
 
-
-
-
-
-
-
-
+<p-dialog
+  [(visible)]="modalPuertosVisible"
+  header="Puertos Abiertos Detectados"
+  [style]="{ width: '70vw' }"
+  [modal]="true"
+  position="top"
+  [baseZIndex]="10000"
+  [dismissableMask]="true"
+  (onHide)="limpiarBusquedaPuertos()"
+>
+  <div class="flex justify-end mb-3">
+    <p-iconfield iconPosition="left" class="w-full sm:w-1/2">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        #inputPuertos
+        pInputText
+        type="text"
+        (input)="filtrarTablaPuertos($event)"
+        placeholder="Buscar por número o servicio"
+        class="w-full text-sm"
+      />
+    </p-iconfield>
+  </div>
+  <p-table
+    #tablaPuertos
+    [value]="listaPuertosResumen"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10]"
+    [responsiveLayout]="'scroll'"
+    [globalFilterFields]="['puerto', 'servicio']"
+    sortField="puerto"
+    [sortOrder]="1"
+    dataKey="puerto"
+    class="w-full text-sm"
+    paginatorDropdownAppendTo="body"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="puerto" class="whitespace-nowrap px-2 py-1">
+          Número de Puerto <p-sortIcon field="puerto" />
+        </th>
+        <th pSortableColumn="servicio" class="whitespace-nowrap px-2 py-1">
+          Servicio <p-sortIcon field="servicio" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-puerto>
+      <tr>
+        <td class="px-2 py-1">{{ puerto.puerto }}</td>
+        <td class="px-2 py-1">{{ puerto.servicio || "-" }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="2" class="text-center py-6">
+          <ng-container *ngIf="cargandoPuertos; else noPuertos">
+            <p-progress-spinner
+              strokeWidth="6"
+              fill="transparent"
+              animationDuration=".6s"
+              [style]="{ width: '40px', height: '40px' }"
+            ></p-progress-spinner>
+            <p class="mt-2 text-sm text-gray-500">Cargando puertos...</p>
+          </ng-container>
+          <ng-template #noPuertos>
+            <p class="text-sm text-gray-500">
+              No se encontraron puertos abiertos.
+            </p>
+          </ng-template>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>

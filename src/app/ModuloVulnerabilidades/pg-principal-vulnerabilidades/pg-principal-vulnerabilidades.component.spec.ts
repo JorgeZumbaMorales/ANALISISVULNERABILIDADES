@@ -8,8 +8,8 @@ describe('PgPrincipalVulnerabilidadesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PgPrincipalVulnerabilidadesComponent]
-    })
+    imports: [PgPrincipalVulnerabilidadesComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PgPrincipalVulnerabilidadesComponent);
