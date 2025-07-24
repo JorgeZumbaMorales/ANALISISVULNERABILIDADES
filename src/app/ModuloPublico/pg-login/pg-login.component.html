@@ -1,190 +1,286 @@
 <p-toast></p-toast>
 <main class="flex min-h-screen w-full">
-    <div class="w-1/2 flex flex-col justify-center items-center text-center p-10 bg-baseAzulOscuro text-white">
-  <img 
-  src="logo_completo_.png" 
-  alt="RedSegura Logo"
-  class="w-auto h-32 mb-4"
-/>
+  <div
+    class="w-1/2 flex flex-col justify-center items-center text-center p-10 bg-baseAzulOscuro text-white"
+  >
+    <img
+      src="logo_completo_.png"
+      alt="RedSegura Logo"
+      class="w-auto h-32 mb-4"
+    />
 
-  
-  <h1 class="text-3xl font-bold mb-4">
-    ¡Bienvenido!
-  </h1>
+    <h1 class="text-3xl font-bold mb-4">¡Bienvenido!</h1>
 
-  <p class="text-base leading-relaxed max-w-md">
-    Inicia sesión para gestionar dispositivos, ejecutar escaneos y revisar vulnerabilidades en tu red local.
-  </p>
-</div>
+    <p class="text-base leading-relaxed max-w-md">
+      Inicia sesión para gestionar dispositivos, ejecutar escaneos y revisar
+      vulnerabilidades en tu red local.
+    </p>
+  </div>
 
-    <div class="w-1/2 flex flex-col justify-center items-center bg-white p-12">
-        <h2 class="text-2xl font-semibold text-center mb-6 text-baseAzulOscuro">Iniciar Sesión</h2>
-        <form class=" max-w-md space-y-6" (submit)="iniciarSesion()">
-            <div class="form-group w-full">
-                <p-iftalabel class="w-full">
-                    <input pInputText id="usuario" name="usuario" [(ngModel)]="usuario" autocomplete="off" class="w-full"/>
-                    <label for="usuario">Usuario</label>
-                </p-iftalabel>
-            </div>
-            <div class="form-group w-full">
-                <p-iftalabel class="w-full">
-                    <p-password name="contrasena" [(ngModel)]="contrasena" [toggleMask]="true" inputId="contrasena"
-                                [feedback]="false"
-                                inputStyleClass="w-full">
-                    </p-password>
-                    <label for="contrasena">Contraseña</label>
-                </p-iftalabel>
-            </div>
-          <div class="form-group flex justify-center items-center w-full mt-6">
-            <p-button 
-  icon="pi pi-sign-in"
-  type="submit" 
-  label="Acceder" 
-  [styleClass]="'bg-baseNaranja text-white border-baseNaranja transition-all duration-300 transform hover:scale-110 rounded-3xl px-5 py-2 text-sm md:text-base'">
-</p-button>
-
-        </div>
-      </form>
-      <p class="text-center mt-4">
-        <a (click)="abrirModalRecuperacion()" class="text-baseAzulOscuro hover:underline cursor-pointer">
-          ¿Olvidaste tu contraseña?
-        </a>
-      </p>
-      <p class="text-center mt-6">
-          <a (click)="volverInicio()" class="text-baseAzulOscuro hover:underline cursor-pointer flex items-center justify-center">
-              <i class="pi pi-arrow-left mr-1"></i> Volver al Inicio
-          </a>
-      </p>
+  <div class="w-1/2 flex flex-col justify-center items-center bg-white p-12">
+    <h2 class="text-2xl font-semibold text-center mb-6 text-baseAzulOscuro">
+      Iniciar Sesión
+    </h2>
+    <form class="max-w-md space-y-6" (submit)="iniciarSesion()">
+      <div class="form-group w-full">
+        <p-iftalabel class="w-full">
+          <input
+            pInputText
+            id="usuario"
+            name="usuario"
+            [(ngModel)]="usuario"
+            autocomplete="off"
+            class="w-full"
+          />
+          <label for="usuario">Usuario</label>
+        </p-iftalabel>
+      </div>
+      <div class="form-group w-full">
+        <p-iftalabel class="w-full">
+          <p-password
+            name="contrasena"
+            [(ngModel)]="contrasena"
+            [toggleMask]="true"
+            inputId="contrasena"
+            [feedback]="false"
+            inputStyleClass="w-full"
+          >
+          </p-password>
+          <label for="contrasena">Contraseña</label>
+        </p-iftalabel>
+      </div>
+      <div class="form-group flex justify-center items-center w-full mt-6">
+        <p-button
+          icon="pi pi-sign-in"
+          type="submit"
+          label="Acceder"
+          [styleClass]="
+            'bg-baseNaranja text-white border-baseNaranja transition-all duration-300 transform hover:scale-110 rounded-3xl px-5 py-2 text-sm md:text-base'
+          "
+        >
+        </p-button>
+      </div>
+    </form>
+    <p class="text-center mt-4">
+      <a
+        (click)="abrirModalRecuperacion()"
+        class="text-baseAzulOscuro hover:underline cursor-pointer"
+      >
+        ¿Olvidaste tu contraseña?
+      </a>
+    </p>
+    <p class="text-center mt-6">
+      <a
+        (click)="volverInicio()"
+        class="text-baseAzulOscuro hover:underline cursor-pointer flex items-center justify-center"
+      >
+        <i class="pi pi-arrow-left mr-1"></i> Volver al Inicio
+      </a>
+    </p>
+  </div>
+</main>
+<p-dialog
+  [(visible)]="modalRecuperacion"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '32vw' }"
+>
+  <ng-template pTemplate="header">
+    <h2 class="text-xl font-semibold text-textoPrincipal">
+      {{ cargandoRecuperacion ? "Enviando Código..." : "Recuperar Contraseña" }}
+    </h2>
+  </ng-template>
+  <div class="relative">
+    <div [class.opacity-50]="cargandoRecuperacion">
+      <p-tabView
+        [(activeIndex)]="indiceRecuperacion"
+        (onChange)="alCambiarTab($event)"
+      >
+        <p-tabPanel header="Por Usuario">
+          <div class="">
+            <p-iftalabel>
+              <input
+                pInputText
+                id="usuarioRecuperacion"
+                name="usuarioRecuperacion"
+                [(ngModel)]="usuarioRecuperacion"
+                autocomplete="off"
+                class="w-full"
+              />
+              <label for="usuarioRecuperacion"
+                >Ingrese su nombre de usuario</label
+              >
+            </p-iftalabel>
+          </div>
+        </p-tabPanel>
+        <p-tabPanel header="Por Correo">
+          <div class="mt-1">
+            <p-iftalabel>
+              <input
+                pInputText
+                id="correoRecuperacion"
+                name="correoRecuperacion"
+                [(ngModel)]="correoRecuperacion"
+                type="email"
+                autocomplete="off"
+                class="w-full"
+              />
+              <label for="correoRecuperacion"
+                >Ingrese su correo electrónico</label
+              >
+            </p-iftalabel>
+          </div>
+        </p-tabPanel>
+      </p-tabView>
     </div>
-  </main>
-  <p-dialog [(visible)]="modalRecuperacion" [modal]="true" [closable]="false" [style]="{ width: '32vw' }">
-    <ng-template pTemplate="header">
-        <h2 class="text-xl font-semibold text-textoPrincipal">
-            {{ cargandoRecuperacion ? 'Enviando Código...' : 'Recuperar Contraseña' }}
-        </h2>
-    </ng-template>
-    <div class="p-4 relative">
-        <div [class.opacity-50]="cargandoRecuperacion">
-            <p-tabView [(activeIndex)]="indiceRecuperacion">
-                <p-tabPanel header="Por Usuario">
-                    <div class="mt-4">
-                        <p-iftalabel>
-                            <input pInputText id="usuarioRecuperacion" name="usuarioRecuperacion" [(ngModel)]="usuarioRecuperacion" autocomplete="off" class="w-full p-inputtext-lg" />
-                            <label for="usuarioRecuperacion">Ingrese su nombre de usuario</label>
-                        </p-iftalabel>
-                    </div>
-                </p-tabPanel>
-                <p-tabPanel header="Por Correo">
-                    <div class="mt-4">
-                        <p-iftalabel>
-                            <input pInputText id="correoRecuperacion" name="correoRecuperacion" [(ngModel)]="correoRecuperacion" type="email" autocomplete="off" class="w-full p-inputtext-lg" />
-                            <label for="correoRecuperacion">Ingrese su correo electrónico</label>
-                        </p-iftalabel>
-                    </div>
-                </p-tabPanel>
-            </p-tabView>
-        </div>
-        <div class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50" *ngIf="cargandoRecuperacion">
-            <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s" 
-                                [style]="{ width: '70px', height: '70px' }">
-            </p-progress-spinner>
-        </div>
+    <div
+      class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50"
+      *ngIf="cargandoRecuperacion"
+    >
+      <p-progress-spinner
+        strokeWidth="8"
+        fill="transparent"
+        animationDuration=".5s"
+        [style]="{ width: '70px', height: '70px' }"
+      >
+      </p-progress-spinner>
     </div>
-    <ng-template pTemplate="footer">
-        <div class="relative w-full">
-            <div class="flex justify-center space-x-3 mb-2" [class.opacity-50]="cargandoRecuperacion">
-                <p-button 
-                    label="Recuperar" 
-
-                    class="p-button-primary"
-                    (click)="enviarCodigoRecuperacion()"
-                    [disabled]="cargandoRecuperacion">
-                </p-button>
-                <p-button 
-                    label="Cancelar" 
-                    severity="secondary"
-                    class="p-button-text"
-                    (click)="cerrarModal('recuperacion')">
-                </p-button>
-            </div>
-        </div>
-    </ng-template>
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="relative w-full">
+      <div
+        class="flex justify-center space-x-2"
+        [class.opacity-50]="cargandoRecuperacion"
+      >
+        <button
+          pButton
+          type="button"
+          label="Cancelar"
+          class="p-button-outlined w-28"
+          (click)="cerrarModal('recuperacion')"
+        ></button>
+        <p-button
+          label="Recuperar"
+          class="p-button-primary"
+          (click)="enviarCodigoRecuperacion()"
+          [disabled]="cargandoRecuperacion"
+        >
+        </p-button>
+      </div>
+    </div>
+  </ng-template>
 </p-dialog>
-<p-dialog [(visible)]="modalCodigo" [modal]="true" [closable]="false" [style]="{ width: '38vw' }">
-    <ng-template pTemplate="header">
-        <h2 class="text-2xl font-semibold text-textoPrincipal text-center w-full">Código de Verificación</h2>
-    </ng-template>
-    <div class="w-full flex flex-col items-center space-y-2">
-  <div class="flex items-center bg-orange-200 text-black text-sm px-4 py-2 rounded-lg shadow-sm mb-4">
-  <i class="pi pi-envelope mr-2"></i>
-  <span>Código enviado a: <strong>{{ enmascararCorreo(correoRecuperacion) }}</strong></span>
-</div>
+<p-dialog
+  [(visible)]="modalCodigo"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '38vw' }"
+>
+  <ng-template pTemplate="header">
+    <h2 class="text-2xl font-semibold text-textoPrincipal text-center w-full">
+      Código de Verificación
+    </h2>
+  </ng-template>
+  <div class="w-full flex flex-col items-center space-y-2">
+    <div
+      class="flex items-center bg-orange-200 text-black text-sm px-4 py-2 rounded-lg shadow-sm mb-4"
+    >
+      <i class="pi pi-envelope mr-2"></i>
+      <span
+        >Código enviado a:
+        <strong>{{
+          indiceRecuperacion === 0
+            ? enmascararCorreo(correoRecuperacion)
+            : correoRecuperacion
+        }}</strong>
+      </span>
+    </div>
+    <div class="text-xs text-gray-600 mt-1">
+      Este código expirará en {{ formatearTiempoRestante() }} minutos.
+    </div>
 
-  <p-inputotp 
-      name="codigoRecuperacion" 
-      [(ngModel)]="codigoRecuperacion" 
-      [length]="6" 
-      [integerOnly]="true" 
+    <p-inputotp
+      name="codigoRecuperacion"
+      [(ngModel)]="codigoRecuperacion"
+      [length]="6"
+      [integerOnly]="true"
       class="max-w-md text-center"
-  />
-</div>
+    />
+  </div>
 
-    <ng-template pTemplate="footer">
-  
-            <p-button 
-                label="Validar"
-                (click)="verificarCodigo()"
-                [disabled]="codigoRecuperacion.length !== 6">
-            </p-button>
-            <p-button 
-                label="Cancelar" 
-                severity="secondary"
-                class=""
-                (click)="cerrarModal('codigo')">
-            </p-button>
-        
-    </ng-template>
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Cancelar"
+      class="p-button-outlined w-28"
+      (click)="cerrarModal('codigo')"
+    ></button>
+    <p-button
+      label="Validar"
+      (click)="verificarCodigo()"
+      [disabled]="codigoRecuperacion.length !== 6"
+    >
+    </p-button>
+  </ng-template>
 </p-dialog>
-<p-dialog [(visible)]="modalActualizarContrasena" [modal]="true" [closable]="false" [style]="{ width: '35vw' }">
-    <ng-template pTemplate="header">
-        <h2 class="text-xl font-semibold text-textoPrincipal text-center">Actualizar Contraseña</h2>
-    </ng-template>
-    <div class="p-4 flex flex-col space-y-4">
-        <p-iftalabel>
-            <p-password [(ngModel)]="nuevaContrasena" [feedback]="true" [toggleMask]="true" promptLabel="Ingrese una contraseña" 
-                weakLabel="Muy Simple" mediumLabel="Complejidad Media" strongLabel="Complejidad Fuerte" appendTo="body" class="w-full">
-                <ng-template pTemplate="footer">
-                    <p-divider />
-                    <p class="mt-2">Recomendaciones:</p>
-                    <ul class="pl-2 ml-2 mt-0 space-y-1" style="line-height: 1.5">
-                        <li>Al menos una letra minúscula</li>
-                        <li>Al menos una letra mayúscula</li>
-                        <li>Al menos un número</li>
-                        <li>Mínimo 8 caracteres</li>
-                    </ul>
-                </ng-template>
-            </p-password>
-            <label for="password">Nueva Contraseña</label>
-        </p-iftalabel>
-        <p-iftalabel class="mt-2">
-            <p-password [(ngModel)]="confirmarContrasena" [toggleMask]="true" appendTo="body" class="w-full"></p-password>
-            <label>Confirmar Contraseña</label>
-        </p-iftalabel>
-    </div>
-    <ng-template pTemplate="footer">
-        
-            <p-button 
-                label="Actualizar" 
-      
-                
-                (click)="actualizarContrasena()">
-            </p-button>
-            <p-button 
-                label="Cancelar" 
-                severity="secondary"    
-                
-                (click)="cerrarModal('actualizarContrasena')">
-            </p-button>
-        
-    </ng-template>    
+<p-dialog
+  [(visible)]="modalActualizarContrasena"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '31vw' }"
+>
+  <ng-template pTemplate="header">
+    <h2 class="text-xl font-semibold text-textoPrincipal text-center">
+      Actualizar Contraseña
+    </h2>
+  </ng-template>
+  <div class="p-4 flex flex-col space-y-4">
+    <p-iftalabel>
+      <p-password
+        [(ngModel)]="nuevaContrasena"
+        [feedback]="true"
+        [toggleMask]="true"
+        promptLabel="Ingrese una contraseña"
+        weakLabel="Muy Simple"
+        mediumLabel="Complejidad Media"
+        strongLabel="Complejidad Fuerte"
+        appendTo="body"
+        class="w-full"
+        (keydown)="bloquearEspacios($event)"
+      >
+        <ng-template pTemplate="footer">
+          <p-divider />
+          <p class="mt-2">Recomendaciones:</p>
+          <ul class="pl-2 ml-2 mt-0 space-y-1" style="line-height: 1.5">
+            <li>Al menos una letra minúscula</li>
+            <li>Al menos una letra mayúscula</li>
+            <li>Al menos un número</li>
+            <li>Mínimo 8 caracteres</li>
+          </ul>
+        </ng-template>
+      </p-password>
+      <label for="password">Nueva Contraseña</label>
+    </p-iftalabel>
+    <p-iftalabel class="mt-2">
+      <p-password
+        [(ngModel)]="confirmarContrasena"
+        [toggleMask]="true"
+        appendTo="body"
+        class="w-full"
+        (keydown)="bloquearEspacios($event)"
+      ></p-password>
+      <label>Confirmar Contraseña</label>
+    </p-iftalabel>
+  </div>
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Cancelar"
+      class="p-button-outlined w-28"
+      (click)="cerrarModal('actualizarContrasena')"
+    ></button>
+    <p-button label="Actualizar" (click)="actualizarContrasena()"> </p-button>
+  </ng-template>
 </p-dialog>
