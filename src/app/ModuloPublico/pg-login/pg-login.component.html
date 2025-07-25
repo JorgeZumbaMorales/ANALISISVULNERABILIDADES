@@ -228,7 +228,7 @@
   [(visible)]="modalActualizarContrasena"
   [modal]="true"
   [closable]="false"
-  [style]="{ width: '31vw' }"
+ [styleClass]="'w-[95vw] sm:w-[90vw] md:w-[60vw] lg:w-[32rem] xl:w-[28rem]'"
 >
   <ng-template pTemplate="header">
     <h2 class="text-xl font-semibold text-textoPrincipal text-center">
@@ -282,5 +282,139 @@
       (click)="cerrarModal('actualizarContrasena')"
     ></button>
     <p-button label="Actualizar" (click)="actualizarContrasena()"> </p-button>
+  </ng-template>
+</p-dialog>
+
+
+
+
+<p-dialog
+  [(visible)]="modalVerificacionCorreo"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '30vw' }"
+>
+  <ng-template pTemplate="header">
+    <h2 class="text-lg font-semibold text-textoPrincipal text-center">
+      Verifica tu Correo Electrónico
+    </h2>
+  </ng-template>
+
+  <div class="flex flex-col items-center space-y-3 p-4 text-center">
+    <i class="pi pi-envelope text-3xl text-orange-500 mb-2"></i>
+
+    <p class="text-sm">
+      Hemos enviado un código de verificación a
+      <strong>{{ enmascararCorreo(correoPendienteVerificacion) }}</strong
+      >.
+    </p>
+
+    <p class="text-xs text-gray-600">
+      Este código expirará en {{ formatearTiempoRestante() }} minutos.
+    </p>
+
+    <p-inputotp
+      [(ngModel)]="codigoVerificacionCorreo"
+      [length]="6"
+      [integerOnly]="true"
+      class="max-w-sm"
+    />
+
+    <p class="text-xs text-red-600 mt-1 leading-relaxed">
+      ¿No tienes acceso a tu correo?<br />
+      Contacta con el administrador del sistema al correo:<br />
+      <a
+        href="mailto:redsegura.admi@gmail.com"
+        class="underline text-blue-600 hover:text-blue-800"
+      >
+        redsegura.admi&commat;gmail.com
+      </a>
+    </p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-3 px-4 pb-4">
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        class="p-button-outlined w-28"
+        (click)="cerrarModal('modalVerificacionCorreo')"
+      ></button>
+      <p-button
+        label="Validar"
+        class="w-28"
+        (click)="verificarCodigoNuevoCorreo()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="modalExplicacionVerificacionCorreo"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '28vw' }"
+>
+  <ng-template pTemplate="header">
+    <h2 class="text-lg font-semibold text-textoPrincipal text-center">
+      {{
+        cargandoVerificacionCorreo
+          ? "Enviando Código..."
+          : "Verificación de Correo Requerida"
+      }}
+    </h2>
+  </ng-template>
+
+  <div class="relative">
+    <!-- Contenido normal con opacidad si está cargando -->
+    <div [class.opacity-50]="cargandoVerificacionCorreo">
+      <div class="flex flex-col items-center space-y-3 p-4 text-center">
+        <i class="pi pi-info-circle text-3xl text-orange-500 mb-2"> Información</i>
+        <p class="text-sm text-pretty leading-relaxed">
+          Para poder acceder a tu cuenta, primero debes verificar tu correo
+          electrónico:
+          <strong>{{ enmascararCorreo(correoPendienteVerificacion) }}</strong
+          >.
+        </p>
+        <p class="text-sm text-gray-500">
+          Presiona "Enviar Código" para recibir un código de verificación en tu
+          correo.
+        </p>
+      </div>
+    </div>
+    <div
+      class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50"
+      *ngIf="cargandoVerificacionCorreo"
+    >
+      <p-progressSpinner
+        strokeWidth="8"
+        fill="transparent"
+        animationDuration=".5s"
+        [style]="{ width: '70px', height: '70px' }"
+      >
+      </p-progressSpinner>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div
+      class="flex justify-center space-x-2"
+      [class.opacity-50]="cargandoVerificacionCorreo"
+    >
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        class="p-button-outlined w-28"
+        (click)="modalExplicacionVerificacionCorreo = false"
+        [disabled]="cargandoVerificacionCorreo"
+      ></button>
+      <p-button
+        label="Enviar Código"
+        (click)="enviarCodigoVerificacionCorreo()"
+        [disabled]="cargandoVerificacionCorreo"
+      ></p-button>
+    </div>
   </ng-template>
 </p-dialog>

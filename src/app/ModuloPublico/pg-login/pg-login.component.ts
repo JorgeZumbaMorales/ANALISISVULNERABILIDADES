@@ -18,6 +18,7 @@ import { InputOtp } from 'primeng/inputotp';
 import { Divider } from 'primeng/divider';
 import { ButtonModule } from 'primeng/button';
 
+
 @Component({
   standalone: true,
   selector: 'app-pg-login',
@@ -32,17 +33,24 @@ export class PgLoginComponent {
   cronometroInterval: any = null;
   // Estado del modal de recuperación
   modalRecuperacion: boolean = false;
+  cargandoVerificacionCorreo: boolean = false;
+
   modalCodigo: boolean = false;
   modalActualizarContrasena: boolean = false;
   usuarioIdRecuperacion: number = 0; // ID del usuario recuperado
   indiceRecuperacion: number = 0; // 0 = Usuario, 1 = Correo
   usuarioRecuperacion: string = '';
   correoRecuperacion: string = '';
+  modalExplicacionVerificacionCorreo: boolean = false;
   cargandoRecuperacion: boolean = false;
   codigoRecuperacion: string = ''; // Código OTP ingresado
   nuevaContrasena: string = '';
   confirmarContrasena: string = '';
-
+  modalVerificacionCorreo: boolean = false;
+  usuarioPendienteId: number = 0;
+  correoPendienteVerificacion: string = '';
+  codigoVerificacionCorreo: string = '';
+  reintentandoVerificacion: boolean = false;
   constructor(private router: Router,
     private authService: ServiciosAutenticacion,
     private sesionService: SesionUsuarioService,
@@ -63,10 +71,16 @@ export class PgLoginComponent {
 
     this.authService.iniciarSesion(credenciales).subscribe({
       next: (respuesta) => {
+        if (respuesta.estado === 'pendiente_verificacion') {
+          // Abrir modal de verificación de correo
+          this.usuarioPendienteId = respuesta.usuario_id;
+          this.correoPendienteVerificacion = respuesta.email;
+          this.modalExplicacionVerificacionCorreo = true;
+          return;
+        }
+
         if (respuesta?.access_token) {
-
           this.sesionService.guardarSesion(respuesta.access_token);
-
 
           this.authService.obtenerMiPerfil().subscribe({
             next: (perfil) => {
@@ -77,14 +91,15 @@ export class PgLoginComponent {
               this.mostrarMensaje('error', 'Error', 'No se pudo cargar el perfil del usuario.');
             }
           });
-
         } else {
           this.mostrarMensaje('error', 'Error', 'No se pudo iniciar sesión, intente nuevamente.');
         }
       },
-      error: () => {
-        this.mostrarMensaje('error', 'Error', 'Usuario o contraseña incorrectos');
+
+      error: (error) => {
+        this.mostrarMensaje('info', 'Información', error.mensaje);
       }
+
     });
   }
 
@@ -101,10 +116,12 @@ export class PgLoginComponent {
     this.correoRecuperacion = '';
   }
 
-  cerrarModal(tipo: 'recuperacion' | 'codigo' | 'actualizarContrasena') {
+  cerrarModal(tipo: 'recuperacion' | 'codigo' | 'actualizarContrasena' | 'modalVerificacionCorreo') {
     if (tipo === 'recuperacion') this.modalRecuperacion = false;
     if (tipo === 'codigo') this.modalCodigo = false;
     if (tipo === 'actualizarContrasena') this.modalActualizarContrasena = false;
+    if (tipo === 'modalVerificacionCorreo') this.modalVerificacionCorreo = false;
+    this.detenerCronometro();
   }
 
   enviarCodigoRecuperacion() {
@@ -208,11 +225,7 @@ export class PgLoginComponent {
     this.authService.verificarCodigo(this.codigoRecuperacion, this.usuarioRecuperacion).subscribe({
       next: () => {
         // 🔴 Detener cronómetro si está corriendo
-        if (this.cronometroInterval) {
-          clearInterval(this.cronometroInterval);
-          this.cronometroInterval = null;
-        }
-
+        this.detenerCronometro();
         // 🔐 Abrir modal de nueva contraseña
         this.modalCodigo = false;
         this.modalActualizarContrasena = true;
@@ -272,6 +285,7 @@ export class PgLoginComponent {
       nueva_contrasena: contrasena
     }).subscribe({
       next: () => {
+        this.detenerCronometro();
         this.modalActualizarContrasena = false;
         this.mostrarMensaje('success', 'Contraseña Actualizada', 'Ahora puede iniciar sesión con su nueva contraseña.');
       },
@@ -290,8 +304,9 @@ export class PgLoginComponent {
         this.tiempoRestante--;
       } else {
         clearInterval(this.cronometroInterval);
-        this.mostrarMensaje('warn', 'Código Expirado', 'El código de verificación ha expirado. Solicite uno nuevo.');
+        this.mostrarMensaje('error', 'Código Expirado', 'El código de verificación ha expirado. Solicite uno nuevo.');
         this.modalCodigo = false;
+        this.modalVerificacionCorreo = false;
       }
     }, 1000);
   }
@@ -333,6 +348,92 @@ export class PgLoginComponent {
     const segundos = this.tiempoRestante % 60;
     return `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
   }
+  verificarCodigoCorreo() {
+    if (this.codigoVerificacionCorreo.length !== 6) {
+      this.mostrarMensaje('info', 'Código Incorrecto', 'Ingrese el código de 6 dígitos.');
+      return;
+    }
+
+    this.authService.verificarCodigo(this.codigoVerificacionCorreo, String(this.usuarioPendienteId)).subscribe({
+
+      next: () => {
+        this.detenerCronometro();
+        this.modalVerificacionCorreo = false;
+        this.mostrarMensaje('success', 'Correo Verificado', 'Ahora puedes iniciar sesión.');
+        setTimeout(() => {
+          this.reintentandoVerificacion = true;
+          this.iniciarSesion();
+        }, 4000); // 2000 milisegundos = 2 segundos
+
+        // Reintentar login automáticamente si lo deseas
+        this.reintentandoVerificacion = true;
+        this.iniciarSesion();  // reintenta con las mismas credenciales
+      },
+      error: () => {
+        this.mostrarMensaje('error', 'Código Incorrecto', 'Verifica tu código e intenta de nuevo.');
+      }
+    });
+  }
+  enviarCodigoVerificacionCorreo() {
+    if (!this.usuarioPendienteId || !this.correoPendienteVerificacion) {
+      this.mostrarMensaje('error', 'Faltan datos', 'No se puede enviar el código sin datos del usuario.');
+      return;
+    }
+
+    const datos = {
+      usuario_id: this.usuarioPendienteId,
+      email: this.correoPendienteVerificacion,
+      nombre_usuario: this.usuario
+    };
+
+    this.cargandoVerificacionCorreo = true;
+
+    this.authService.enviarCodigoVerificacion(datos).subscribe({
+      next: () => {
+        this.modalExplicacionVerificacionCorreo = false;
+        this.modalVerificacionCorreo = true;
+        this.iniciarCronometro();
+        this.mostrarMensaje('success', 'Código Enviado', 'Revisa tu correo para ingresar el código.');
+      },
+      error: () => {
+        this.mostrarMensaje('error', 'Error', 'No se pudo enviar el código, intenta nuevamente.');
+      },
+      complete: () => {
+        this.cargandoVerificacionCorreo = false;
+      }
+    });
+  }
+
+
+  verificarCodigoNuevoCorreo() {
+    if (this.codigoVerificacionCorreo.length !== 6) {
+      this.mostrarMensaje('info', 'Código Incorrecto', 'Ingrese el código de 6 dígitos.');
+      return;
+    }
+
+    const datos = {
+      email: this.correoPendienteVerificacion,
+      codigo: this.codigoVerificacionCorreo
+    };
+
+    this.authService.validarCodigoVerificacion(datos).subscribe({
+      next: () => {
+        this.detenerCronometro();
+        this.modalVerificacionCorreo = false;
+        this.mostrarMensaje('success', 'Correo Verificado', 'Ahora puedes iniciar sesión.');
+        this.reintentandoVerificacion = true;
+        this.iniciarSesion(); // Vuelve a intentar login automáticamente
+      },
+      error: () => {
+        this.mostrarMensaje('error', 'Código Incorrecto', 'Verifica tu código e intenta de nuevo.');
+      }
+    });
+  }
+  detenerCronometro() {
+    if (this.cronometroInterval) {
+      clearInterval(this.cronometroInterval);
+      this.cronometroInterval = null;
+    }
+  }
+
 }
-
-

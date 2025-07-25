@@ -412,9 +412,7 @@
         <th pSortableColumn="id" class="whitespace-nowrap">
           Identificador Global de Vulnerabilidad<p-sortIcon field="id" />
         </th>
-        <th pSortableColumn="score" class="whitespace-nowrap">
-          Nivel de Riesgo <p-sortIcon field="score" />
-        </th>
+        
         <th pSortableColumn="url" class="whitespace-nowrap">
           Enlace a Detalles <p-sortIcon field="url" />
         </th>
@@ -424,7 +422,6 @@
     <ng-template pTemplate="body" let-cve>
       <tr>
         <td>{{ cve.id }}</td>
-        <td>{{ cve.score ?? "No especificado" }}</td>
         <td>
           <a
             [href]="cve.url"
