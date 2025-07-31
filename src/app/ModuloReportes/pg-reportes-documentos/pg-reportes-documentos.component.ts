@@ -117,7 +117,7 @@ export class PgReportesDocumentosComponent {
     incluirHistorialIps: true,
 
 
-    // Usuarios
+
     usuario_ids: [],
     incluirNombreUsuario: true,
     incluirNombresCompletos: true,
@@ -126,13 +126,13 @@ export class PgReportesDocumentosComponent {
     incluirRoles: true,
 
 
-    // Roles
+    
     roles: [],
     incluirNombreRol: true,
     incluirDescripcionRol: true,
     incluirSeccionesMenu: true,
 
-    // Configuraciones
+
     configuracion_ids: [],
     incluirNombreConfiguracion: true,
     incluirFrecuencia: true,
@@ -372,11 +372,11 @@ export class PgReportesDocumentosComponent {
         this.modalCrearVisible = true;
         break;
       case 'ver':
-        console.log('👁️ Ver reporte', data);
+        
         this.verReporte(data!);
         break;
       case 'eliminar':
-        console.log('🗑️ Eliminar reporte', data);
+ 
         this.eliminarReporte(data!);
         break;
       default:
@@ -410,7 +410,7 @@ export class PgReportesDocumentosComponent {
 
     this.generandoPDF = true;
     const payload = this.construirPayloadReporte();
-    this.payloadPrevisualizacion = payload; // 🔴 GUARDAR AQUÍ
+    this.payloadPrevisualizacion = payload; 
 
     this.servicioReportes.generarPrevisualizacionReporte(payload).subscribe({
       next: (blob: Blob) => {
@@ -456,7 +456,7 @@ export class PgReportesDocumentosComponent {
       return;
     }
 
-    // ✅ Validar nombre y descripción del reporte
+
     const error = this.validacionesReportes.validarDatosGuardado(this.nombreReporteGuardar, this.descripcionReporteGuardar, this.reportes);
 
     if (error) {
@@ -581,7 +581,7 @@ export class PgReportesDocumentosComponent {
   obtenerReportesGenerados() {
     this.servicioReportes.listarReportesGenerados().subscribe({
       next: (res) => {
-        console.log('✅ Reportes generados recibidos:', res);
+        
         this.reportes = res.datos;
       },
       error: (err) => {
@@ -625,9 +625,9 @@ export class PgReportesDocumentosComponent {
       accept: () => {
         this.servicioReportes.eliminarReporteGenerado(reporte.reporte_generado_id).subscribe({
           next: (res) => {
-            console.log('✅ Reporte eliminado:', res);
+            
             this.notificacion.success('Éxito', 'Reporte eliminado correctamente.');
-            this.obtenerReportesGenerados();  // Actualizar la lista
+            this.obtenerReportesGenerados();  
           },
           error: (err) => {
             console.error('Error al eliminar reporte:', err);

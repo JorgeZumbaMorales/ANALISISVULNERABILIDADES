@@ -206,6 +206,19 @@
       [integerOnly]="true"
       class="max-w-md text-center"
     />
+    <div class="text-xs text-gray-600 mt-1 text-center">
+
+      <p class="text-xs text-red-600 mt-1 leading-relaxed">
+        ¿No tienes acceso a tu correo?<br />
+        Contacta con el administrador del sistema al correo:<br />
+        <a
+          href="mailto:redsegura.admi@gmail.com"
+          class="underline text-blue-600 hover:text-blue-800"
+        >
+          redsegura.admi&commat;gmail.com
+        </a>
+      </p>
+    </div>
   </div>
 
   <ng-template pTemplate="footer">
@@ -228,7 +241,7 @@
   [(visible)]="modalActualizarContrasena"
   [modal]="true"
   [closable]="false"
- [styleClass]="'w-[95vw] sm:w-[90vw] md:w-[60vw] lg:w-[32rem] xl:w-[28rem]'"
+  [styleClass]="'w-[95vw] sm:w-[90vw] md:w-[60vw] lg:w-[32rem] xl:w-[28rem]'"
 >
   <ng-template pTemplate="header">
     <h2 class="text-xl font-semibold text-textoPrincipal text-center">
@@ -284,9 +297,6 @@
     <p-button label="Actualizar" (click)="actualizarContrasena()"> </p-button>
   </ng-template>
 </p-dialog>
-
-
-
 
 <p-dialog
   [(visible)]="modalVerificacionCorreo"
@@ -367,10 +377,12 @@
   </ng-template>
 
   <div class="relative">
-    <!-- Contenido normal con opacidad si está cargando -->
+   
     <div [class.opacity-50]="cargandoVerificacionCorreo">
       <div class="flex flex-col items-center space-y-3 p-4 text-center">
-        <i class="pi pi-info-circle text-3xl text-orange-500 mb-2"> Información</i>
+        <i class="pi pi-info-circle text-3xl text-orange-500 mb-2">
+          Información</i
+        >
         <p class="text-sm text-pretty leading-relaxed">
           Para poder acceder a tu cuenta, primero debes verificar tu correo
           electrónico:

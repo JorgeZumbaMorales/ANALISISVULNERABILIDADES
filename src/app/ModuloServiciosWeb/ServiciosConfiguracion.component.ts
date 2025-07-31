@@ -12,45 +12,29 @@ export class ServiciosConfiguracion {
   private apiUrlEscaneoAvanzado = `${environment.apiUrl}/escaneo_avanzado`;
   constructor(private http: HttpClient) {}
 
-  // ===================== CONFIGURACIONES DE ESCANEO =====================
 
-  /**
-   * Listar todas las configuraciones de escaneo.
-   */
   listarConfiguraciones(): Observable<any> {
     return this.http.get<any>(`${this.apiUrlConfiguraciones}/listar_configuraciones_escaneo`)
       .pipe(catchError(this.handleError));
   }
 
-  /**
-   * Listar solo las configuraciones de escaneo con frecuencia (cada X minutos).
-   */
+
   listarConfiguracionesFrecuencia(): Observable<any> {
     return this.http.get<any>(`${this.apiUrlConfiguraciones}/listar_configuraciones_frecuencia`)
       .pipe(catchError(this.handleError));
   }
 
-  /**
-   * Listar solo las configuraciones de escaneo con horas específicas.
-   */
+  
   listarConfiguracionesHoras(): Observable<any> {
     return this.http.get<any>(`${this.apiUrlConfiguraciones}/listar_configuraciones_horas`)
       .pipe(catchError(this.handleError));
   }
 
-  /**
-   * Obtener una configuración específica por su ID.
-   * @param configuracionId ID de la configuración.
-   */
   obtenerConfiguracion(configuracionId: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrlConfiguraciones}/obtener_configuracion_escaneo/${configuracionId}`)
       .pipe(catchError(this.handleError));
   }
 
-  /**
-   * Crear una nueva configuración de escaneo.
-   * @param configuracion Datos de la configuración a crear.
-   */
   crearConfiguracion(configuracion: any): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrlConfiguraciones}/crear_configuracion_escaneo`, 
@@ -59,11 +43,7 @@ export class ServiciosConfiguracion {
     ).pipe(catchError(this.handleError));
   }
 
-  /**
-   * Actualizar una configuración de escaneo existente.
-   * @param configuracionId ID de la configuración a actualizar.
-   * @param configuracion Datos a actualizar.
-   */
+ 
   actualizarConfiguracion(configuracionId: number, configuracion: any): Observable<any> {
     return this.http.put<any>(
       `${this.apiUrlConfiguraciones}/actualizar_configuracion_escaneo/${configuracionId}`, 
@@ -71,10 +51,7 @@ export class ServiciosConfiguracion {
     ).pipe(catchError(this.handleError));
   }
 
-  /**
-   * Activar una configuración de escaneo (desactiva las demás).
-   * @param configuracionId ID de la configuración a activar.
-   */
+ 
   activarConfiguracion(configuracionId: number): Observable<any> {
     return this.http.put<any>(
       `${this.apiUrlConfiguraciones}/activar_configuracion/${configuracionId}`, 
@@ -82,32 +59,21 @@ export class ServiciosConfiguracion {
     ).pipe(catchError(this.handleError));
   }
 
-  /**
-   * Eliminar una configuración de escaneo.
-   * @param configuracionId ID de la configuración a eliminar.
-   */
   eliminarConfiguracion(configuracionId: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrlConfiguraciones}/eliminar_configuracion_escaneo/${configuracionId}`)
       .pipe(catchError(this.handleError));
   }
 
-    /**
-   * Cambiar el estado (activo/inactivo) de una configuración de escaneo.
-   * @param configuracionId ID de la configuración.
-   * @param estado Nuevo estado (true o false).
-   */
+  
   cambiarEstadoConfiguracion(configuracionId: number, estado: boolean): Observable<any> {
     return this.http.put<any>(
       `${this.apiUrlConfiguraciones}/cambiar_estado_configuracion/${configuracionId}`,
-      { estado },  // cuerpo con JSON { estado: true/false }
+      { estado }, 
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(catchError(this.handleError));
   }
 
-  // ===================== ESCANEOS =====================
 
-  
-  // ===================== MANEJO DE ERRORES =====================
   private handleError(error: any) {
     console.error('Error en la petición:', error);
     return throwError(() => new Error(error.message || 'Error en el servicio de configuraciones'));

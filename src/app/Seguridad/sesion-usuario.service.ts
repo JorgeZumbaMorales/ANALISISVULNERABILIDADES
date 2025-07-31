@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject} from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SesionUsuarioService {
-  private rolActivoSubject = new BehaviorSubject<string>(''); // Nuevo campo reactivo
+  private rolActivoSubject = new BehaviorSubject<string>('');
   private refrescarRolesSubject = new Subject<void>();
-  constructor() {}
+  constructor() { }
 
-  // ===================== 🔐 Token =====================
+
 
   guardarSesion(token: string) {
     localStorage.setItem('token', token);
@@ -32,12 +32,12 @@ export class SesionUsuarioService {
     }
   }
   dispararRefrescarRoles() {
-  this.refrescarRolesSubject.next();
-}
+    this.refrescarRolesSubject.next();
+  }
 
-escucharRefrescarRoles(): Observable<void> {
-  return this.refrescarRolesSubject.asObservable();
-}
+  escucharRefrescarRoles(): Observable<void> {
+    return this.refrescarRolesSubject.asObservable();
+  }
   estaAutenticado(): boolean {
     return this.obtenerToken() !== null;
   }
@@ -45,15 +45,15 @@ escucharRefrescarRoles(): Observable<void> {
   cerrarSesion() {
     localStorage.removeItem('token');
     localStorage.removeItem('perfil');
-    this.rolActivoSubject.next(''); // limpiar también el rol activo
+    this.rolActivoSubject.next('');
   }
 
-  // ===================== 👤 Perfil =====================
+
 
   guardarPerfil(perfil: any) {
-  const codificado = btoa(JSON.stringify(perfil));
-  localStorage.setItem('perfil', codificado);
-}
+    const codificado = btoa(JSON.stringify(perfil));
+    localStorage.setItem('perfil', codificado);
+  }
 
 
   obtenerPerfil(): any {
@@ -68,7 +68,7 @@ escucharRefrescarRoles(): Observable<void> {
     }
   }
 
-  // ===================== 🧠 Rol Activo Dinámico =====================
+
 
   setRolActivo(rol: string) {
     this.rolActivoSubject.next(rol);

@@ -113,7 +113,6 @@ export class ValidacionesConfiguracionEscaneoService {
       }
     }
 
-    // Convertimos cada hora a minutos desde las 00:00
     const minutosTotales = horas.map(h => {
       const [hh, mm, ss] = h.split(':').map(Number);
       return hh * 60 + mm + Math.floor(ss / 60);

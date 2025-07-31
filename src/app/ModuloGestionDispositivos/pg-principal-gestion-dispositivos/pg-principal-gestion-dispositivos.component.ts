@@ -17,7 +17,7 @@ export class PgPrincipalGestionDispositivosComponent implements OnInit {
   ];
 
   activeTab: string = '';
-  mostrarContenido: boolean = true; // ✅ Clave para forzar destrucción del hijo
+  mostrarContenido: boolean = true; 
 
   constructor(private router: Router) {}
 
@@ -29,7 +29,7 @@ export class PgPrincipalGestionDispositivosComponent implements OnInit {
       .subscribe((event: NavigationEnd) => {
         this.establecerTabActivo(event.urlAfterRedirects);
 
-        // 👇 Forzar recarga del router-outlet
+
         this.mostrarContenido = false;
         setTimeout(() => this.mostrarContenido = true, 0);
       });

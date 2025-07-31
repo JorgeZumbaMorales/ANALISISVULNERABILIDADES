@@ -601,7 +601,7 @@ export class VulnerabilidadesCveComponent implements OnInit {
 
   formatearBloqueMultilinea(texto: string): string {
     return texto
-      .replace(/^#+/, '') // hashes
+      .replace(/^#+/, '') 
       .replace(/•\s*/g, '• ')
       .replace(/\s*-\s+/g, '\n- ')
       .replace(/\n{2,}/g, '\n')

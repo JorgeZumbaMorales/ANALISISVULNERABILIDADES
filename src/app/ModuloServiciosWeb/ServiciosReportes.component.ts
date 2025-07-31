@@ -16,7 +16,7 @@ export class ServiciosReportes {
 
 
   generarPrevisualizacionReporte(filtros: any): Observable<any> {
-    console.log('Generando previsualización del reporte con filtros:', filtros);
+
     return this.http.post<any>(
       `${this.apiUrl}/generar_previsualizacion`,
       filtros,
@@ -25,7 +25,7 @@ export class ServiciosReportes {
   }
 
   generarYGuardarReporte(datosGuardar: any): Observable<any> {
-    console.log('Generando y guardando reporte con datos:', datosGuardar);
+    
     return this.http.post<any>(
       `${this.apiUrl}/generar_y_guardar`,
       datosGuardar,
@@ -34,7 +34,7 @@ export class ServiciosReportes {
   }
 
   eliminarReporteGenerado(reporte_id: number): Observable<any> {
-    console.log(`Eliminando reporte generado con ID: ${reporte_id}`);
+   
     return this.http.delete<any>(
       `${this.apiUrlReportesGenerados}/eliminar_reporte_generado/${reporte_id}`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
@@ -42,7 +42,7 @@ export class ServiciosReportes {
   }
 
   listarReportesGenerados(): Observable<any> {
-    console.log('Consultando lista de reportes generados');
+  
     return this.http.get<any>(
       `${this.apiUrlReportesGenerados}/listar_reportes_generados`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
@@ -50,7 +50,7 @@ export class ServiciosReportes {
   }
 
   obtenerMetricasDashboard(): Observable<any> {
-    console.log('Consultando métricas totales del dashboard');
+   
     return this.http.get<any>(
       `${this.apiUrlDashboard}/metricas_totales`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
@@ -59,7 +59,7 @@ export class ServiciosReportes {
 
 
   listarVulnerabilidadesCVE(): Observable<any> {
-    console.log('Consultando lista completa de vulnerabilidades CVE');
+ 
     return this.http.get<any>(
       `${this.apiUrlDashboard}/lista_cves`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
@@ -67,7 +67,7 @@ export class ServiciosReportes {
   }
 
   obtenerEstadoDispositivos(): Observable<any> {
-    console.log('Consultando estado de dispositivos del dashboard');
+
     return this.http.get<any>(
       `${this.apiUrlDashboard}/estado_dispositivos`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
@@ -75,7 +75,7 @@ export class ServiciosReportes {
   }
 
   obtenerDispositivosResumen(): Observable<any> {
-    console.log('Consultando resumen de dispositivos activos');
+   
     return this.http.get<any>(
       `${this.apiUrlDashboard}/dispositivos_resumen`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
@@ -83,7 +83,7 @@ export class ServiciosReportes {
   }
 
   obtenerPuertosAbiertosResumen(): Observable<any> {
-    console.log('Consultando resumen de puertos abiertos');
+   
     return this.http.get<any>(
       `${this.apiUrlDashboard}/puertos_abiertos_resumen`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
@@ -91,7 +91,7 @@ export class ServiciosReportes {
   }
 
   obtenerEscaneosPorFecha(filtro: string = 'ultimo_mes'): Observable<any> {
-    console.log(`Consultando escaneos por fecha con filtro: ${filtro}`);
+
     return this.http.get<any>(
       `${this.apiUrlDashboard}/escaneos_por_fecha?filtro=${filtro}`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
@@ -100,7 +100,7 @@ export class ServiciosReportes {
 
 
   obtenerPuertosMasComunes(limite: number = 10, filtro: string = 'ultimo_mes'): Observable<any> {
-    console.log(`Consultando puertos más comunes (limite: ${limite}, filtro: ${filtro})`);
+    
     return this.http.get<any>(
       `${this.apiUrlDashboard}/puertos_mas_comunes?limite=${limite}&filtro=${filtro}`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
@@ -108,7 +108,7 @@ export class ServiciosReportes {
   }
 
   obtenerVulnerabilidadesMasFrecuentes(limite: number = 10, filtro: string = 'ultimo_mes', tipo: string | null = null): Observable<any> {
-    console.log(`Consultando vulnerabilidades más frecuentes (limite: ${limite}, filtro: ${filtro}, tipo: ${tipo})`);
+  
     let url = `${this.apiUrlDashboard}/vulnerabilidades_mas_frecuentes?limite=${limite}&filtro=${filtro}`;
     if (tipo) {
       url += `&tipo=${encodeURIComponent(tipo)}`;
@@ -120,7 +120,7 @@ export class ServiciosReportes {
   }
 
   obtenerDispositivosConMasCVEs(limite: number = 10, filtro: string = 'ultimo_mes'): Observable<any> {
-    console.log(`Consultando dispositivos con más CVEs (limite: ${limite}, filtro: ${filtro})`);
+    
     return this.http.get<any>(
       `${this.apiUrlDashboard}/dispositivos_con_mas_cves?limite=${limite}&filtro=${filtro}`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
@@ -128,7 +128,7 @@ export class ServiciosReportes {
   }
 
   obtenerNivelRiesgo(): Observable<any> {
-    console.log('Consultando nivel de riesgo del dashboard');
+   
     return this.http.get<any>(
       `${this.apiUrlDashboard}/nivel_riesgo`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }

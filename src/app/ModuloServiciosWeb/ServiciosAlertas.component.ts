@@ -11,7 +11,7 @@ export class ServiciosAlertas {
 
   constructor(private http: HttpClient) {}
 
-  // ===================== 📩 Notificaciones =====================
+ 
 
   listarNotificaciones(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/listar_notificaciones`)
@@ -56,7 +56,7 @@ export class ServiciosAlertas {
     return this.http.get<any>(`${this.apiUrl}/usuario/${usuarioId}/sistema/historial`)
       .pipe(catchError(this.handleError));
   }
-  // ===================== ⚠️ Manejo de errores =====================
+
   private handleError(error: any) {
     console.error('Error en el servicio de alertas:', error);
     return throwError(() => new Error(error.message || 'Error en la petición HTTP'));

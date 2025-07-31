@@ -32,7 +32,7 @@ import { PasswordModule } from 'primeng/password';
     Menu, ButtonDirective]
 })
 export class PgHeaderAdministracionComponent implements OnInit, OnDestroy {
-  @Output() cambioRol = new EventEmitter<string>(); // 🔹 Nuevo evento
+  @Output() cambioRol = new EventEmitter<string>(); 
   idUsuario: number = 0;
   roles: { label: string, value: string }[] = [];
   selectedRole: string = '';
@@ -71,7 +71,7 @@ export class PgHeaderAdministracionComponent implements OnInit, OnDestroy {
       this.nombreUsuario = perfil.nombre_usuario;
       this.correo = perfil.email;
 
-      // Menú contextual del perfil
+
       this.perfilMenu = [
         {
           label: 'Mi Cuenta',
@@ -107,12 +107,12 @@ export class PgHeaderAdministracionComponent implements OnInit, OnDestroy {
       return;
     }
     this.idUsuario = usuario.usuario_id;
-    // 🟢 Iniciar polling automático de notificaciones cada 10s
+  
     this.notificacionesIntervalo = setInterval(() => {
-      this.consultarNotificacionesSistema(this.idUsuario, false); // 👈 false = no marcar como vistas automáticamente
-    }, 1000); // cada 3 segundos
+      this.consultarNotificacionesSistema(this.idUsuario, false); 
+    }, 1000);
     this.sesionService.escucharRefrescarRoles().subscribe(() => {
-      this.refrescarRolesActivos(); // Este método ya lo tienes, actualiza el dropdown
+      this.refrescarRolesActivos();
     });
     this.audioNotificacion = new Audio('sonido_notificacion.mp3');
     this.audioNotificacion.load();
@@ -123,10 +123,10 @@ export class PgHeaderAdministracionComponent implements OnInit, OnDestroy {
     if (perfil) {
       this.roles = perfil.roles.map((rol: string) => ({ label: rol, value: rol }));
 
-      // Validar que el rol seleccionado siga activo
+      
       if (!this.roles.find(r => r.value === this.selectedRole)) {
         this.selectedRole = this.roles[0]?.value || '';
-        this.onCambiarRol(); // notifica cambio
+        this.onCambiarRol(); 
       }
     }
   }
@@ -149,8 +149,8 @@ export class PgHeaderAdministracionComponent implements OnInit, OnDestroy {
     this.opNotificaciones.toggle(event);
 
     if (this.idUsuario) {
-      this.consultarNotificacionesSistema(this.idUsuario, true); // activa = estado=True
-      this.consultarHistorialNotificacionesSistema(this.idUsuario); // historial = últimas 5
+      this.consultarNotificacionesSistema(this.idUsuario, true); 
+      this.consultarHistorialNotificacionesSistema(this.idUsuario); 
     }
   }
 
@@ -172,7 +172,6 @@ export class PgHeaderAdministracionComponent implements OnInit, OnDestroy {
         const nuevas = res.datos || [];
         const nuevasCantidad = nuevas.length;
 
-        // Si hay más notificaciones que antes, reproducir sonido
         if (nuevasCantidad > this.cantidadNotificaciones && this.audioNotificacion) {
           this.audioNotificacion.play().catch(err => {
             console.warn('No se pudo reproducir el sonido:', err);
@@ -223,7 +222,7 @@ export class PgHeaderAdministracionComponent implements OnInit, OnDestroy {
       contrasena: actual
     };
 
-    // Verificar contraseña actual
+
     this.servicioAuth.iniciarSesion(credenciales).subscribe({
       next: () => {
         const datosActualizacion = {

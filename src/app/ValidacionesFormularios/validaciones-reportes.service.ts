@@ -15,7 +15,7 @@ export class ValidacionesReportesService {
             };
         }
 
-        // Validación lógica adicional (por ejemplo, si seleccionó incluirExploit pero no vulnerabilidades)
+
         if (filtros.incluirExploit && !filtros.incluirVulnerabilidades) {
             return {
                 tipo: 'info',

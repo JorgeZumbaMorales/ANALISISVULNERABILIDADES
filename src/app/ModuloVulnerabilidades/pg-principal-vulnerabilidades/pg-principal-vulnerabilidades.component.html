@@ -1,5 +1,5 @@
 <div>
-  <!-- ✅ Contenedor de Tabs -->
+
   <div class="flex space-x-2 border-b border-gray-200">
     <button
       *ngFor="let tab of tabs; trackBy: trackByFn"
@@ -15,7 +15,7 @@
     </button>
   </div>
 
-  <!-- ✅ Contenido del Tab -->
+
   <div class="tabs-container bg-baseBlanco p-3">
     <router-outlet></router-outlet>
   </div>

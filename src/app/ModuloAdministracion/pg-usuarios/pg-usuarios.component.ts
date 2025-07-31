@@ -5,7 +5,7 @@ import { Table, TableModule } from 'primeng/table';
 import { MessageService, PrimeTemplate } from 'primeng/api';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { SortEvent } from 'primeng/api';
-import { ValidacionesUsuarioService } from '../../ValidacionesFormularios/validaciones-usuario.service'; // ajusta la ruta si es necesario
+import { ValidacionesUsuarioService } from '../../ValidacionesFormularios/validaciones-usuario.service'; 
 import { ConfirmationService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { Button, ButtonDirective } from 'primeng/button';

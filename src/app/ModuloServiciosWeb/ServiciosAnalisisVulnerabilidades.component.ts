@@ -10,21 +10,17 @@ import { environment } from '../../environments/environment';
 export class ServiciosAnalisisVulnerabilidades {
   private apiUrlRecomendaciones = `${environment.apiUrl}/recomendaciones`;
   private apiUrlPuertos = `${environment.apiUrl}/puertos_abiertos`;
-  private apiUrlVulnerabilidades = `${environment.apiUrl}/vulnerabilidades`; // ✅ Añadido
+  private apiUrlVulnerabilidades = `${environment.apiUrl}/vulnerabilidades`;
   private apiUrlEscaneoAvanzado = `${environment.apiUrl}/escaneo_avanzado`;
   private apiUrlResumenCVEs = `${environment.apiUrl}/resumen_cves`;
   private apiUrlPuertoVulnerabilidad = `${environment.apiUrl}/puerto_vulnerabilidad`;
   private apiUrlEvaluacionRiesgo = `${environment.apiUrl}/evaluacion_riesgo`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  // ===================== GENERAR RECOMENDACIONES =====================
 
-  /**
-   * 📌 Genera una recomendación para un **puerto específico**.
-   * @param puertoId ID del puerto
-   * @returns Observable con el resultado de la petición
-   */
+
+
   generarRecomendacionPorPuerto(puertoId: number): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrlRecomendaciones}/generar_por_puerto/${puertoId}`,
@@ -33,11 +29,7 @@ export class ServiciosAnalisisVulnerabilidades {
     ).pipe(catchError(this.handleError));
   }
 
-  /**
-   * 📌 Genera recomendaciones para **todos los puertos de un dispositivo**.
-   * @param dispositivoId ID del dispositivo
-   * @returns Observable con el resultado de la petición
-   */
+ 
   generarRecomendacionesPorDispositivo(dispositivoId: number): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrlRecomendaciones}/generar_por_dispositivo/${dispositivoId}`,
@@ -46,11 +38,7 @@ export class ServiciosAnalisisVulnerabilidades {
     ).pipe(catchError(this.handleError));
   }
 
-  /**
-   * 📌 Genera recomendaciones **solo para los puertos seleccionados**.
-   * @param puertosIds Lista de IDs de los puertos seleccionados
-   * @returns Observable con el resultado de la petición
-   */
+ 
   generarRecomendacionesPorPuertosSeleccionados(puertosIds: number[]): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrlRecomendaciones}/generar_por_puertos_seleccionados`,
@@ -59,173 +47,127 @@ export class ServiciosAnalisisVulnerabilidades {
     ).pipe(catchError(this.handleError));
   }
 
-  // ===================== OBTENER RECOMENDACIONES =====================
 
-  /**
-   * 📌 Obtiene recomendaciones **solo para los puertos seleccionados**.
-   * @param puertosIds Lista de IDs de los puertos seleccionados
-   * @returns Observable con la información de las recomendaciones
-   */
+
+
   obtenerRecomendacionesPorPuertos(puertosIds: number[]): Observable<any> {
-    console.log("puertosIds", puertosIds);
+
     return this.http.post<any>(
       `${this.apiUrlPuertos}/ver_recomendaciones`,
-      { puertos_ids: puertosIds }, // Enviamos un objeto con la lista de puertos
+      { puertos_ids: puertosIds },
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(catchError(this.handleError));
   }
 
-  /**
- * 📌 Evalúa el riesgo de todos los dispositivos activos y guarda los resultados.
- * @returns Observable con la respuesta de la evaluación
- */
-evaluarRiesgoTodosDispositivos(): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrlEvaluacionRiesgo}/evaluar_todos`,
-    null, // 👉 sin cuerpo
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
-  /**
- * 📌 Obtiene el último resultado de la evaluación de riesgo (guardado en Redis).
- * @returns Observable con los dispositivos evaluados recientemente
- */
-obtenerResultadoUltimoRiesgo(): Observable<any> {
-  return this.http.get<any>(
-    `${this.apiUrlEvaluacionRiesgo}/resultado_ultimo_riesgo`,
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
+
+  evaluarRiesgoTodosDispositivos(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEvaluacionRiesgo}/evaluar_todos`,
+      null,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+  obtenerResultadoUltimoRiesgo(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrlEvaluacionRiesgo}/resultado_ultimo_riesgo`,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
 
   obtenerEstadoEvaluacionRiesgo(): Observable<any> {
-  return this.http.get<any>(
-    `${this.apiUrlEvaluacionRiesgo}/estado_evaluacion_riesgo`,
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
-  /**
- * 🛑 Cancela la evaluación de riesgo en curso.
- * @returns Observable con el mensaje de cancelación
- */
-cancelarEvaluacionRiesgo(): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrlEvaluacionRiesgo}/cancelar_evaluacion`,
-    {}, // cuerpo vacío
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
-/**
- * 🧹 Limpia el resultado de la última evaluación de riesgo (borra en Redis).
- * @returns Observable con el mensaje de confirmación
- */
-limpiarResultadoEvaluacionRiesgo(): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrlEvaluacionRiesgo}/limpiar_resultado_ultimo_riesgo`,
-    {}, // cuerpo vacío
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
-/**
- * ⚡ Ejecuta un escaneo rápido de dispositivos activos (sin análisis de puertos).
- * @returns Observable con el resumen del escaneo rápido
- */
-ejecutarEscaneoRapido(): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrlEscaneoAvanzado}/escaneo_rapido`,
-    {}, // cuerpo vacío
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
-/**
- * 🛑 Cancela el escaneo rápido en curso.
- * @returns Observable con el mensaje de cancelación
- */
-cancelarEscaneoRapido(): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrlEscaneoAvanzado}/cancelar_escaneo_rapido`,
-    {}, // cuerpo vacío
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
-/**
- * 🔄 Consulta el estado del escaneo rápido desde Redis.
- * @returns Observable con estado: 'no_iniciado', 'en_progreso', 'completado', 'cancelado'
- */
-obtenerEstadoEscaneoRapido(): Observable<any> {
-  return this.http.get<any>(
-    `${this.apiUrlEscaneoAvanzado}/estado_escaneo_rapido`,
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
+    return this.http.get<any>(
+      `${this.apiUrlEvaluacionRiesgo}/estado_evaluacion_riesgo`,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
 
-    // ===================== VULNERABILIDADES =====================
+  cancelarEvaluacionRiesgo(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEvaluacionRiesgo}/cancelar_evaluacion`,
+      {},
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
 
-  /**
-   * 📌 Obtiene el listado completo de vulnerabilidades agrupadas por dispositivo y puerto.
-   * @returns Observable con los datos estructurados de vulnerabilidades
-   */
+  limpiarResultadoEvaluacionRiesgo(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEvaluacionRiesgo}/limpiar_resultado_ultimo_riesgo`,
+      {},
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+  
+  ejecutarEscaneoRapido(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEscaneoAvanzado}/escaneo_rapido`,
+      {},
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+  cancelarEscaneoRapido(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEscaneoAvanzado}/cancelar_escaneo_rapido`,
+      {},
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+  obtenerEstadoEscaneoRapido(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrlEscaneoAvanzado}/estado_escaneo_rapido`,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+
   obtenerVulnerabilidadesCompletas(): Observable<any> {
     return this.http.get<any>(
       `${this.apiUrlVulnerabilidades}/listar_vulnerabilidades_completo`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(catchError(this.handleError));
   }
-  /**
- * 📌 Obtiene las vulnerabilidades asociadas a un dispositivo específico.
- * @param dispositivoId ID del dispositivo
- * @returns Observable con los datos de vulnerabilidades agrupados por puerto
- */
+
   obtenerVulnerabilidadesPorDispositivo(dispositivoId: number): Observable<any> {
-    console.log("ID del dispositivo:", dispositivoId);
+
     return this.http.get<any>(
       `${this.apiUrlVulnerabilidades}/ver_vulnerabilidades_por_dispositivo/${dispositivoId}`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(catchError(this.handleError));
   }
 
-        // ===================== ESCANEO + IA =====================
 
-    /**
-   * 📌 Ejecuta un escaneo avanzado (IP + Nmap + limpieza + guardar + resumen CVEs)
-   * @param datos Objeto con dispositivo_id, mac_address e ip_actual
-   * @returns Observable con la IP escaneada y los resúmenes generados
-   */
-    ejecutarEscaneoAvanzado(datos: { dispositivo_id: number, mac_address: string, ip_actual: string }): Observable<any> {
-      console.log("Datos para escaneo avanzado:", datos);
-      return this.http.post<any>(
-        `${this.apiUrlEscaneoAvanzado}/analisis_avanzado`,
-        datos,
-        { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-      ).pipe(catchError(this.handleError));
-    }
-    /**
- * 🔄 Consulta el estado del análisis avanzado desde Redis.
- */
-obtenerEstadoAnalisisAvanzado(): Observable<any> {
-  return this.http.get<any>(`${this.apiUrlEscaneoAvanzado}/estado_analisis_avanzado`)
-    .pipe(catchError(this.handleError));
-}
-/**
- * 📋 Obtiene el último resumen generado del análisis avanzado desde Redis.
- */
-obtenerResultadoUltimoAnalisis(): Observable<any> {
-  return this.http.get<any>(`${this.apiUrlEscaneoAvanzado}/resultado_ultimo_analisis`)
-    .pipe(catchError(this.handleError));
-}
-  /**
-   * 🚀 Inicia un escaneo manual completo (detección IPs, escaneo, limpieza y guardado por host).
-   */
-  ejecutarEscaneoManual(): Observable<any> {
+
+
+  ejecutarEscaneoAvanzado(datos: { dispositivo_id: number, mac_address: string, ip_actual: string }): Observable<any> {
+
     return this.http.post<any>(
-      `${this.apiUrlEscaneoAvanzado}/manual`,
-      {}, // cuerpo vacío
+      `${this.apiUrlEscaneoAvanzado}/analisis_avanzado`,
+      datos,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(catchError(this.handleError));
   }
 
-  /**
-   * 🔄 Consulta el progreso del escaneo manual (dispositivos totales vs procesados).
-   */
+  obtenerEstadoAnalisisAvanzado(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrlEscaneoAvanzado}/estado_analisis_avanzado`)
+      .pipe(catchError(this.handleError));
+  }
+
+  obtenerResultadoUltimoAnalisis(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrlEscaneoAvanzado}/resultado_ultimo_analisis`)
+      .pipe(catchError(this.handleError));
+  }
+
+  ejecutarEscaneoManual(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEscaneoAvanzado}/manual`,
+      {},
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+
   obtenerProgresoEscaneo(): Observable<any> {
     return this.http.get<any>(
       `${this.apiUrlEscaneoAvanzado}/progreso_escaneo`,
@@ -233,69 +175,54 @@ obtenerResultadoUltimoAnalisis(): Observable<any> {
     ).pipe(catchError(this.handleError));
   }
 
-  /**
-   * 📊 Consulta el estado global del escaneo: no_iniciado | en_progreso | completado | error.
-   */
+
   obtenerEstadoEscaneo(): Observable<any> {
     return this.http.get<any>(
       `${this.apiUrlEscaneoAvanzado}/estado_escaneo`,
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(catchError(this.handleError));
   }
-    /**
- * 🛑 Cancela el escaneo manual en curso.
- * @returns Observable con el mensaje de cancelación
- */
-cancelarEscaneoManual(): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrlEscaneoAvanzado}/cancelar_escaneo`,
-    {}, // cuerpo vacío
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
+ 
+  cancelarEscaneoManual(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEscaneoAvanzado}/cancelar_escaneo`,
+      {},
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
 
-    obtenerResumenPorFecha(data: { dispositivo_id: number, fecha: string }): Observable<any> {
-      console.log('📤 Llamando al endpoint resumen_por_dispositivo_y_fecha con:', data);
-    
-      return this.http.post<any>(
-        `${this.apiUrlResumenCVEs}/resumen_por_dispositivo_y_fecha`,
-        data,
-        { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-      ).pipe(
-        // Puedes interceptar la respuesta aquí para debug
-        tap((res) => console.log('✅ Respuesta recibida del resumen_por_dispositivo_y_fecha:', res)),
-        catchError(this.handleError)
-      );
-    }
-    
-  
-    obtenerVulnerabilidadesPorFecha(data: { dispositivo_id: number, fecha: string }): Observable<any> {
-      return this.http.post<any>(
-        `${this.apiUrlPuertoVulnerabilidad}/listar_por_dispositivo_y_fecha`,
-        data,
-        { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-      ).pipe(catchError(this.handleError));
-    }
-    // ===================== HISTORIAL DE ESCANEOS =====================
+  obtenerResumenPorFecha(data: { dispositivo_id: number, fecha: string }): Observable<any> {
 
-/**
- * 📌 Obtiene el historial de fechas de escaneos realizados para un dispositivo.
- * Cada fecha representa un escaneo único.
- * @param dispositivoId ID del dispositivo
- * @returns Observable con las fechas de escaneo
- */
-    obtenerHistorialFechasPorDispositivo(dispositivoId: number): Observable<any> {
-      const url = `${environment.apiUrl}/puerto_vulnerabilidad/historial_fechas/${dispositivoId}`;
-      return this.http.get<any>(
-        url,
-        { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-      ).pipe(catchError(this.handleError));
-    }
-      /**
-   * 📌 Genera resúmenes de vulnerabilidades por cada puerto de un dispositivo.
-   * @param dispositivoId ID del dispositivo
-   * @returns Observable con la lista de resúmenes generados
-   */
+
+    return this.http.post<any>(
+      `${this.apiUrlResumenCVEs}/resumen_por_dispositivo_y_fecha`,
+      data,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(
+
+      tap((res) => console.log('✅ Respuesta recibida del resumen_por_dispositivo_y_fecha:', res)),
+      catchError(this.handleError)
+    );
+  }
+
+
+  obtenerVulnerabilidadesPorFecha(data: { dispositivo_id: number, fecha: string }): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlPuertoVulnerabilidad}/listar_por_dispositivo_y_fecha`,
+      data,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+
+  obtenerHistorialFechasPorDispositivo(dispositivoId: number): Observable<any> {
+    const url = `${environment.apiUrl}/puerto_vulnerabilidad/historial_fechas/${dispositivoId}`;
+    return this.http.get<any>(
+      url,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
   generarResumenPorDispositivo(dispositivoId: number): Observable<any> {
     return this.http.get<any>(
       `${this.apiUrlResumenCVEs}/generar_resumen_dispositivo/${dispositivoId}`,
@@ -303,88 +230,68 @@ cancelarEscaneoManual(): Observable<any> {
     ).pipe(catchError(this.handleError));
   }
 
-  /**
- * 📋 Consulta directamente los resúmenes y CVEs de un dispositivo desde la base de datos.
- * @param dispositivoId ID del dispositivo
- * @returns Observable con los datos de resumen y CVEs
- */
-consultarResumenesYCvesPorDispositivo(dispositivoId: number): Observable<any> {
-  const url = `${this.apiUrlVulnerabilidades}/consultar_resumenes_y_cves/${dispositivoId}`;
-  return this.http.get<any>(
-    url,
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
-/**
- * 🛑 Cancela el análisis avanzado en curso.
- * @returns Observable con el mensaje de cancelación
- */
-cancelarAnalisisAvanzado(): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrlEscaneoAvanzado}/cancelar_analisis_avanzado`,
-    {}, // cuerpo vacío
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
+  consultarResumenesYCvesPorDispositivo(dispositivoId: number): Observable<any> {
+    const url = `${this.apiUrlVulnerabilidades}/consultar_resumenes_y_cves/${dispositivoId}`;
+    return this.http.get<any>(
+      url,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+  cancelarAnalisisAvanzado(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEscaneoAvanzado}/cancelar_analisis_avanzado`,
+      {},
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
 
 
-// ===================== EVALUACIÓN INDIVIDUAL DE RIESGO =====================
 
-/**
- * 🚀 Inicia la evaluación de riesgo para un dispositivo específico (por IP y MAC).
- * @param datos Objeto con { ip: string, mac: string }
- */
-evaluarRiesgoDispositivoIndividual(datos: { ip: string, mac: string }): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrlEvaluacionRiesgo}/evaluar_dispositivo`,
-    datos,
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
 
-/**
- * 🔄 Consulta el estado de la evaluación individual: no_iniciado | en_proceso | completado | cancelado | error.
- */
-obtenerEstadoEvaluacionIndividual(): Observable<any> {
-  return this.http.get<any>(
-    `${this.apiUrlEvaluacionRiesgo}/estado_individual`,
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
 
-/**
- * 📋 Obtiene el resultado de la evaluación individual desde Redis.
- */
-obtenerResultadoEvaluacionIndividual(): Observable<any> {
-  return this.http.get<any>(
-    `${this.apiUrlEvaluacionRiesgo}/resultado_individual`,
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
+  evaluarRiesgoDispositivoIndividual(datos: { ip: string, mac: string }): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEvaluacionRiesgo}/evaluar_dispositivo`,
+      datos,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
 
-/**
- * 🛑 Cancela la evaluación de riesgo individual en curso.
- */
-cancelarEvaluacionIndividual(): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrlEvaluacionRiesgo}/cancelar_individual`,
-    {},
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
 
-/**
- * 🧹 Limpia el resultado de la evaluación individual.
- */
-limpiarResultadoEvaluacionIndividual(): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrlEvaluacionRiesgo}/limpiar_individual`,
-    {},
-    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
-  ).pipe(catchError(this.handleError));
-}
+  obtenerEstadoEvaluacionIndividual(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrlEvaluacionRiesgo}/estado_individual`,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
 
-  // ===================== MANEJO DE ERRORES =====================
+  obtenerResultadoEvaluacionIndividual(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrlEvaluacionRiesgo}/resultado_individual`,
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+
+  cancelarEvaluacionIndividual(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEvaluacionRiesgo}/cancelar_individual`,
+      {},
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+
+  limpiarResultadoEvaluacionIndividual(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrlEvaluacionRiesgo}/limpiar_individual`,
+      {},
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    ).pipe(catchError(this.handleError));
+  }
+
+
   private handleError(error: any) {
     console.error('Error en la petición:', error);
     return throwError(() => new Error(error.message || 'Error en el servicio de análisis de vulnerabilidades'));

@@ -1,23 +1,23 @@
 <div>
-    <!-- Contenedor de Tabs -->
-    <div class="flex space-x-2 border-b border-baseGrisClaro">
-        @for(tab of tabs; track tab.route){
-            <button 
-                [routerLink]="tab.route" 
-                (click)="setActiveTab(tab.route)"
-                class="flex items-center px-6 py-3 text-baseAzulOscuro hover:text-baseNaranja transition-all duration-200 rounded-t-lg"
-                [ngClass]="{
-                    'border-b-2 border-baseNaranja font-semibold text-baseNaranja': tab.route === activeTab,
-                    'hover:bg-baseGrisClaro': tab.route !== activeTab
-                }"
-            >
-                <i [class]="tab.icon" class="mr-2"></i>
-                <span>{{ tab.label }}</span>
-            </button>
-        }
-    </div>
+  <div class="flex space-x-2 border-b border-baseGrisClaro">
+    @for(tab of tabs; track tab.route){
+    <button
+      [routerLink]="tab.route"
+      (click)="setActiveTab(tab.route)"
+      class="flex items-center px-6 py-3 text-baseAzulOscuro hover:text-baseNaranja transition-all duration-200 rounded-t-lg"
+      [ngClass]="{
+        'border-b-2 border-baseNaranja font-semibold text-baseNaranja':
+          tab.route === activeTab,
+        'hover:bg-baseGrisClaro': tab.route !== activeTab
+      }"
+    >
+      <i [class]="tab.icon" class="mr-2"></i>
+      <span>{{ tab.label }}</span>
+    </button>
+    }
+  </div>
 
-    <div class="tabs-container  bg-baseBlanco p-3">
-        <router-outlet></router-outlet>
-    </div>
+  <div class="tabs-container bg-baseBlanco p-3">
+    <router-outlet></router-outlet>
+  </div>
 </div>

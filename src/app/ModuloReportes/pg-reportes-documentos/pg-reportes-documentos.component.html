@@ -44,7 +44,7 @@
       'usuario_nombre'
     ]"
   >
-    <!-- CAPTION -->
+
     <ng-template pTemplate="caption">
       <div
         class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2"
@@ -68,7 +68,6 @@
       </div>
     </ng-template>
 
-    <!-- HEADER -->
     <ng-template pTemplate="header">
       <tr class="bg-[#0A2342] text-white text-sm">
         <th
@@ -121,7 +120,7 @@
       </tr>
     </ng-template>
 
-    <!-- BODY -->
+
     <ng-template pTemplate="body" let-reporte>
       <tr class="hover:bg-gray-100 text-sm">
         <td class="px-3 py-2">{{ reporte.nombre_reporte_generado }}</td>
@@ -171,7 +170,7 @@
       </tr>
     </ng-template>
 
-    <!-- MENSAJE VACÍO -->
+
     <ng-template pTemplate="emptymessage">
       <tr>
         <td colspan="6" class="text-center py-6">
@@ -217,7 +216,6 @@
         la red. Comience filtrando los dispositivos según su estado actual:
       </p>
 
-      <!-- Filtro por estado -->
       <div class="flex items-center gap-4 mb-3">
         <div class="flex items-center gap-2">
           <p-radioButton
@@ -255,7 +253,7 @@
         </div>
       </div>
 
-      <!-- Selección de dispositivos -->
+
       <p class="text-sm text-gray-600 mb-2">
         Seleccione uno o varios dispositivos que desea incluir en el reporte:
       </p>
@@ -271,7 +269,7 @@
         name="dispositivos"
       ></p-multiSelect>
 
-      <!-- Campos a incluir -->
+    
       <div class="mt-4 space-y-4">
         <h4 class="text-lg font-semibold text-gray-800 mb-2">
           ¿Qué información desea incluir en el reporte?
@@ -321,7 +319,7 @@
           />
         </div>
 
-        <!-- Subopciones si hay vulnerabilidades -->
+   
         <div *ngIf="filtros.incluirVulnerabilidades" class="space-y-4 ml-4">
           <div class="flex items-center justify-between">
             <span class="flex items-center gap-2">
@@ -374,7 +372,7 @@
         usuarios que desea incluir:
       </p>
 
-      <!-- Filtros por estado -->
+    
       <div class="flex items-center gap-4 mb-3">
         <div class="flex items-center gap-2">
           <p-radioButton
@@ -414,7 +412,7 @@
         </div>
       </div>
 
-      <!-- Selección de usuarios -->
+      
       <p class="text-sm text-gray-600 mb-2">
         Seleccione uno o varios usuarios para incluirlos en el reporte:
       </p>
@@ -431,7 +429,7 @@
       >
       </p-multiSelect>
 
-      <!-- Campos a incluir -->
+
       <div class="mt-4 space-y-4">
         <h4 class="text-lg font-semibold text-gray-800 mb-2">
           ¿Qué información desea incluir en el reporte?
@@ -507,7 +505,6 @@
         en el sistema. Primero, filtre los roles según su estado actual:
       </p>
 
-      <!-- Filtro por estado -->
       <div class="flex items-center gap-4 mb-3">
         <div class="flex items-center gap-2">
           <p-radioButton
@@ -549,7 +546,6 @@
         </div>
       </div>
 
-      <!-- Selección de roles -->
       <p class="text-sm text-gray-600 mb-2">
         Seleccione uno o varios roles para incluirlos en el reporte:
       </p>
@@ -565,7 +561,6 @@
         name="roles"
       ></p-multiSelect>
 
-      <!-- Campos del reporte -->
       <div class="mt-4 space-y-4">
         <h4 class="text-lg font-semibold text-gray-800 mb-2">
           ¿Qué información desea incluir en el reporte?
@@ -623,7 +618,6 @@
         desea consultar:
       </p>
 
-      <!-- Tipo de configuración -->
       <div class="mb-4">
         <p-selectButton
           [options]="opcionesTipoConfiguracion"
@@ -640,7 +634,6 @@
         </p-selectButton>
       </div>
 
-      <!-- Filtro por estado -->
       <p class="text-sm text-gray-600 mb-2">
         Puede filtrar las configuraciones según su estado actual en el sistema:
       </p>
@@ -686,7 +679,6 @@
         </div>
       </div>
 
-      <!-- Selección de configuraciones -->
       <p class="text-sm text-gray-600 mb-2">
         Seleccione una o varias configuraciones que desee incluir en el reporte:
       </p>
@@ -702,7 +694,6 @@
         name="configuraciones"
       ></p-multiSelect>
 
-      <!-- Campos a incluir -->
       <div class="mt-3 space-y-4">
         <h4 class="text-lg font-semibold text-gray-800 mb-2">
           ¿Qué información desea incluir en el reporte?
@@ -727,7 +718,6 @@
           />
         </div>
 
-        <!-- Frecuencia -->
         <div
           class="flex items-center justify-between mb-3"
           *ngIf="
@@ -746,7 +736,6 @@
           />
         </div>
 
-        <!-- Horas -->
         <div
           class="flex items-center justify-between mb-3"
           *ngIf="
@@ -765,7 +754,6 @@
           />
         </div>
 
-        <!-- Fechas -->
         <div class="flex items-center justify-between mb-3">
           <span class="flex items-center gap-2">
             <i class="pi pi-calendar"></i>
@@ -811,7 +799,6 @@
   [closable]="true"
   (onHide)="cerrarModalPrevisualizacion()"
 >
-  <!-- Cambiamos a IFRAME -->
   <iframe
     *ngIf="urlPDF"
     [src]="urlPDF"
@@ -846,19 +833,17 @@
   [modal]="true"
   [closable]="true"
 >
-  <!-- Nombre del documento -->
   <p-iftalabel class="mb-3">
     <input
       pInputText
       id="inputNombreReporte"
       [(ngModel)]="nombreReporteGuardar"
       autocomplete="off"
-       (blur)="limpiarEspaciosTexto('nombre')"
+      (blur)="limpiarEspaciosTexto('nombre')"
     />
     <label for="inputNombreReporte">Nombre del documento generado</label>
   </p-iftalabel>
 
-  <!-- Descripción del documento -->
   <p-iftalabel>
     <textarea
       id="descripcionReporte"

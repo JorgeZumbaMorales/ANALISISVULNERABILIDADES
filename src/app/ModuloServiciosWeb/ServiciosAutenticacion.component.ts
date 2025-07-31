@@ -17,7 +17,7 @@ export class ServiciosAutenticacion {
 
   constructor(private http: HttpClient) { }
 
-  //Valdiar Correo
+
   enviarCodigoVerificacion(datos: { usuario_id: number; email: string; nombre_usuario: string }): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrlVerificacionCorreo}/enviar_codigo`,
@@ -38,7 +38,6 @@ export class ServiciosAutenticacion {
     ).pipe(catchError(this.handleError));
   }
 
-  // ===================== INICIAR SESIÓN =====================
 
   iniciarSesion(credenciales: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrlAuth}/login`, credenciales)
@@ -59,7 +58,7 @@ export class ServiciosAutenticacion {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    // Si tienes un mapa para convertir nombre a rol_id, úsalo. Si no, ajusta según tu backend.
+
     const rolIdMap: any = {
       Administrador: 1,
       Analista: 2,
@@ -82,7 +81,7 @@ export class ServiciosAutenticacion {
       .pipe(catchError(this.handleError));
   }
 
-  // ===================== USUARIOS =====================
+
 
   listarUsuarios(): Observable<any> {
     return this.http.get<any>(`${this.apiUrlUsuarios}/listar_usuarios`)
@@ -133,13 +132,13 @@ export class ServiciosAutenticacion {
   }
 
   actualizarContrasena(datos: { usuario_id: number, nueva_contrasena: string }): Observable<any> {
-    console.log("DATOS", datos);
+
     return this.http.put<any>(`${this.apiUrlUsuarios}/actualizar_contrasena`, datos)
       .pipe(catchError(this.handleError));
   }
 
   solicitarRecuperacion(datos: { usuario?: string; correo?: string }): Observable<any> {
-    console.log("DATOS", datos);
+
     return this.http.post<any>(
       `${this.apiUrlRecuperacion}/solicitar`,
       datos,
@@ -154,7 +153,6 @@ export class ServiciosAutenticacion {
       { usuario, codigo }
     ).pipe(catchError(this.handleError));
   }
-  // ===================== ROLES =====================
 
   listarRoles(): Observable<any> {
     return this.http.get<any>(`${this.apiUrlRoles}/listar_roles`)
@@ -204,20 +202,20 @@ export class ServiciosAutenticacion {
   }
 
 
-  // ===================== MANEJO DE ERRORES =====================
+
   private handleError(error: any): Observable<never> {
     console.error('Error en la petición:', error);
 
     let mensajeError = 'Ocurrió un error inesperado';
 
     if (error.error && error.error.detail) {
-      mensajeError = error.error.detail; // Capturar mensaje del backend
+      mensajeError = error.error.detail;
     } else if (error.error && typeof error.error === 'string') {
-      mensajeError = error.error; // Para errores en texto plano
+      mensajeError = error.error;
     }
 
-    // ✅ Limpiar mensaje eliminando códigos de error innecesarios
-    mensajeError = mensajeError.replace(/.*:\s\d{3}:\s/, ''); // Borra "Error en la base de datos: 400: "
+
+    mensajeError = mensajeError.replace(/.*:\s\d{3}:\s/, '');
 
     return throwError(() => new Error(mensajeError));
   }
@@ -232,8 +230,8 @@ export class ServiciosAutenticacion {
   private handleLoginError(error: any): Observable<never> {
     let mensaje = error?.error?.detail || 'Error desconocido al iniciar sesión.';
 
-    // 🧼 Limpiar mensaje de códigos innecesarios como "400: ..."
-    mensaje = mensaje.replace(/^.*?:\s?\d{3}:\s?/, ''); // borra "Error ...: 400: "
+
+    mensaje = mensaje.replace(/^.*?:\s?\d{3}:\s?/, '');
 
     return throwError(() => ({
       status: error.status,

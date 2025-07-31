@@ -240,7 +240,7 @@
           ></p-dropdown>
         </div>
 
-        <!-- Contenido principal -->
+        
         <div
           *ngIf="datosVulnerabilidades.labels?.length; else sinDatos"
           class="text-sm text-center mt-4 mb-6 text-gray-800"
@@ -261,7 +261,7 @@
               *ngFor="let id of datosVulnerabilidades.originales; let i = index"
               class="w-[300px] min-h-[180px] border border-gray-200 rounded-xl bg-white shadow-sm p-4 flex flex-col justify-between"
             >
-              <!-- Encabezado -->
+              
               <div>
                 <p class="text-base font-semibold text-gray-900 mb-1">
                   Vulnerabilidad {{ i + 1 }}
@@ -303,7 +303,7 @@
           </div>
         </div>
 
-        <!-- Gráfico de barras -->
+        
         <div class="p-4 bg-white mt-6 rounded shadow-sm">
           <p-chart
             type="bar"
@@ -313,7 +313,7 @@
           ></p-chart>
         </div>
 
-        <!-- Sin datos -->
+ 
         <ng-template #sinDatos>
           <div class="text-center text-gray-500 italic text-sm my-6">
             No se han detectado vulnerabilidades en el periodo y límite
@@ -528,7 +528,7 @@
     dataKey="cve_id"
     paginatorDropdownAppendTo="body"
   >
-    <!-- 🧾 Cabecera -->
+
     <ng-template pTemplate="header">
       <tr>
         <th pSortableColumn="cve_id" class="whitespace-nowrap px-2 py-1">
@@ -543,7 +543,7 @@
       </tr>
     </ng-template>
 
-    <!-- 🧬 Cuerpo -->
+
     <ng-template pTemplate="body" let-cve>
       <tr>
         <td class="px-2 py-1">{{ cve.cve_id }}</td>
@@ -562,7 +562,7 @@
       </tr>
     </ng-template>
 
-    <!-- 🈳 Vacío con spinner -->
+
     <ng-template pTemplate="emptymessage">
       <tr>
         <td colspan="3" class="text-center py-6">
@@ -591,14 +591,13 @@
 <p-dialog
   [(visible)]="modalDispositivosVisible"
   [style]="{ width: '70vw' }"
-  header="Lista de Dispositivos Activos"
+  header="Lista de Dispositivos Registrados"
   [dismissableMask]="true"
   [modal]="true"
   [baseZIndex]="10000"
   position="top"
   (onHide)="limpiarBusquedaDispositivos()"
 >
-  <!-- 🔍 Buscador -->
   <div class="flex justify-end mb-3">
     <p-iconfield iconPosition="left" class="w-full sm:w-1/2">
       <p-inputicon>
@@ -615,7 +614,7 @@
     </p-iconfield>
   </div>
 
-  <!-- 📋 Tabla -->
+
   <p-table
     #tablaDispositivos
     class="w-full text-sm"
@@ -658,7 +657,7 @@
       </tr>
     </ng-template>
 
-    <!-- Vacío -->
+
     <ng-template pTemplate="emptymessage">
       <tr>
         <td colspan="3" class="text-center py-6">

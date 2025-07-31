@@ -25,14 +25,14 @@ export class PgDashboardAdministracionComponent implements OnInit {
   ngOnInit(): void {
     const perfil = this.sesionService.obtenerPerfil();
     if (perfil && perfil.roles.length > 0) {
-      this.rolSeleccionado = perfil.roles[0]; // ✅ Obtener rol por defecto
-      this.sesionService.setRolActivo(this.rolSeleccionado); // ✅ Emitirlo desde el inicio
+      this.rolSeleccionado = perfil.roles[0];
+      this.sesionService.setRolActivo(this.rolSeleccionado); 
     }
   }
 
   actualizarMenuPorRol(nuevoRol: string) {
     this.rolSeleccionado = nuevoRol;
-    this.sesionService.setRolActivo(nuevoRol); // ✅ Emitir cada cambio manual
+    this.sesionService.setRolActivo(nuevoRol); 
     this.serviciosAutenticacion.obtenerMenuPorRol(nuevoRol).subscribe({
       next: (secciones) => {
         if (secciones && secciones.length > 0) {

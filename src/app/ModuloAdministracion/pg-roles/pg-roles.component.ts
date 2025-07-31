@@ -170,7 +170,7 @@ export class PgRolesComponent implements OnInit {
               summary: 'Eliminado',
               detail: `Rol "${rol.nombre_rol}" eliminado correctamente.`
             });
-            this.obtenerRoles(); // Recarga la tabla
+            this.obtenerRoles(); 
           },
           error: (error) => {
             this.messageService.add({
@@ -223,7 +223,7 @@ export class PgRolesComponent implements OnInit {
 
       });
     } else {
-      // 🆕 Crear nuevo rol
+
       this.servicioAuth.crearRol(datosRol).subscribe({
         next: () => {
           this.messageService.add({
@@ -271,11 +271,11 @@ export class PgRolesComponent implements OnInit {
 
             this.obtenerRoles();
 
-          
+
             this.servicioAuth.obtenerMiPerfil().subscribe({
               next: (perfilActualizado) => {
-                this.sesionService.guardarPerfil(perfilActualizado);      // Actualiza el perfil
-                this.sesionService.dispararRefrescarRoles();              // Notifica al header
+                this.sesionService.guardarPerfil(perfilActualizado);
+                this.sesionService.dispararRefrescarRoles();
               },
               error: () => {
                 this.messageService.add({

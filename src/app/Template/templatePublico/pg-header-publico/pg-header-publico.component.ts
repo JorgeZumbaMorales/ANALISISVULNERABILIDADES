@@ -12,7 +12,7 @@ import { Button } from 'primeng/button';
 export class PgHeaderPublicoComponent {
   constructor(private router: Router) {}
   navigateToLogin() {
-     console.log('Redirigiendo a login...');
+  
     this.router.navigate(['/public/login']);
   }
   

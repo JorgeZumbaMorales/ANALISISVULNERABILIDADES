@@ -29,21 +29,21 @@ import { ButtonModule } from 'primeng/button';
 export class PgLoginComponent {
   usuario: string = '';
   contrasena: string = '';
-  tiempoRestante: number = 600; // 10 minutos en segundos
+  tiempoRestante: number = 600; 
   cronometroInterval: any = null;
-  // Estado del modal de recuperación
+ 
   modalRecuperacion: boolean = false;
   cargandoVerificacionCorreo: boolean = false;
 
   modalCodigo: boolean = false;
   modalActualizarContrasena: boolean = false;
-  usuarioIdRecuperacion: number = 0; // ID del usuario recuperado
-  indiceRecuperacion: number = 0; // 0 = Usuario, 1 = Correo
+  usuarioIdRecuperacion: number = 0; 
+  indiceRecuperacion: number = 0; 
   usuarioRecuperacion: string = '';
   correoRecuperacion: string = '';
   modalExplicacionVerificacionCorreo: boolean = false;
   cargandoRecuperacion: boolean = false;
-  codigoRecuperacion: string = ''; // Código OTP ingresado
+  codigoRecuperacion: string = ''; 
   nuevaContrasena: string = '';
   confirmarContrasena: string = '';
   modalVerificacionCorreo: boolean = false;
@@ -72,7 +72,7 @@ export class PgLoginComponent {
     this.authService.iniciarSesion(credenciales).subscribe({
       next: (respuesta) => {
         if (respuesta.estado === 'pendiente_verificacion') {
-          // Abrir modal de verificación de correo
+          
           this.usuarioPendienteId = respuesta.usuario_id;
           this.correoPendienteVerificacion = respuesta.email;
           this.modalExplicacionVerificacionCorreo = true;
@@ -108,7 +108,7 @@ export class PgLoginComponent {
     this.router.navigate(['/public']);
   }
 
-  // Abrir modal de recuperación
+
   abrirModalRecuperacion() {
     this.modalRecuperacion = true;
     this.indiceRecuperacion = 0;
@@ -125,13 +125,12 @@ export class PgLoginComponent {
   }
 
   enviarCodigoRecuperacion() {
-    this.limpiarEntradasRecuperacion(); // Eliminar espacios
+    this.limpiarEntradasRecuperacion(); 
 
-    console.log("➡️ Iniciando recuperación de contraseña...");
-    console.log("🔍 Tipo de búsqueda:", this.indiceRecuperacion === 0 ? "Por Usuario" : "Por Correo");
+    
     this.cargandoRecuperacion = true;
 
-    // Validaciones según el tipo
+    
     if (this.indiceRecuperacion === 0) {
       if (!this.usuarioRecuperacion) {
         this.mostrarMensaje('info', 'Campo Vacío', 'Ingrese su nombre de usuario.');
@@ -161,7 +160,7 @@ export class PgLoginComponent {
       }
     }
 
-    // 🔁 Lógica original que faltaba
+  
     let consultaUsuario$: Observable<any>;
     if (this.indiceRecuperacion === 0) {
       consultaUsuario$ = this.authService.buscarUsuarioPorNombre(this.usuarioRecuperacion);
@@ -224,13 +223,13 @@ export class PgLoginComponent {
 
     this.authService.verificarCodigo(this.codigoRecuperacion, this.usuarioRecuperacion).subscribe({
       next: () => {
-        // 🔴 Detener cronómetro si está corriendo
+        
         this.detenerCronometro();
-        // 🔐 Abrir modal de nueva contraseña
+     
         this.modalCodigo = false;
         this.modalActualizarContrasena = true;
 
-        // 🧹 Limpiar campo de código
+       
         this.codigoRecuperacion = '';
       },
       error: () => {
@@ -243,43 +242,43 @@ export class PgLoginComponent {
   actualizarContrasena() {
     const contrasena = this.nuevaContrasena;
 
-    // Validación 1: Mínimo 8 caracteres
+    
     if (contrasena.length < 8) {
       this.mostrarMensaje('info', 'Contraseña Muy Corta', 'La contraseña debe tener al menos 8 caracteres.');
       return;
     }
 
-    // Validación 2: No debe tener espacios
+ 
     if (/\s/.test(contrasena)) {
       this.mostrarMensaje('info', 'Contraseña Inválida', 'La contraseña no debe contener espacios.');
       return;
     }
 
-    // Validación 3: Al menos una letra minúscula
+
     if (!/[a-z]/.test(contrasena)) {
       this.mostrarMensaje('info', 'Contraseña Débil', 'Debe incluir al menos una letra minúscula.');
       return;
     }
 
-    // Validación 4: Al menos una letra mayúscula
+
     if (!/[A-Z]/.test(contrasena)) {
       this.mostrarMensaje('info', 'Contraseña Débil', 'Debe incluir al menos una letra mayúscula.');
       return;
     }
 
-    // Validación 5: Al menos un número
+   
     if (!/[0-9]/.test(contrasena)) {
       this.mostrarMensaje('info', 'Contraseña Débil', 'Debe incluir al menos un número.');
       return;
     }
 
-    // Validación 6: Coincidencia de confirmación
+
     if (contrasena !== this.confirmarContrasena) {
       this.mostrarMensaje('error', 'Contraseñas No Coinciden', 'Las contraseñas ingresadas no coinciden.');
       return;
     }
 
-    // Si pasa todas las validaciones, proceder con el cambio
+    
     this.authService.actualizarContrasena({
       usuario_id: this.usuarioIdRecuperacion,
       nueva_contrasena: contrasena
@@ -316,13 +315,13 @@ export class PgLoginComponent {
     const [usuario, dominio] = email.split("@");
     return usuario.substring(0, 2) + "****@" + dominio;
   }
-  // Valida si un correo tiene formato válido
+
   esCorreoValido(correo: string): boolean {
     const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return correoRegex.test(correo);
   }
 
-  // Elimina espacios innecesarios antes de enviar
+
   limpiarEntradasRecuperacion() {
     this.usuarioRecuperacion = this.usuarioRecuperacion.trim();
     this.correoRecuperacion = this.correoRecuperacion.trim();
@@ -336,10 +335,10 @@ export class PgLoginComponent {
     const nuevoIndice = event.index;
 
     if (nuevoIndice === 0) {
-      // Usuario activo, limpiar correo
+      
       this.correoRecuperacion = '';
     } else if (nuevoIndice === 1) {
-      // Correo activo, limpiar usuario
+      
       this.usuarioRecuperacion = '';
     }
   }
@@ -363,11 +362,10 @@ export class PgLoginComponent {
         setTimeout(() => {
           this.reintentandoVerificacion = true;
           this.iniciarSesion();
-        }, 4000); // 2000 milisegundos = 2 segundos
+        }, 4000); 
 
-        // Reintentar login automáticamente si lo deseas
         this.reintentandoVerificacion = true;
-        this.iniciarSesion();  // reintenta con las mismas credenciales
+        this.iniciarSesion();  
       },
       error: () => {
         this.mostrarMensaje('error', 'Código Incorrecto', 'Verifica tu código e intenta de nuevo.');
@@ -422,7 +420,7 @@ export class PgLoginComponent {
         this.modalVerificacionCorreo = false;
         this.mostrarMensaje('success', 'Correo Verificado', 'Ahora puedes iniciar sesión.');
         this.reintentandoVerificacion = true;
-        this.iniciarSesion(); // Vuelve a intentar login automáticamente
+        this.iniciarSesion(); 
       },
       error: () => {
         this.mostrarMensaje('error', 'Código Incorrecto', 'Verifica tu código e intenta de nuevo.');

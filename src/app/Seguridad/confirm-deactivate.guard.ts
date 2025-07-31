@@ -27,7 +27,7 @@ export class ConfirmDeactivateGuard
     const ok = component.canDeactivate();
 
     if (typeof ok === 'boolean' && !ok) {
-      // envolvemos el diálogo de PrimeNG en una promesa
+      
       return new Promise<boolean>(resolve => {
         this.confirmation.confirm({
           header: 'Cancelar operación',
@@ -51,7 +51,7 @@ export class ConfirmDeactivateGuard
       });
     }
 
-    // ok === true o es Observable/Promise<boolean> (Angular lo esperará)
+    
     return ok;
   }
 }

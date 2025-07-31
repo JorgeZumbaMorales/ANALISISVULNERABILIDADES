@@ -30,7 +30,7 @@ interface ConfiguracionEscaneo {
   fecha_inicio: string;
   fecha_fin?: string;
   horas?: string[];
-  tipo: string; // ← agrega esto
+  tipo: string; 
   unidad_frecuencia?: 'min' | 'hr';
   frecuencia_texto?: string;
 }
@@ -54,7 +54,7 @@ export class PgConfiguracionEscaneosComponent implements OnInit {
   estadoOrdenFrecuencia: { [campo: string]: boolean | null } = {};
   estadoOrdenHoras: { [campo: string]: boolean | null } = {};
   vistaSeleccionada: 'frecuencia' | 'hora' = 'frecuencia';
-  minDate: Date = new Date(); // hoy
+  minDate: Date = new Date(); 
   maxDate: Date = new Date(2030, 11, 31);
   camposHabilitados: boolean = true;
   configuracionAEliminar: ConfiguracionEscaneo | null = null;
@@ -105,7 +105,7 @@ export class PgConfiguracionEscaneosComponent implements OnInit {
 
     servicio.subscribe({
       next: (response) => {
-        console.log(`📦 Respuesta del backend (${tipo}):`, response.data);
+
         const mapped = response.data.map((config: any) => {
           const unidadTexto = config.unidad_frecuencia === 'hr' ? 'horas' : 'minutos';
           const frecuenciaTexto = config.frecuencia_minutos ? `${config.frecuencia_minutos} ${unidadTexto}` : '';
@@ -170,13 +170,13 @@ export class PgConfiguracionEscaneosComponent implements OnInit {
 
     const horaStr = this.formatearHora(this.horaTemporal);
 
-    // Evitar duplicados
+
     if (this.formulario.horas.includes(horaStr)) {
       this.messageService.add({ severity: 'warn', summary: 'Duplicado', detail: 'Esta hora ya fue añadida.' });
       return;
     }
 
-    // Validar diferencia mínima con las ya existentes
+
     const [nuevaHH, nuevaMM, nuevaSS] = horaStr.split(':').map(Number);
     const nuevaMin = nuevaHH * 60 + nuevaMM + Math.floor(nuevaSS / 60);
 
@@ -220,7 +220,7 @@ export class PgConfiguracionEscaneosComponent implements OnInit {
       return;
     }
 
-    // ✅ Validación: no permitir activar si la fecha de fin ya expiró
+
     if (this.formulario.estado && this.formulario.fecha_fin) {
       const hoy = new Date();
       hoy.setHours(0, 0, 0, 0);
@@ -251,7 +251,7 @@ export class PgConfiguracionEscaneosComponent implements OnInit {
         return;
       }
 
-      // ✅ Validación cruzada: frecuencia vs rango de fechas
+
       const errorDuracion = this.validarFrecuenciaVsFechas();
       if (errorDuracion) {
         this.messageService.add({
@@ -317,10 +317,10 @@ export class PgConfiguracionEscaneosComponent implements OnInit {
     if (frecuenciaEnMinutos <= 0) return null;
 
     if (frecuenciaEnMinutos > diferenciaMinutos) {
-      // ✅ Mostramos la frecuencia ingresada con la unidad original
+
       const frecuenciaTexto = `${frecuenciaIngresada} ${unidad === 'min' ? 'minutos' : 'horas'}`;
 
-      // ✅ Mostramos la duración también redondeada en su unidad
+
       const duracionTexto = unidad === 'min'
         ? `${Math.floor(diferenciaMinutos)} minutos`
         : `${Math.floor(diferenciaMinutos / 60)} horas`;
@@ -387,7 +387,7 @@ export class PgConfiguracionEscaneosComponent implements OnInit {
     return this.formulario.estado ? 'Activado' : 'Desactivado';
   }
   editarConfiguracion(config: ConfiguracionEscaneo): void {
-    console.log('📝 Editar configuración:', config);
+
     this.formulario = {
       ...config,
       id: config.id,
@@ -401,7 +401,7 @@ export class PgConfiguracionEscaneosComponent implements OnInit {
       estado: config.estado
     };
     this.unidadFrecuencia = config.unidad_frecuencia || 'min';
-    console.log('⚙️ Unidad frecuencia en edición:', this.unidadFrecuencia);
+
     this.tabSeleccionada = this.formulario.tipo_escaneo_id === 1 ? 0 : 1;
     this.camposHabilitados = this.formulario.estado;
     this.ajustarMinDateParaFechas(this.formulario.fecha_inicio, this.formulario.fecha_fin);
@@ -526,7 +526,7 @@ export class PgConfiguracionEscaneosComponent implements OnInit {
     const campo = evento.field;
     const estadoOrden = tipo === 'frecuencia' ? this.estadoOrdenFrecuencia : this.estadoOrdenHoras;
     if (estadoOrden[campo] == null || estadoOrden[campo] === undefined) {
-      estadoOrden[campo] = true; // ascendente
+      estadoOrden[campo] = true; 
     } else if (estadoOrden[campo] === true) {
       estadoOrden[campo] = false;
     } else {

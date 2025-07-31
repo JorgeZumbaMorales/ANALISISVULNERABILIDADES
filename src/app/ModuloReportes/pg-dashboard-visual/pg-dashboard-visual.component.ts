@@ -55,7 +55,7 @@ export class PgDashboardVisualComponent {
   limiteVulnerabilidades: number = 5;
   limiteDispositivosCVEs: number = 5;
   modalCVEsVisible: boolean = false;
-  coloresRiesgo = ['#ef4444', '#f59e0b', '#10b981', '#9ca3af']; // Alto, Medio, Bajo, Sin Riesgo
+  coloresRiesgo = ['#ef4444', '#f59e0b', '#10b981', '#9ca3af']; 
   @ViewChild('inputDispositivos') inputDispositivos!: ElementRef;
   @ViewChild('inputCVEs') inputCVEs!: ElementRef;
   @ViewChild('inputPuertos') inputPuertos!: ElementRef;
@@ -191,7 +191,7 @@ export class PgDashboardVisualComponent {
           }
         ],
         urls: res.urls,
-        originales: res.labels // para mostrar en la descripción superior
+        originales: res.labels
       };
     });
 
@@ -200,7 +200,7 @@ export class PgDashboardVisualComponent {
     this.serviciosDashboard
       .obtenerDispositivosConMasCVEs(this.limiteDispositivosCVEs, this.filtroDispositivosCVEs)
       .subscribe((res) => {
-        // Usamos IP como label para el gráfico
+
         const labels = res.dispositivos.map((d: any, i: number) => `Dispositivo ${i + 1} - ${d.ultima_ip}`);
 
 
@@ -312,7 +312,7 @@ export class PgDashboardVisualComponent {
         legend: {
           position: 'bottom',
           labels: {
-            color: '#374151', // texto gris oscuro (Tailwind gray-700)
+            color: '#374151', 
             font: {
               size: 13,
               weight: '500'
@@ -339,7 +339,7 @@ export class PgDashboardVisualComponent {
         animateRotate: true,
         animateScale: true
       },
-      cutout: '60%' // dona con centro más limpio (opcional)
+      cutout: '60%' 
     };
   }
 
@@ -365,7 +365,7 @@ export class PgDashboardVisualComponent {
     if (this.inputDispositivos) {
       this.inputDispositivos.nativeElement.value = '';
     }
-    this.tablaDispositivos?.clear(); // Limpia filtros aplicados
+    this.tablaDispositivos?.clear(); 
   }
 
   limpiarBusquedaCVEs() {

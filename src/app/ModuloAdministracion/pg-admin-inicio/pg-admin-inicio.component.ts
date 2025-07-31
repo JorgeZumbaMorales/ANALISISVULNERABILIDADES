@@ -39,7 +39,7 @@ export class PgAdminInicioComponent implements OnInit, OnDestroy {
         next: res => {
           const todas = res.filter((s: any) => s.nombre_seccion?.toLowerCase() !== 'inicio');
           this.seccionesTarjetas = todas.map((s: any) => {
-            // Genera aquí la descripción extendida según el nombre
+           
             let descripcionExtendida = '';
             const clave = s.nombre_seccion?.trim().toLowerCase();
             switch (clave) {

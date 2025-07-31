@@ -5,7 +5,7 @@
     </div>
 
     <div class="flex items-center space-x-4">
-      <!-- Notificaciones -->
+  
       <div class="relative flex items-center">
         <i
           class="pi pi-bell text-xl cursor-pointer text-white hover:text-baseNaranja transition duration-150"
@@ -33,7 +33,7 @@
         [style]="{ width: '270px' }"
       >
         <div class="space-y-2 max-h-[300px] overflow-auto">
-          <!-- Nuevas -->
+
           <div
             *ngFor="let noti of notificaciones"
             class="p-2 border-b border-gray-200 text-sm text-black font-semibold"
@@ -42,7 +42,7 @@
             {{ noti.mensaje_notificacion }}
           </div>
 
-          <!-- Historial -->
+  
           <div *ngIf="historialNotificaciones.length > 0">
             <div class="text-xs font-bold text-gray-500 px-2 mt-2">
               Últimas notificaciones
@@ -56,7 +56,7 @@
             </div>
           </div>
 
-          <!-- Si no hay nada -->
+  
           <div
             *ngIf="
               notificaciones.length === 0 &&
@@ -70,7 +70,6 @@
         </div>
       </p-overlayPanel>
 
-      <!-- Selector de Roles limpio -->
       <div class="text-white text-sm flex items-center space-x-1">
         <p-iftalabel class="w-44">
           <p-dropdown
@@ -86,12 +85,12 @@
             [panelStyle]="{ background: 'white', color: 'black' }"
             [dropdownIcon]="'pi pi-chevron-down text-white ml-2'"
           >
-            <!-- Mostrar ítem seleccionado -->
+      
             <ng-template let-selected pTemplate="selectedItem">
               <span class="text-white">{{ selected?.label }}</span>
             </ng-template>
 
-            <!-- Estilo para cada opción -->
+       
             <ng-template let-option pTemplate="item">
               <span
                 class="block px-2 py-1 text-black"
@@ -109,7 +108,7 @@
         </p-iftalabel>
       </div>
 
-      <!-- Menú de perfil -->
+  
       <p-menu
         #menu
         [popup]="true"
@@ -117,7 +116,7 @@
         class="bg-white text-sm text-textoPrincipal shadow-md rounded-md"
       ></p-menu>
 
-      <!-- Botón de usuario -->
+    
       <button
         pButton
         type="button"
@@ -148,7 +147,7 @@
         background-image: radial-gradient(circle at top left, #fc4b08, #0a2342);
       "
     >
-      <!-- Avatar + Nombre -->
+      
       <div class="flex flex-col items-center space-y-2">
         <p-avatar
           [label]="nombresCompletos.charAt(0)"
@@ -161,7 +160,7 @@
         </h2>
       </div>
 
-      <!-- Usuario y correo -->
+
       <div class="flex flex-col items-center gap-2 text-white/90 text-sm mt-2">
         <div class="flex items-center gap-2">
           <i class="pi pi-user"></i>
@@ -182,7 +181,7 @@
         ></p-button>
       </div>
 
-      <!-- Botón -->
+  
       <div class="pt-4">
         <p-button
           label="Cerrar"
